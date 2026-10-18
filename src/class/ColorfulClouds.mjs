@@ -1,11 +1,14 @@
+// Modified by hhhoratioxu, 2026-10-19: bounded request coalescing and short-lived response caching.
 import { Console, fetch, Lodash as _ } from "@nsnanocat/util";
+import ProviderRequestCache from "./ProviderRequestCache.mjs";
 import Weather from "./Weather.mjs";
 import AirQuality from "./AirQuality.mjs";
 import ForecastNextHour from "./ForecastNextHour.mjs";
 import providerNameToLogo from "../function/providerNameToLogo.mjs";
 
 export default class ColorfulClouds {
-    constructor(parameters, token) {
+    constructor(parameters, token, requestCache = new ProviderRequestCache()) {
+        this.#requests = requestCache;
         this.Name = "ColorfulClouds";
         this.Version = "4.3.0";
         Console.log(`🟧 ${this.Name} v${this.Version}`);
@@ -27,8 +30,23 @@ export default class ColorfulClouds {
 
     #cache = {
         alert: {},
-        realtime: {},
     };
+    #requests;
+
+    #Fetch(request) {
+        const product = new URL(request.url).pathname.split("/").at(-1);
+        return this.#requests.fetch(typeof $loon === "string" ? { ...request, timeout: request.timeout ?? 5000 } : request, {
+            fetcher: fetch,
+            partition: [this.Name, this.version, this.language, this.country],
+            product,
+            maximumTTLSeconds: product === "minutely" ? 30 : 300,
+            validate: body => {
+                if (product === "location") return !body?.error && Array.isArray(body?.alerts);
+                const result = body?.result;
+                return body?.status === "ok" && result?.[product]?.status === "ok" && (product !== "realtime" || !result.alert || result.alert.status === "ok");
+            },
+        });
+    }
 
     #Config = {
         Language: {
@@ -208,23 +226,18 @@ export default class ColorfulClouds {
 
     async #RealTime() {
         Console.info("☑️ RealTime");
-
-        if (this.#cache.realtime?.result?.realtime?.status === "ok") {
-            Console.info("✅ RealTime", "Using cache");
-            return this.#cache.realtime;
-        }
+        this.#cache.alert = {};
 
         const request = {
             url: `${this.endpoint}/realtime?lang=${this.language}&alert=true`,
             headers: this.headers,
         };
         try {
-            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.status) {
                 case "ok": {
                     switch (body?.result?.realtime?.status) {
                         case "ok": {
-                            this.#cache.realtime = body;
                             break;
                         }
                         case "error":
@@ -270,7 +283,7 @@ export default class ColorfulClouds {
         };
         let forecastNextHour;
         try {
-            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.status) {
                 case "ok":
                     switch (body?.result?.minutely?.status) {
@@ -396,7 +409,7 @@ export default class ColorfulClouds {
         };
         let weatherAlerts = failedWeatherAlerts;
         try {
-            const response = await fetch(request);
+            const response = await this.#Fetch(request);
             const body = JSON.parse(response?.body ?? "{}");
             if (response?.ok === false) {
                 Console.warn("WeatherAlertV3CAP", `upstreamStatus: ${response.statusCode ?? response.status}`);
@@ -420,7 +433,7 @@ export default class ColorfulClouds {
         };
         if (begin) request.url += `&begin=${begin}`;
         try {
-            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.status) {
                 case "ok":
                     switch (body?.result?.hourly?.status) {
@@ -456,7 +469,7 @@ export default class ColorfulClouds {
         if (begin) request.url += `&begin=${begin}`;
         let forecastDaily;
         try {
-            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.status) {
                 case "ok":
                     switch (body?.result?.daily?.status) {

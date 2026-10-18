@@ -50,7 +50,10 @@
         "build:args": "npm-run-all --serial build:release-args build:full-args",
         "dts": "arguments-builder dts -c arguments-builder.full.config.ts",
         "submodule": "git submodule update --remote",
-        "update": "npm update --save"
+        "update": "npm update --save",
+        "test:cache": "node --test tests/providerRequestCache.test.mjs tests/waqiRequestCache.test.mjs tests/providerCacheBundle.test.mjs",
+        "test": "node --test tests/*.test.mjs",
+        "build:loon-cache": "npm run build && node scripts/build-loon-cache.mjs"
     },
     "browserslist": [
         "iOS >= 18"
@@ -67,6 +70,7 @@
         "typescript": "^5.9.3"
     },
     "dependencies": {
+        "@noble/hashes": "1.8.0",
         "@nsnanocat/util": "^2.7.4",
         "@nsnanocat/flatbuffer-root": "^1.0.0",
         "@nsringo/weatherkit": "^1.1.2",
@@ -79,5 +83,6 @@
         "@iringo/surge2egern": {
             "puppeteer": "25.7.0"
         }
-    }
+    },
+    "version": "3.3.2-cache.1"
 }

@@ -1,9 +1,11 @@
+// Modified by hhhoratioxu, 2026-10-19: share one bounded provider cache per response.
 import { Console, Storage } from "@nsnanocat/util";
 import * as flatbuffers from "flatbuffers";
 import AirQuality from "../class/AirQuality.mjs";
 import ColorfulClouds from "../class/ColorfulClouds.mjs";
 import MatchEnum from "../class/MatchEnum.mjs";
 import QWeather from "../class/QWeather.mjs";
+import ProviderRequestCache from "../class/ProviderRequestCache.mjs";
 import WAQI from "../class/WAQI.mjs";
 import Weather from "../class/Weather.mjs";
 import WeatherAlerts from "../class/WeatherAlerts.mjs";
@@ -111,10 +113,11 @@ export async function Response($request, $response) {
                                 if (Settings?.LogLevel === "DEBUG" || Settings?.LogLevel === "ALL") {
                                     await matchEnum.init();
                                 }
+                                const requestCache = new ProviderRequestCache({ ttlSeconds: Settings?.RequestCache?.TTL });
                                 const enviroments = {
-                                    colorfulClouds: new ColorfulClouds(providerParameters, Settings?.API?.ColorfulClouds?.Token || "Y2FpeXVuX25vdGlmeQ=="),
-                                    qWeather: new QWeather(providerParameters, Settings?.API?.QWeather?.Token || "bdd98ec1d87747f3a2e8b1741a5af796", Settings?.API?.QWeather?.Host),
-                                    waqi: new WAQI(parameters, Settings?.API?.WAQI?.Token),
+                                    colorfulClouds: new ColorfulClouds(providerParameters, Settings?.API?.ColorfulClouds?.Token || "Y2FpeXVuX25vdGlmeQ==", requestCache),
+                                    qWeather: new QWeather(providerParameters, Settings?.API?.QWeather?.Token || "bdd98ec1d87747f3a2e8b1741a5af796", Settings?.API?.QWeather?.Host, requestCache),
+                                    waqi: new WAQI(parameters, Settings?.API?.WAQI?.Token, requestCache),
                                     country: parameters.country,
                                 };
 

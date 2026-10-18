@@ -1,5 +1,6 @@
+// Modified by hhhoratioxu, 2026-10-19: expose provider response cache lifetime.
 import { defineConfig } from "@iringo/arguments-builder";
-import { airQualityFull, api, calculateFull, dataSetsFull, logLevel, nextHourFull, storage, weatherAlerts, weatherFull } from "./arguments-builder.full.config";
+import { requestCache, airQualityFull, api, calculateFull, dataSetsFull, logLevel, nextHourFull, storage, weatherAlerts, weatherFull } from "./arguments-builder.full.config";
 
 export default defineConfig({
     output: {
@@ -26,5 +27,5 @@ export default defineConfig({
             scope: "@iRingo.WeatherKit.Settings",
         },
     },
-    args: [...dataSetsFull, ...weatherFull, ...weatherAlerts, ...nextHourFull, ...airQualityFull, ...calculateFull, ...api, ...storage, ...logLevel],
+    args: [...requestCache, ...dataSetsFull, ...weatherFull, ...weatherAlerts, ...nextHourFull, ...airQualityFull, ...calculateFull, ...api, ...storage, ...logLevel],
 });

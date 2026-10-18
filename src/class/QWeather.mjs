@@ -1,4 +1,6 @@
+// Modified by hhhoratioxu, 2026-10-19: bounded request coalescing and short-lived response caching.
 import { Lodash as _, Console, fetch, time } from "@nsnanocat/util";
+import ProviderRequestCache from "./ProviderRequestCache.mjs";
 import AirQuality from "../class/AirQuality.mjs";
 import providerNameToLogo from "../function/providerNameToLogo.mjs";
 import ForecastNextHour from "./ForecastNextHour.mjs";
@@ -7,7 +9,8 @@ import Weather from "./Weather.mjs";
 export default class QWeather {
     static #MaximumWeatherAlertPageSize = 2 * 1024 * 1024;
 
-    constructor(parameters, token, host = "devapi.qweather.com") {
+    constructor(parameters, token, host = "devapi.qweather.com", requestCache = new ProviderRequestCache()) {
+        this.#requests = requestCache;
         this.Name = "QWeather";
         this.Version = "5.3.1";
         Console.log(`🟧 ${this.Name} v${this.Version}`);
@@ -26,9 +29,30 @@ export default class QWeather {
         this.weatherKitLanguage = String(parameters.weatherKitLanguage ?? parameters.language ?? "").trim() || "zh-CN";
     }
 
-    #cache = {
-        airQualityCurrent: {},
-    };
+    #requests;
+
+    #Fetch(request) {
+        const path = new URL(request.url).pathname;
+        return this.#requests.fetch(typeof $loon === "string" ? { ...request, timeout: request.timeout ?? 5000 } : request, {
+            fetcher: fetch,
+            partition: [this.Name, this.version, this.language, this.country],
+            product: path,
+            maximumTTLSeconds: path.includes("/minutely/") ? 30 : 300,
+            validate: body => {
+                if (body?.error) return false;
+                if (path.startsWith("/weatheralert/")) return Boolean(body?.metadata) && Array.isArray(body?.alerts);
+                if (path.startsWith("/airquality/")) return Boolean(body?.metadata?.tag);
+                if (body?.code !== "200") return false;
+                if (path.startsWith("/geo/")) return Array.isArray(body.location) && body.location.length > 0;
+                if (path.includes("/minutely/")) return Array.isArray(body.minutely) && body.minutely.length > 0;
+                if (path.endsWith("/historical/air")) return Array.isArray(body.airHourly) && body.airHourly.length > 0;
+                if (path.endsWith("/now")) return Boolean(body.now && typeof body.now === "object");
+                if (/\/weather\/\d+h$/.test(path)) return Array.isArray(body.hourly) && body.hourly.length > 0;
+                if (/\/weather\/\d+d$/.test(path)) return Array.isArray(body.daily) && body.daily.length > 0;
+                return false;
+            },
+        });
+    }
 
     #Config = {
         Language: {
@@ -375,7 +399,7 @@ export default class QWeather {
         };
         let metadata;
         try {
-            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.code) {
                 case "200":
                     metadata = {
@@ -423,7 +447,7 @@ export default class QWeather {
         };
         let weatherAlerts = failedWeatherAlerts;
         try {
-            const response = await fetch(request);
+            const response = await this.#Fetch(request);
             const body = JSON.parse(response?.body ?? "{}");
             if (response?.ok === false) {
                 Console.warn("WeatherAlert", `upstreamStatus: ${response.statusCode ?? response.status}`);
@@ -480,7 +504,7 @@ export default class QWeather {
         };
         let currentWeather;
         try {
-            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.code) {
                 case "200": {
                     const timeStamp = (Date.now() / 1000) | 0;
@@ -540,7 +564,7 @@ export default class QWeather {
         };
         let airQuality;
         try {
-            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.code) {
                 case "200": {
                     const timeStamp = (Date.now() / 1000) | 0;
@@ -592,20 +616,14 @@ export default class QWeather {
     async #AirQualityCurrent() {
         Console.info("☑️ AirQualityCurrent");
 
-        if (this.#cache.airQualityCurrent?.metadata?.tag && !this.#cache.airQualityCurrent?.error) {
-            Console.info("✅ AirQualityCurrent", "Using cache");
-            return this.#cache.airQualityCurrent;
-        }
-
         const request = {
             url: `${this.endpoint}/airquality/v1/current/${this.latitude}/${this.longitude}`,
             headers: this.headers,
         };
         try {
-            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.error) {
                 case undefined: {
-                    this.#cache.airQualityCurrent = body;
                     return body;
                 }
                 default:
@@ -634,7 +652,7 @@ export default class QWeather {
         };
         let forecastNextHour;
         try {
-            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.code) {
                 case "200": {
                     const timeStamp = (Date.now() / 1000) | 0;
@@ -711,7 +729,7 @@ export default class QWeather {
         };
         let forecastHourly;
         try {
-            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.code) {
                 case "200": {
                     const timeStamp = (Date.now() / 1000) | 0;
@@ -790,7 +808,7 @@ export default class QWeather {
         };
         let forecastDaily;
         try {
-            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.code) {
                 case "200": {
                     const timeStamp = (Date.now() / 1000) | 0;
@@ -934,7 +952,7 @@ export default class QWeather {
             headers: this.headers,
         };
         try {
-            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.code) {
                 case "200": {
                     return body;
