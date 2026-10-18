@@ -4,5 +4,5 @@ import { requestCache, airQuality, api, calculate, dataSets, logLevel, nextHour,
 
 export default defineConfig({
     output: output,
-    args: [...requestCache, ...dataSets, ...weather, ...weatherAlerts, ...nextHour, ...airQuality, ...calculate, ...api, ...storage, ...logLevel],
+    args: [...dataSets, ...weather, ...weatherAlerts, ...nextHour, ...airQuality, ...calculate, ...api, ...storage, ...logLevel, ...requestCache],
 });

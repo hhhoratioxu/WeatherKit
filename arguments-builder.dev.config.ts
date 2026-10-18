@@ -27,5 +27,5 @@ export default defineConfig({
             scope: "@iRingo.WeatherKit.Settings",
         },
     },
-    args: [...requestCache, ...dataSetsFull, ...weatherFull, ...weatherAlerts, ...nextHourFull, ...airQualityFull, ...calculateFull, ...api, ...storage, ...logLevel],
+    args: [...dataSetsFull, ...weatherFull, ...weatherAlerts, ...nextHourFull, ...airQualityFull, ...calculateFull, ...api, ...storage, ...logLevel, ...requestCache],
 });

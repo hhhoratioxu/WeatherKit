@@ -36,6 +36,14 @@ Loon JSON 网络请求沿用官方毫秒单位，明确使用 5,000 ms 原生超
 
 源代码和模拟测试、CI 构建、发布文件字节校验、真实设备导入及 VPN 连续运行是不同验证层次。发布说明应分别记录结果。
 
+### 2026-10-19 本次验证记录
+
+- 34 项缓存与适配器/浏览器 bundle 测试通过；12 项已有模块与参数合同测试通过，共 46 项定向测试，0 失败。
+- 真实 WAQI 类在模拟 Loon 原生网络回调下进行对照：上游六个并发消费者发出六次请求，优化版发出一次；同一实例的下一批六个消费者，上游仍发出六次请求，优化版在有效期内不发请求。对照直接构建上游 `c40e8f8a13c8304a7ef500cb74acc5948af14b3f` 的 WAQI 类，网络响应均为测试夹具。
+- 可用 `node scripts/measure-cache-requests.mjs` 复现，结果及源码 SHA-256 保存在 [cache-request-measurements.json](cache-request-measurements.json)。这是请求次数验证，不是实际天气接口延迟、耗电或 VPN 稳定性测量。
+- 缓存核心使用现有 Rollup resolver 也不包含 Node 原生模块；模拟 Loon 浏览器 bundle 在没有 Node、WebCrypto、TextEncoder 的上下文中通过。Loon 参数文件生成成功，新增 TTL 为 String input，并保留五条原有 Script 的匹配范围。
+- 完整依赖安装被 GitHub Packages 拒绝，返回缺少所需 scope 的 HTTP 403；缺失的依赖是 `@nsringo/weatherkit@1.1.2`。完整 Rollup 构建因此失败。新增彩云/和风适配器集成测试、全量 FlatBuffer 回归及完整 Loon 脚本仍待该依赖可用后执行；没有发布可导入的完整插件。
+
 ## Loon 官方资料核对
 
 核对日期：2026-10-19。新增运行时能力依据 [Script API](https://nsloon.app/docs/Script/script_api/) 的本地存储、HTTP Client、完成回调规定；参数类型依据 [插件文档](https://nsloon.app/docs/Plugin/)。保留上游旧 Script 输入语法，依据 [Script 文档](https://nsloon.app/docs/Script/script_v2/) 的输入兼容规定，不增加新的运行时最低版本要求。

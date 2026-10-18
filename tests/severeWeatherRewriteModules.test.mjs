@@ -1,3 +1,4 @@
+// Modified by hhhoratioxu, 2026-10-19: retain existing argument ordering and include the cache setting.
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -293,7 +294,7 @@ test("WeatherAlert provider settings expose web and user API choices", async () 
     assert.match(release, /import \{[^}]*airQuality[^}]*\} from "\.\/arguments-builder\.full\.config"/);
     assert.match(release, /args: \[\.\.\.dataSets,[^\]]*\.\.\.weatherAlerts,[^\]]*\.\.\.airQuality/);
     assert.match(dev, /import \{[^}]*airQualityFull[^}]*dataSetsFull[^}]*weatherFull[^}]*\} from "\.\/arguments-builder\.full\.config"/);
-    assert.match(dev, /args: \[\.\.\.dataSetsFull, \.\.\.weatherFull, \.\.\.weatherAlerts, \.\.\.nextHourFull, \.\.\.airQualityFull, \.\.\.calculateFull, \.\.\.api, \.\.\.storage, \.\.\.logLevel\]/);
+    assert.match(dev, /args: \[\.\.\.dataSetsFull, \.\.\.weatherFull, \.\.\.weatherAlerts, \.\.\.nextHourFull, \.\.\.airQualityFull, \.\.\.calculateFull, \.\.\.api, \.\.\.storage, \.\.\.logLevel, \.\.\.requestCache\]/);
     assert.match(database, /WeatherAlerts: \{ Provider: "QWeatherWeb" \}/);
     assert.match(types, /WeatherAlerts\?: \{[\s\S]*Provider\?: "WeatherKit" \| "QWeatherWeb" \| "QWeather" \| "ColorfulClouds"/);
     assert.match(boxjs, /@iRingo\.WeatherKit\.Settings\.WeatherAlerts\.Provider[\s\S]*"val":\s*"QWeatherWeb"[\s\S]*"key":\s*"WeatherKit"/);

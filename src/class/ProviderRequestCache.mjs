@@ -15,7 +15,7 @@ export const REQUEST_CACHE_LIMITS = Object.freeze({
 export const REQUEST_CACHE_KEY = "WeatherKit.ProviderResponses.v1";
 
 export function requestCacheTTL(value = 60) {
-    if ((typeof value !== "number" && typeof value !== "string") || value === "" || !Number.isFinite(Number(value)) || Number(value) < 0) return 60;
+    if ((typeof value !== "number" && typeof value !== "string") || (typeof value === "string" && value.trim() === "") || !Number.isFinite(Number(value)) || Number(value) < 0) return 60;
     return Math.min(REQUEST_CACHE_LIMITS.maximumTTLSeconds, Number(value));
 }
 
@@ -65,7 +65,7 @@ export default class ProviderRequestCache {
     async fetch(request, { fetcher, partition = [], product = "", maximumTTLSeconds = 300, validate } = {}) {
         if (typeof fetcher !== "function") throw new TypeError("Provider cache requires a fetch function");
         const method = String(request.method ?? "GET").toUpperCase();
-        if (method !== "GET" || request.body !== undefined) return fetcher(request);
+        if (method !== "GET" || request.body !== undefined || request.bodyBytes !== undefined) return fetcher(request);
         const ttl = Math.min(this.#ttl, requestCacheTTL(maximumTTLSeconds));
         const key = this.#key(request, partition, product);
         if (key && ttl > 0) {

@@ -293,8 +293,17 @@ test("pending-queue overflow fails without starting an extra native request", as
 });
 
 test("TTL input is bounded and invalid input falls back to 60 seconds", () => {
-    for (const value of [undefined, null, false, {}, "invalid", -1, Number.POSITIVE_INFINITY, ""]) assert.equal(requestCacheTTL(value), 60);
+    for (const value of [undefined, null, false, {}, "invalid", -1, Number.POSITIVE_INFINITY, "", "   "]) assert.equal(requestCacheTTL(value), 60);
     assert.equal(requestCacheTTL(0), 0);
     assert.equal(requestCacheTTL("30"), 30);
     assert.equal(requestCacheTTL(1000), 300);
+});
+
+test("requests with a method or a body that is not a read-only GET bypass the cache", async () => {
+    for (const extra of [{ method: "POST" }, { body: "payload" }, { bodyBytes: new Uint8Array([1]) }]) {
+        const state = setup();
+        await Promise.all([state.fetch({ ...request, ...extra }), state.fetch({ ...request, ...extra })]);
+        assert.equal(state.calls(), 2);
+        assert.equal(state.store.value(), undefined);
+    }
 });
