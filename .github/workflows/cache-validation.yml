@@ -1,0 +1,45 @@
+name: Cache optimization validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/request-cache]
+    paths:
+      - src/**
+      - tests/**
+      - scripts/**
+      - package.json
+      - package-lock.json
+      - arguments-builder.*.config.ts
+      - template/loon.handlebars
+      - .github/workflows/cache-validation.yml
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+      - name: Run all regression tests
+        run: npm test
+      - name: Build native Loon scripts and plugin
+        run: npm run build:loon-cache
+      - uses: actions/upload-artifact@v4
+        with:
+          name: weatherkit-loon-cache
+          path: Loon/script/
+          if-no-files-found: error
