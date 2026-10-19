@@ -24,6 +24,6 @@
 
 ## 构建与验证
 
-版本 `3.3.2-cache.5` 在本地 macOS arm64、Node v24.19.0 与本地实际安装依赖完成 212 项回归测试、16 个实际压缩脚本场景和 11 个原生表达式／路由／jq 检查，全部通过。发布文件来自本地构建，10 个直接依赖版本与源码锁文件一致，但部分传递依赖不同，完整清单见 [本地构建依赖审计](docs/local-build-dependencies.json)。[GitHub CI](https://github.com/hhhoratioxu/WeatherKit/actions/runs/39280821737) 在发布前核对时仍为 `queued`，未使用 CI 产物，不将排队算作通过。最终结果、来源提交与 SHA-256 见 [构建验证记录](docs/loon-build-validation.json) 和发布文件 `build-provenance.json`；构建时自动校验三个完整脚本的模拟 Loon 行为，并检查实际生成的导入规则。原生规则检查未调用真实 Loon 配置解析器。真实 iPhone 导入、天气显示、耗电、延迟和 VPN 连续运行仍待设备验证。
+版本 `3.3.2-cache.5` 在本地 macOS arm64、Node v24.19.0 与本地实际安装依赖完成 212 项回归测试、16 个实际压缩脚本场景和 11 个原生表达式／路由／jq 检查，全部通过。发布文件来自本地构建，10 个直接依赖版本与源码锁文件一致，但部分传递依赖不同，完整清单见 [本地构建依赖审计](docs/local-build-dependencies.json)。[GitHub CI](https://github.com/hhhoratioxu/WeatherKit/actions/runs/39280821737) 在发布前核对时仍为 `queued`，未使用 CI 产物。随后同一源码的 CI 已通过 212 项回归、16 个编译产物场景及 11 个原生规则检查；已下载复核 CI 产物，发布附件仍保持为本地版本，依赖差异说明保留。最终结果、来源提交与 SHA-256 见 [构建验证记录](docs/loon-build-validation.json) 和发布文件 `build-provenance.json`；构建时自动校验三个完整脚本的模拟 Loon 行为，并检查实际生成的导入规则。原生规则检查未调用真实 Loon 配置解析器。真实 iPhone 导入、天气显示、耗电、延迟和 VPN 连续运行仍待设备验证。
 
 仓库的 CI 流程配置为使用 Actions 自带的临时 `GITHUB_TOKEN`，仅声明 `contents: read` 与 `packages: read`；无需为安装插件创建或提交个人 Token。下载依赖时读取上游的原始 `@nsringo/weatherkit@1.1.2`。历史第一版设计与模拟请求数对比见 [请求缓存说明](docs/request-cache.md)。
