@@ -10,7 +10,7 @@ export default class WAQI {
         this.#requests = requestCache;
         this.Name = "WAQI";
         this.Version = "1.4.3";
-        Console.log(`🟧 ${this.Name} v${this.Version}`);
+        Console.info(`🟧 ${this.Name} v${this.Version}`);
         this.headers = { Accept: "application/json" };
         this.token = token;
         this.version = parameters.version;

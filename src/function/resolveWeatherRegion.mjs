@@ -1,10 +1,11 @@
 // Copyright 2026 hhhoratioxu. SPDX-License-Identifier: Apache-2.0
-import regions from "../data/providerRegions.mjs";
+
 import { fingerprint } from "../class/ProviderRequestCache.mjs";
+import getProviderRegions from "../data/providerRegions.mjs";
 export const REGION_HINT_KEY = "WeatherKit.RegionHints.v1";
 let polygonBounds;
 function getPolygons() {
-    return (polygonBounds ??= Object.entries(regions).flatMap(([country, polygons]) => polygons.map(rings => ({ country, rings, bounds: rings[0].reduce((box, [x, y]) => [Math.min(box[0], x), Math.min(box[1], y), Math.max(box[2], x), Math.max(box[3], y)], [180, 90, -180, -90]) }))));
+    return (polygonBounds ??= Object.entries(getProviderRegions()).flatMap(([country, polygons]) => polygons.map(rings => ({ country, rings, bounds: rings[0].reduce((box, [x, y]) => [Math.min(box[0], x), Math.min(box[1], y), Math.max(box[2], x), Math.max(box[3], y)], [180, 90, -180, -90]) }))));
 }
 function distanceSquared(x, y, a, b) {
     const dx = b[0] - a[0],
@@ -54,6 +55,8 @@ export default function resolveWeatherRegion({ latitude, longitude, explicitCoun
         }
     } catch {}
     if (explicit) {
+        // Re-confirm stable coordinates at most hourly, not on every weather refresh.
+        if (entries.some(entry => entry.key === key && entry.country === explicit && timestamp - entry.at < 3600000)) return explicit;
         try {
             store?.write(JSON.stringify({ version: 1, entries: [{ key, country: explicit, at: timestamp }, ...entries.filter(e => e.key !== key)].slice(0, 32) }));
         } catch {}

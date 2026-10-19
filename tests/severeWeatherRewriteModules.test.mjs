@@ -91,8 +91,8 @@ test("script module templates hook Apple weatherAlerts without QWeather page red
     const templates = ["surge.handlebars", "loon.handlebars", "quantumultx.handlebars", "stash.handlebars"];
     for (const filename of templates) {
         const content = await readFile(new URL(`../template/${filename}`, import.meta.url), "utf8");
-        assert.ok(content.includes(weatherAlertsPageHandlerPattern), filename);
-        assert.ok(content.includes(weatherAlertsCoordinateHandlerPattern), filename);
+        assert.ok(content.includes(filename === "loon.handlebars" ? weatherAlertsPageHandlerPattern.replace("[^#]*&ids=", "(?:[^#]*&)?ids=") : weatherAlertsPageHandlerPattern), filename);
+        assert.ok(content.includes(filename === "loon.handlebars" ? weatherAlertsCoordinateHandlerPattern.replace("[^#]*&ids=", "(?:[^#]*&)?ids=") : weatherAlertsCoordinateHandlerPattern), filename);
         assert.ok(!content.includes(mergedWeatherAlertsIdentifierPattern), filename);
         assert.match(content, /api\\\/v1\\\/weatherAlerts\\\?/);
         assert.ok(!content.includes(unsafeOpenEndedQuantifier), filename);

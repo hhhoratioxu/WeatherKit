@@ -84,6 +84,86 @@ test("a new execution can reuse Loon storage without plaintext credentials or re
     assert.equal(next.cache.stats.persistentHits, 1);
 });
 
+test("six persisted products read one snapshot per execution and still recheck expiration", async () => {
+    const store = storage();
+    let reads = 0,
+        now = 100000,
+        calls = 0;
+    const counted = {
+        read: () => {
+            reads++;
+            return store.read();
+        },
+        write: store.write,
+    };
+    const options = {
+        product: "weather",
+        validate: valid,
+        fetcher: async () => {
+            calls++;
+            return response();
+        },
+    };
+    const requests = Array.from({ length: 6 }, (_, i) => ({ ...request, url: `${request.url}&item=${i}` }));
+    const seed = new ProviderRequestCache({ store, now: () => now });
+    for (const item of requests) await seed.fetch(item, options);
+    const next = new ProviderRequestCache({ store: counted, now: () => now });
+    for (const item of requests) await next.fetch(item, options);
+    assert.equal(reads, 1);
+    assert.equal(calls, 6);
+    now += 60000;
+    await next.fetch(requests[0], options);
+    assert.equal(calls, 7);
+    assert.equal(reads, 2, "A successful refresh rereads storage before merging its write");
+});
+
+test("a delayed execution merges another execution's newly persisted products", async () => {
+    const store = storage();
+    const first = setup({ store }),
+        second = setup({ store });
+    let complete;
+    const delayed = first.fetch(request, {
+        fetcher: () =>
+            new Promise(resolve => {
+                complete = resolve;
+            }),
+    });
+    await second.fetch({ ...request, url: `${request.url}&other=1` });
+    complete(response());
+    await delayed;
+    const next = setup({ store });
+    await next.fetch(request);
+    await next.fetch({ ...request, url: `${request.url}&other=1` });
+    assert.equal(next.calls(), 0, "A cached read snapshot cannot overwrite a later independent write");
+});
+
+test("invalid persistent storage is parsed at most once until an actual write", async () => {
+    let reads = 0;
+    const cache = new ProviderRequestCache({
+        store: {
+            read: () => {
+                reads++;
+                return "not JSON";
+            },
+            write: () => false,
+        },
+    });
+    for (let i = 0; i < 4; i++)
+        await assert.rejects(
+            cache.fetch(
+                { ...request, url: `${request.url}&item=${i}` },
+                {
+                    product: "weather",
+                    validate: valid,
+                    fetcher: async () => {
+                        throw new Error("offline");
+                    },
+                },
+            ),
+        );
+    assert.equal(reads, 1);
+});
+
 test("location, credential, host, language, product, and transport policy stay isolated", async () => {
     const state = setup();
     await state.fetch();

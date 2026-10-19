@@ -12,7 +12,7 @@ export default class ColorfulClouds {
         this.#requests = requestCache;
         this.Name = "ColorfulClouds";
         this.Version = "4.3.0";
-        Console.log(`🟧 ${this.Name} v${this.Version}`);
+        Console.info(`🟧 ${this.Name} v${this.Version}`);
         this.endpoint = `https://api.caiyunapp.com/v2.6/${token}/${parameters.longitude},${parameters.latitude}`;
         this.headers = { Referer: "https://caiyunapp.com/" };
         this.token = token;
@@ -806,7 +806,7 @@ export default class ColorfulClouds {
     async YesterdayAirQuality(useUsa = true) {
         Console.info("☑️ YesterdayAirQuality");
 
-        const yesterdayHourly = await this.#Hourly(1, Math.trunc((Date.now() - 864e5) / 1000));
+        const yesterdayHourly = await this.#Hourly(1, Math.floor(Date.now() / 3600000) * 3600 - 86400);
         const scale = useUsa ? AirQuality.Config.Scales.EPA_NowCast : AirQuality.Config.Scales.HJ6332012;
         const particularAirQuality = {
             previousDayComparison: AirQuality.Config.CompareCategoryIndexes.UNKNOWN,

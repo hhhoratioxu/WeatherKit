@@ -25,6 +25,15 @@ const WeatherKit2 = new FlatBufferRootProcessor({
     rootClass: WK2.Weather,
 });
 
+// O(1) table presence probe; no minute vector decoding or copying.
+export function hasForecastNextHour(byteBuffer) {
+    try {
+        return Boolean(WK2.Weather.getRootAsWeather(byteBuffer).forecastNextHour());
+    } catch {
+        return false;
+    }
+}
+
 export default WeatherKit2;
 
 function encodeAirQuality(builder, data) {

@@ -1,13 +1,16 @@
 // Copyright 2026 hhhoratioxu. SPDX-License-Identifier: Apache-2.0
 import assert from "node:assert/strict";
-import vm from "node:vm";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import vm from "node:vm";
+import verifyLoonRewrites from "./verify-loon-rewrites.mjs";
 
 export default async function verifyLoonCache(root) {
     const directory = path.join(root, "Loon/script");
     const requestCode = await readFile(path.join(directory, "request.bundle.js"), "utf8"),
-        responseCode = await readFile(path.join(directory, "response.bundle.js"), "utf8");
+        responseCode = await readFile(path.join(directory, "response.bundle.js"), "utf8"),
+        scaleCode = await readFile(path.join(directory, "scale.bundle.js"), "utf8");
+    const nativeRewrites = verifyLoonRewrites(await readFile(path.join(directory, "WeatherKit.plugin"), "utf8"));
     const storage = new Map(),
         scenarios = [];
     async function run(code, request, response, http, argument = {}, expectedErrors = false) {
@@ -77,9 +80,14 @@ export default async function verifyLoonCache(root) {
     const noNetwork = () => {
         throw new Error("Unexpected native network request");
     };
-    const scale = await run(requestCode, { url: "https://weatherkit.apple.com/api/v1/airQualityScale/zh-Hans-CN/EU.EAQI.2604", method: "GET", headers: {} }, undefined, noNetwork);
-    assert.ok(scale.output.url.endsWith("/EU.EAQI"));
-    scenarios.push("request scale normalization");
+    const scale = await run(scaleCode, { url: "https://weatherkit.apple.com/api/v1/airQualityScale/zh-Hans-CN/HK.AQHI.2604", method: "GET", headers: {} }, undefined, noNetwork);
+    assert.equal(scale.output.response.status, 200);
+    assert.ok(JSON.parse(scale.output.response.body));
+    scenarios.push("custom scale uses a standalone bundle without storage or provider requests");
+    const unknownScale = await run(scaleCode, { url: "https://weatherkit.apple.com/api/v1/airQualityScale/unknown-HK/HK.AQHI.2604?v=1", method: "GET", headers: { "If-None-Match": "fixture-etag" } }, undefined, noNetwork);
+    assert.ok(unknownScale.output.url.endsWith("/HK.AQHI?v=1"));
+    assert.equal(unknownScale.output.headers["If-None-Match"], "fixture-etag");
+    scenarios.push("unknown scale language falls through with conditional headers intact");
     const availability = await run(responseCode, { url: "https://weatherkit.apple.com/api/v1/availability/en-US/31.2/121.5", method: "GET", headers: {} }, { status: 200, headers: { "Content-Type": "application/json" }, body: JSON.stringify(["currentWeather", "weatherMaps"]) }, noNetwork);
     assert.ok(JSON.parse(availability.output.body).includes("weatherMaps"));
     assert.ok(JSON.parse(availability.output.body).includes("forecastNextHour"));
@@ -137,6 +145,20 @@ export default async function verifyLoonCache(root) {
     scenarios.push("binary weather response retains Apple values and completes after native failures");
     storage.clear();
     const empty = WeatherKit2.encode(undefined, {});
+    const nativeMinute = WeatherKit2.encode(undefined, { forecastNextHour: { metadata: { providerName: "Apple", temporarilyUnavailable: false }, condition: [], summary: [], minutes: [] } });
+    const keptMinute = await run(responseCode, { url: "https://weatherkit.apple.com/api/v2/weather/zh-Hans-US/32.390/119.499?country=CN&dataSets=forecastNextHour", method: "GET", headers: {} }, { status: 200, headers: { "Content-Type": "application/vnd.apple.flatbuffer" }, body: nativeMinute }, noNetwork, {
+        DataSets: "forecastNextHour",
+        "NextHour.Provider": "ColorfulClouds",
+    });
+    assert.deepEqual(Array.from(keptMinute.output.body), Array.from(nativeMinute));
+    assert.equal(keptMinute.messages.length, 0, "LogLevel OFF suppresses startup, provider and completion logs");
+    scenarios.push("existing Apple minute table is preserved without provider work or routine logs");
+    const disabled = await run(responseCode, { url: "https://weatherkit.apple.com/api/v2/weather/en-US/31.2/121.5?country=CN&dataSets=currentWeather,forecastHourly", method: "GET", headers: {} }, { status: 200, headers: { "Content-Type": "application/vnd.apple.flatbuffer" }, body: raw }, noNetwork, {
+        DataSets: "currentWeather,forecastHourly",
+        "Weather.Provider": "WeatherKit",
+    });
+    assert.deepEqual(Array.from(disabled.output.body), Array.from(raw));
+    scenarios.push("Apple-only provider preserves original binary weather without a decoder round trip");
     const backup = await run(
         responseCode,
         { url: "https://weatherkit.apple.com/api/v2/weather/zh-Hans-US/32.390/119.499?dataSets=forecastNextHour", method: "GET", headers: {} },
@@ -205,5 +227,5 @@ export default async function verifyLoonCache(root) {
     const mixedSummary = JSON.parse(mixed.messages.find(line => line.startsWith("[WeatherKit]")).slice("[WeatherKit] ".length));
     assert.equal(mixedSummary.fallbacks, 1);
     scenarios.push("one shared Caiyun callback can replace healthy weather while preserving failed Apple alerts");
-    return { pass: scenarios.length, fail: 0, scenarios, withoutNodeWebCryptoHostTextEncoder: true, providedWebAPIs: ["URL", "URLSearchParams", "TextDecoder"], doneExactlyOnce: true, liveWeatherRequests: false, deviceVPNValidation: false };
+    return { pass: scenarios.length, fail: 0, scenarios, nativeRewrites, withoutNodeWebCryptoHostTextEncoder: true, providedWebAPIs: ["URL", "URLSearchParams", "TextDecoder"], doneExactlyOnce: true, liveWeatherRequests: false, deviceVPNValidation: false };
 }

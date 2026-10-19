@@ -65,6 +65,36 @@ test("Caiyun real provider coalesces six requests and refreshes when expired", a
     assert.equal((await retry).temperature, 23);
 });
 
+test("Caiyun yesterday hourly queries share a stable hour key across fresh executions", async () => {
+    values.clear();
+    const dateNow = Date.now;
+    let now = Date.UTC(2026, 9, 19, 0, 0, 10),
+        requests = 0;
+    Date.now = () => now;
+    const hourly = { status: "ok", result: { hourly: { status: "ok", air_quality: { aqi: [{ value: { usa: 42, chn: 40 } }] } } } };
+    try {
+        for (let i = 0; i < 6; i++, now += 10000) {
+            const provider = new ColorfulClouds(parameters, "hourly-fixture-token", new ProviderRequestCache({ ttls: { forecast: 180 }, now: () => now }));
+            const result = provider.YesterdayAirQuality();
+            if (pending.length) {
+                requests++;
+                assert.equal(new URL(pending[0].request.url).searchParams.get("begin"), String(Date.UTC(2026, 9, 18) / 1000));
+                finish(hourly);
+            }
+            assert.equal((await result).index, 42);
+        }
+        assert.equal(requests, 1);
+        now = Date.UTC(2026, 9, 19, 1, 0, 0);
+        const result = new ColorfulClouds(parameters, "hourly-fixture-token", new ProviderRequestCache({ now: () => now })).YesterdayAirQuality();
+        assert.equal(pending.length, 1);
+        assert.equal(new URL(pending[0].request.url).searchParams.get("begin"), String(Date.UTC(2026, 9, 18, 1) / 1000));
+        finish(hourly);
+        assert.equal((await result).index, 42);
+    } finally {
+        Date.now = dateNow;
+    }
+});
+
 test("QWeather real provider shares requests and isolates changed authorization", async () => {
     values.clear();
     const cache = new ProviderRequestCache();

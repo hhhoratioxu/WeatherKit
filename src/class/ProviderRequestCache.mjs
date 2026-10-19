@@ -41,6 +41,7 @@ const copyResponse = response => ({ ...response, headers: { ...response?.headers
 
 export default class ProviderRequestCache {
     #memory = new Map();
+    #snapshot;
     #inFlight = new Map();
     #waiting = [];
     #active = 0;
@@ -251,16 +252,19 @@ export default class ProviderRequestCache {
             return false;
         }
     }
-    #read() {
-        if (!this.#store) return [];
+    #read(force = false) {
+        if (!force && this.#snapshot) return this.#snapshot;
+        this.#snapshot = [];
+        if (!this.#store) return this.#snapshot;
         try {
             const raw = this.#store.read();
             if (typeof raw !== "string" || raw.length > REQUEST_CACHE_LIMITS.storageCharacters) return [];
             const parsed = JSON.parse(raw);
             if (parsed?.version !== 1 || !Array.isArray(parsed.entries) || parsed.entries.length > 8) return [];
-            return parsed.entries
+            this.#snapshot = parsed.entries
                 .filter(entry => this.#fresh(entry))
                 .map(({ key, storedAt, expiresAt, status, body, group, lastUsedAt }) => ({ key, storedAt, expiresAt, status, body, group: /^[a-f0-9]{64}$/.test(group) ? group : key, lastUsedAt: Number.isFinite(lastUsedAt) && lastUsedAt >= storedAt && lastUsedAt <= this.#now() ? lastUsedAt : storedAt }));
+            return this.#snapshot;
         } catch {
             return [];
         }
@@ -293,7 +297,7 @@ export default class ProviderRequestCache {
             entry = { key, storedAt, lastUsedAt: storedAt, expiresAt: storedAt + ttl * 1000, status: Number(response.statusCode ?? response.status), body: response.body, group: group ? fingerprint(JSON.stringify(group)) : key };
         this.#remember(entry);
         if (!this.#store) return;
-        const merged = new Map(this.#read().map(item => [item.key, item]));
+        const merged = new Map(this.#read(true).map(item => [item.key, item]));
         for (const item of this.#memory.values()) if (this.#fresh(item)) merged.set(item.key, item);
         const entries = this.#select(merged.values());
         let serialized = JSON.stringify({ version: 1, entries });

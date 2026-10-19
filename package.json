@@ -53,7 +53,7 @@
         "update": "npm update --save",
         "test:cache": "node --test tests/providerRequestCache.test.mjs tests/waqiRequestCache.test.mjs tests/providerCacheBundle.test.mjs",
         "test": "node --test --test-concurrency=1 tests/*.test.mjs",
-        "build:loon-cache": "npm run build && node scripts/build-loon-cache.mjs"
+        "build:loon-cache": "rollup -c scripts/rollup-loon.config.mjs && node scripts/build-loon-cache.mjs"
     },
     "browserslist": [
         "iOS >= 18"
@@ -84,5 +84,5 @@
             "puppeteer": "25.7.0"
         }
     },
-    "version": "3.3.2-cache.3"
+    "version": "3.3.2-cache.4"
 }
