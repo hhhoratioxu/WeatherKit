@@ -148,7 +148,7 @@ for (const [label, upstream] of [
                 return response();
             },
         });
-        await state.fetch();
+        await assert.rejects(state.fetch());
         assert.equal(state.store.value(), undefined);
         await state.fetch();
         await state.fetch();

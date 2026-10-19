@@ -42,3 +42,26 @@ test("real WAQI adapter coalesces native callbacks and reuses persisted data in 
     assert.equal(calls, 1);
     assert.equal([...stored.values()].join("").includes("fixture-token"), false);
 });
+
+test("WAQI token errors cool down across executions and token bodies remain uncached", async () => {
+    stored.clear();
+    const originalHTTP = globalThis.$httpClient;
+    let authCalls = 0;
+    globalThis.$httpClient = {
+        get(_request, callback) {
+            authCalls++;
+            callback(null, { status: 200, headers: {} }, JSON.stringify({ rxs: { status: "error", obs: [] } }));
+        },
+    };
+    try {
+        for (let index = 0; index < 3; index++) {
+            const provider = new WAQI(parameters, "fixture-private-token", ProviderRequestCache.fromSettings({}));
+            assert.equal(await provider.Token(123), undefined);
+        }
+        assert.equal(authCalls, 2);
+        assert.equal(stored.has("WeatherKit.ProviderResponses.v1"), false);
+        assert.doesNotMatch([...stored.values()].join(""), /fixture-private-token|api\.waqi\.info|obs|rxs/);
+    } finally {
+        globalThis.$httpClient = originalHTTP;
+    }
+});

@@ -1,5 +1,6 @@
 // Modified by hhhoratioxu, 2026-10-19: bounded request coalescing and short-lived response caching.
-import { Lodash as _, Console, fetch, time } from "@nsnanocat/util";
+import { Lodash as _, Console, time } from "@nsnanocat/util";
+import fetch from "../function/fetchProvider.mjs";
 import utf8Length from "../function/utf8Length.mjs";
 import ProviderRequestCache, { providerErrorCode } from "./ProviderRequestCache.mjs";
 import AirQuality from "../class/AirQuality.mjs";
@@ -44,11 +45,12 @@ export default class QWeather {
             validate: body => {
                 if (body?.error) return false;
                 if (path.startsWith("/weatheralert/")) return Boolean(body?.metadata) && Array.isArray(body?.alerts);
-                if (path.startsWith("/airquality/")) return Boolean(body?.metadata?.tag);
+                if (path.startsWith("/airquality/")) return Array.isArray(body?.pollutants) && Array.isArray(body?.indexes) && body.indexes.some(index => typeof index?.code === "string" && index.aqi !== null && String(index.aqi).trim() !== "" && Number.isFinite(Number(index.aqi)));
                 if (body?.code !== "200") return false;
                 if (path.startsWith("/geo/")) return Array.isArray(body.location) && body.location.length > 0;
                 if (path.includes("/minutely/")) return Array.isArray(body.minutely) && body.minutely.length > 0;
                 if (path.endsWith("/historical/air")) return Array.isArray(body.airHourly) && body.airHourly.length > 0;
+                if (path.endsWith("/weather/now")) return body.now?.temp !== undefined && body.now.temp !== null && String(body.now.temp).trim() !== "" && Number.isFinite(Number(body.now.temp));
                 if (path.endsWith("/now")) return Boolean(body.now && typeof body.now === "object");
                 if (/\/weather\/\d+h$/.test(path)) return Array.isArray(body.hourly) && body.hourly.length > 0;
                 if (/\/weather\/\d+d$/.test(path)) return Array.isArray(body.daily) && body.daily.length > 0;
@@ -512,27 +514,32 @@ export default class QWeather {
         const sourceHeaders = { Accept: "text/html,application/xhtml+xml", "Accept-Language": normalizedHeaders["accept-language"] ?? language, Referer: "https://www.qweather.com/" };
         if (normalizedHeaders["user-agent"]) sourceHeaders["User-Agent"] = normalizedHeaders["user-agent"];
         const unavailable = { alerts: [], areaName: "", source: "QWeather", pageValid: false };
-        const response = await runtime.fetch(
-            { url: sourceUrl.toString(), headers: sourceHeaders, "auto-cookie": false },
-            {
-                partition: ["QWeatherWeb", language],
-                product: "weather-alert-page.v1",
-                kind: "alerts",
-                maximumTTLSeconds: 30,
-                group: [identifier],
-                validate: body => body?.pageValid === true && Array.isArray(body.alerts) && typeof body.areaName === "string",
-                fetcher: async request => {
-                    const source = await fetch(request);
-                    const type = String(source.headers?.["Content-Type"] ?? source.headers?.["content-type"] ?? "").toLowerCase();
-                    const html = typeof source.body === "string" ? source.body : "";
-                    if (html.length > QWeather.#MaximumWeatherAlertPageSize || utf8Length(html, QWeather.#MaximumWeatherAlertPageSize) > QWeather.#MaximumWeatherAlertPageSize) throw new RangeError("QWeather alert page is too large");
-                    const recognized = /\bc-submenu__location\b/.test(html) && /c-city-warning|暂无预警|无生效预警|No(?: active)? (?:weather )?warnings/i.test(html);
-                    const page = source.ok && type.includes("text/html") && recognized ? { ...QWeather.ExtractWeatherAlertPage(html), pageValid: true } : unavailable;
-                    // Persist only parsed alert records, not an entire HTML document.
-                    return { ...source, body: JSON.stringify(page) };
+        let response;
+        try {
+            response = await runtime.fetch(
+                { url: sourceUrl.toString(), headers: sourceHeaders, "auto-cookie": false },
+                {
+                    partition: ["QWeatherWeb", language],
+                    product: "weather-alert-page.v1",
+                    kind: "alerts",
+                    maximumTTLSeconds: 30,
+                    group: [identifier],
+                    validate: body => body?.pageValid === true && Array.isArray(body.alerts) && typeof body.areaName === "string",
+                    fetcher: async request => {
+                        const source = await fetch(request);
+                        const type = String(source.headers?.["Content-Type"] ?? source.headers?.["content-type"] ?? "").toLowerCase();
+                        const html = typeof source.body === "string" ? source.body : "";
+                        if (html.length > QWeather.#MaximumWeatherAlertPageSize || utf8Length(html, QWeather.#MaximumWeatherAlertPageSize) > QWeather.#MaximumWeatherAlertPageSize) throw new RangeError("QWeather alert page is too large");
+                        const recognized = /\bc-submenu__location\b/.test(html) && /c-city-warning|暂无预警|无生效预警|No(?: active)? (?:weather )?warnings/i.test(html);
+                        const page = source.ok && type.includes("text/html") && recognized ? { ...QWeather.ExtractWeatherAlertPage(html), pageValid: true } : unavailable;
+                        // Persist only parsed alert records, not an entire HTML document.
+                        return { ...source, body: JSON.stringify(page) };
+                    },
                 },
-            },
-        );
+            );
+        } catch {
+            return { ...unavailable, unavailable: true, metadata: { temporarilyUnavailable: true } };
+        }
         const parsed = JSON.parse(response.body);
         if (!response.ok || parsed.pageValid !== true) return { ...unavailable, unavailable: true, metadata: { temporarilyUnavailable: true } };
         const areaId = identifier.match(/-(\d+)$/)?.[1];

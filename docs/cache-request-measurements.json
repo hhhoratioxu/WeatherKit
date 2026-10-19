@@ -4,8 +4,8 @@
   "deviceVPNValidation": false,
   "baselineCommit": "c40e8f8a13c8304a7ef500cb74acc5948af14b3f",
   "optimizedSourceSHA256": {
-    "src/class/WAQI.mjs": "0584943b5b61e11bdb33d6121d7d56f953ea5ce5022fd4a00d956cfbd32551d1",
-    "src/class/ProviderRequestCache.mjs": "ee7f475526a1abaaf87f087e46994365b774b2dad910431679c2a368179c0eeb"
+    "src/class/WAQI.mjs": "79eab5c0bbb91437a16645b89184f3dd2567cf3db25033eaaba62a8c9d09afe6",
+    "src/class/ProviderRequestCache.mjs": "aff2fbd38d7a1a2ef19321f5d440b81765d8ce3f6cf70d2797e2802d9eef00db"
   },
   "cases": [
     {

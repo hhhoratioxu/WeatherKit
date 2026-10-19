@@ -1,5 +1,6 @@
 // Modified by hhhoratioxu, 2026-10-19: cache weather data only; token endpoints remain uncached.
-import { Console, fetch } from "@nsnanocat/util";
+import { Console } from "@nsnanocat/util";
+import fetch from "../function/fetchProvider.mjs";
 import ProviderRequestCache, { providerErrorCode } from "./ProviderRequestCache.mjs";
 import AirQuality from "../class/AirQuality.mjs";
 import providerNameToLogo from "../function/providerNameToLogo.mjs";
@@ -156,7 +157,15 @@ export default class WAQI {
         };
         let token;
         try {
-            const body = await this.#requests.fetch(request, { fetcher: fetch, cacheable: false, validate: () => true }).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#requests
+                .fetch(request, {
+                    fetcher: fetch,
+                    cacheable: false,
+                    partition: [this.Name, this.version, this.language, this.country],
+                    product: "token",
+                    validate: value => value?.rxs?.status === "ok" && value.rxs.obs?.[0]?.status === "ok" && typeof value.rxs.obs[0].msg?.token === "string" && value.rxs.obs[0].msg.token.trim().length > 0,
+                })
+                .then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.status) {
                 case "error":
                     throw JSON.stringify({ status: body?.status, reason: body?.data });
@@ -188,15 +197,23 @@ export default class WAQI {
     }
 
     async AQI(stationId = Number(), token = this.token) {
-        Console.info("☑️ AQI", `stationId: ${stationId}`, `token: ${token}`);
+        Console.info("☑️ AQI", `stationId: ${stationId}`);
         const request = {
             url: `https://api.waqi.info/api/feed/@${stationId}/aqi.json`,
             headers: this.headers,
-            body: `token=${token}&id=${stationId}`,
+            body: `token=${encodeURIComponent(token)}&id=${encodeURIComponent(stationId)}`,
         };
         let airQuality;
         try {
-            const body = await this.#requests.fetch(request, { fetcher: fetch, cacheable: false, validate: () => true }).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#requests
+                .fetch(request, {
+                    fetcher: fetch,
+                    cacheable: false,
+                    partition: [this.Name, this.version, this.language, this.country],
+                    product: "authenticated-air-quality",
+                    validate: value => value?.rxs?.status === "ok" && value.rxs.obs?.[0]?.status === "ok" && Boolean(value.rxs.obs[0].msg?.city) && value.rxs.obs[0].msg.aqi !== null && String(value.rxs.obs[0].msg.aqi).trim() !== "" && Number.isFinite(Number(value.rxs.obs[0].msg.aqi)),
+                })
+                .then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.status) {
                 case "error":
                     throw JSON.stringify({ status: body?.status, reason: body?.data });

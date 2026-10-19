@@ -125,13 +125,15 @@ export default async function verifyLoonCache(root) {
         { url: "https://weatherkit.apple.com/api/v2/weather/zh-Hans-US/32.390/119.499?dataSets=currentWeather,forecastHourly", method: "GET", headers: {} },
         { status: 200, headers: { "Content-Type": "application/vnd.apple.flatbuffer" }, body: raw },
         (_, callback) => callback("timeout", {}, ""),
-        { LogLevel: "ERROR", DataSets: "currentWeather,forecastHourly", "Weather.Provider": "QWeather", "Region.Fallback": "Auto" },
+        { LogLevel: "ERROR", DataSets: "currentWeather,forecastHourly", "Weather.Provider": "QWeather", "Region.Fallback": "Auto", "RequestCache.Diagnostics": true },
         true,
     );
     assert.equal(recovered.nativeRequests, 2, `Region fix and both provider paths must run: ${[...recovered.errors, ...recovered.messages.filter(line => /Error|Failed|失败|Unreplaced|country:|FORMAT:/.test(line))].join("\n")}`);
     const { ByteBuffer } = await import("flatbuffers");
     const decoded = WeatherKit2.decode(new ByteBuffer(recovered.output.body), ["currentWeather"]);
     assert.equal(decoded.currentWeather.temperature, 27);
+    const recoverySummary = JSON.parse(recovered.messages.find(line => line.startsWith("[WeatherKit]")).slice("[WeatherKit] ".length));
+    assert.equal(recoverySummary.fallbacks, 2, "An undefined provider result must still count as a fallback");
     scenarios.push("binary weather response retains Apple values and completes after native failures");
     storage.clear();
     const empty = WeatherKit2.encode(undefined, {});
@@ -154,5 +156,54 @@ export default async function verifyLoonCache(root) {
     assert.ok(backedUp.forecastNextHour, [...backup.errors, ...backup.messages].join("\n"));
     assert.equal(backedUp.forecastNextHour.metadata.temporarilyUnavailable, false);
     scenarios.push("missing minute data uses one configured backup after primary failure");
+    for (const [status, temperature, reason] of [
+        [502, "99", "http"],
+        [200, "not-a-number", "invalid"],
+    ]) {
+        storage.clear();
+        const guarded = await run(
+            responseCode,
+            { url: "https://weatherkit.apple.com/api/v2/weather/zh-Hans-US/32.390/119.499?dataSets=currentWeather", method: "GET", headers: {} },
+            { status: 200, headers: { "Content-Type": "application/vnd.apple.flatbuffer" }, body: raw },
+            (_, callback) => callback(null, { status, headers: { "Content-Type": "application/json" } }, JSON.stringify({ code: "200", now: { temp: temperature } })),
+            { DataSets: "currentWeather", "Weather.Provider": "QWeather", "Region.Fallback": "Auto", "RequestCache.Diagnostics": true },
+            true,
+        );
+        assert.equal(guarded.nativeRequests, 1);
+        assert.deepEqual(Array.from(guarded.output.body), Array.from(raw));
+        const summary = JSON.parse(guarded.messages.find(line => line.startsWith("[WeatherKit]")).slice("[WeatherKit] ".length));
+        assert.equal(summary.fallbacks, 1);
+        assert.equal(summary.failureReasons[reason], 1);
+        scenarios.push(`HTTP ${status} provider body with ${reason} failure cannot overwrite Apple weather`);
+    }
+    storage.clear();
+    const mixedRaw = WeatherKit2.encode(undefined, {
+        currentWeather: WeatherKit2.decode(new ByteBuffer(raw), ["currentWeather"]).currentWeather,
+        weatherAlerts: { metadata: { providerName: "National Early Warning Center", temporarilyUnavailable: false }, detailsUrl: "https://weatherkit.apple.com/alertDetails/index.html?ids=32.390,119.499", alerts: [] },
+    });
+    const mixed = await run(
+        responseCode,
+        { url: "https://weatherkit.apple.com/api/v2/weather/zh-Hans-US/32.390/119.499?dataSets=weatherAlerts,currentWeather", method: "GET", headers: {} },
+        { status: 200, headers: { "Content-Type": "application/vnd.apple.flatbuffer" }, body: mixedRaw },
+        (_, callback) =>
+            callback(
+                null,
+                { status: 200, headers: { "Content-Type": "application/json" } },
+                JSON.stringify({
+                    status: "ok",
+                    location: [32.39, 119.499],
+                    result: { server_time: 1792368000, alert: { status: "error" }, realtime: { status: "ok", temperature: 23, apparent_temperature: 24, cloudrate: 0.2, skycon: "CLEAR_DAY", humidity: 0.8, precipitation: { local: { intensity: 0 } }, pressure: 100000, visibility: 10, wind: { direction: 90, speed: 1 } } },
+                }),
+            ),
+        { DataSets: "weatherAlerts,currentWeather", "Weather.Provider": "ColorfulClouds", "WeatherAlerts.Provider": "ColorfulClouds", "Region.Fallback": "Auto", "RequestCache.Diagnostics": true },
+        true,
+    );
+    assert.equal(mixed.nativeRequests, 1);
+    const mixedDecoded = WeatherKit2.decode(new ByteBuffer(mixed.output.body), ["currentWeather", "weatherAlerts"]);
+    assert.equal(mixedDecoded.currentWeather.temperature, 23);
+    assert.equal(mixedDecoded.weatherAlerts.metadata.providerName, "National Early Warning Center");
+    const mixedSummary = JSON.parse(mixed.messages.find(line => line.startsWith("[WeatherKit]")).slice("[WeatherKit] ".length));
+    assert.equal(mixedSummary.fallbacks, 1);
+    scenarios.push("one shared Caiyun callback can replace healthy weather while preserving failed Apple alerts");
     return { pass: scenarios.length, fail: 0, scenarios, withoutNodeWebCryptoHostTextEncoder: true, providedWebAPIs: ["URL", "URLSearchParams", "TextDecoder"], doneExactlyOnce: true, liveWeatherRequests: false, deviceVPNValidation: false };
 }

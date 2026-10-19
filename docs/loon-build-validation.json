@@ -1,15 +1,15 @@
 {
   "verifiedDate": "2026-10-19",
-  "version": "3.3.2-cache.2",
-  "sourceCommit": "8e89ec426a6a6e77bfca014704dd8784020e749c",
-  "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/39197967270",
+  "version": "3.3.2-cache.3",
+  "sourceCommit": "e63e7e82eb11dd101ddfef015b3e86e58737f608",
+  "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/39202789221",
   "regressionTests": {
-    "pass": 163,
+    "pass": 192,
     "fail": 0,
     "skip": 0
   },
   "bundledVMSmokeChecks": {
-    "pass": 8,
+    "pass": 11,
     "fail": 0,
     "scenarios": [
       "request scale normalization",
@@ -19,7 +19,10 @@
       "parsed warning cache survives a new Loon execution",
       "failed warning request passes through with safe diagnostics",
       "binary weather response retains Apple values and completes after native failures",
-      "missing minute data uses one configured backup after primary failure"
+      "missing minute data uses one configured backup after primary failure",
+      "HTTP 502 provider body with http failure cannot overwrite Apple weather",
+      "HTTP 200 provider body with invalid failure cannot overwrite Apple weather",
+      "one shared Caiyun callback can replace healthy weather while preserving failed Apple alerts"
     ],
     "withoutNodeWebCryptoHostTextEncoder": true,
     "providedWebAPIs": [
@@ -50,27 +53,27 @@
   "artifacts": {
     "LICENSE.txt": {
       "bytes": 12826,
-      "sha256": "049194e7707e74a023926330df1a8b684251fbd85b0b36e291222081dd34370f"
+      "sha256": "670bcd98dfcb0673fbc54f3cb8b5877cb907343b7b52c2371a888e2a6d448e4e"
     },
     "SHA256SUMS.txt": {
       "bytes": 419,
-      "sha256": "b6ccc2f59960ede0582e1dbf047d97e94609fbb843eb3d63f61d30123066036c"
+      "sha256": "2a64030ab064b82075e2dfcbb9dbaf06b4c3cfcdce1fa7d4db1c6b05ac022ed5"
     },
     "WeatherKit.plugin": {
       "bytes": 8391,
-      "sha256": "db7c41d5c29259509b87db5096933eb2f57d2aead5d6d5d956e2b72a49ea7632"
+      "sha256": "128475cbe35ef30d1ba22ed112cdc3bbef0eb5d8be8bfc07248d1033f582c71b"
     },
     "build-provenance.json": {
-      "bytes": 1069,
-      "sha256": "cf55ad2e5e71608b4e9414b1982ecc10394a93126dbbea0d7a8e123861aa21f3"
+      "bytes": 1336,
+      "sha256": "acc913235c7c4acd7a8b32b8c71c7a2a7f605eefc20b26c408725e6a19f04f95"
     },
     "request.bundle.js": {
-      "bytes": 319158,
-      "sha256": "d8838fdd5418265db09e63002ea5c97921b2bc595beb4a1d532f81e19ee27ac7"
+      "bytes": 321150,
+      "sha256": "2586715b5b2a23192077850a1103f78e79a502d3ef31f59ef3ac1443fcab330c"
     },
     "response.bundle.js": {
-      "bytes": 429572,
-      "sha256": "9fd3029a5e135f854cbb9e972c00b668f790c9b2b0200f3f2213220865796e12"
+      "bytes": 432356,
+      "sha256": "5d7bd2266d72c800d29ab1f9ce2035d78998160efbff751f6e24e9446eec581e"
     }
   }
 }
