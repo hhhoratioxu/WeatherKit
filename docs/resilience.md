@@ -45,9 +45,9 @@ JSON 及结构化预警仍沿用八条响应、单条 96 Ki UTF-16 字符、总�
 
 ## 验证边界
 
-本地完整回归 163 项通过，0 失败、0 跳过。生成后的完整请求/响应 bundle 另有 8 个模拟 Loon 场景，覆盖正文透传、网页预警、跨次缓存、失败透传、地区识别、原始二进制保留及配置备用来源补全，并检查原生回调结束后仅调用一次 `$done`。模拟环境没有 Node、WebCrypto 或宿主 TextEncoder；为已有 URL/FlatBuffer 代码提供 URL、URLSearchParams 与 TextDecoder。FlatBuffer 编码使用有界 UTF-8 兼容实现（仅宿主缺少 TextEncoder 时安装），覆盖 Unicode 代理对与孤立代理字符；单次字符串编码最多 2 MiB。设置合并使用独立副本，连续执行不会修改共享默认值或继承前次凭据。
+本地与 CI 完整回归 163 项通过，0 失败、0 跳过。生成后的完整请求/响应 bundle 另有 8 个模拟 Loon 场景，覆盖正文透传、网页预警、跨次缓存、失败透传、地区识别、原始二进制保留及配置备用来源补全，并检查原生回调结束后仅调用一次 `$done`。模拟环境没有 Node、WebCrypto 或宿主 TextEncoder；为已有 URL/FlatBuffer 代码提供 URL、URLSearchParams 与 TextDecoder。FlatBuffer 编码使用有界 UTF-8 兼容实现（仅宿主缺少 TextEncoder 时安装），覆盖 Unicode 代理对与孤立代理字符；单次字符串编码最多 2 MiB。设置合并使用独立副本，连续执行不会修改共享默认值或继承前次凭据。
 
-CI 会使用锁定的原始上游 schema `@nsringo/weatherkit@1.1.2` 重新测试与构建。最终发布的来源提交、bundle 验证与 SHA-256 保存在构建来源文件和 `docs/loon-build-validation.json`。桌面模拟、CI 和资源字节校验均不等于真实 iPhone 的天气显示、耗电、延迟或 VPN 连续运行结论。
+CI 使用锁定的原始上游 schema `@nsringo/weatherkit@1.1.2` 重新测试与构建。最终发布的来源提交、bundle 验证与 SHA-256 保存在构建来源文件和 `docs/loon-build-validation.json`。桌面模拟、CI 和资源字节校验均不等于真实 iPhone 的天气显示、耗电、延迟或 VPN 连续运行结论。
 
 ## 官方文档核对
 

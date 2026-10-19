@@ -1,7 +1,8 @@
-WeatherKit request-cache fork, 3.3.2-cache.1
+WeatherKit request-cache fork, 3.3.2-cache.2
 Upstream: NSRingo/WeatherKit, Apache-2.0
 Modifications: hhhoratioxu, 2026-10-19
 Cache key hashing: @noble/hashes 1.8.0, MIT, Paul Miller
+Provider region data: Natural Earth, public domain; source in docs/provider-regions-source.json
 Source and behavioral limits: docs/request-cache.md
 
                                  Apache License
