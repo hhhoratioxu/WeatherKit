@@ -1,4 +1,4 @@
-WeatherKit request-cache fork, 3.3.2-cache.2
+WeatherKit request-cache fork, 3.3.2-cache.3
 Upstream: NSRingo/WeatherKit, Apache-2.0
 Modifications: hhhoratioxu, 2026-10-19
 Cache key hashing: @noble/hashes 1.8.0, MIT, Paul Miller

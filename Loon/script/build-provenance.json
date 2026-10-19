@@ -1,11 +1,11 @@
 {
-  "version": "3.3.2-cache.2",
-  "sourceCommit": "8e89ec426a6a6e77bfca014704dd8784020e749c",
-  "resourceRef": "cache-v2",
+  "version": "3.3.2-cache.3",
+  "sourceCommit": "e63e7e82eb11dd101ddfef015b3e86e58737f608",
+  "resourceRef": "cache-v3",
   "node": "v22.23.3",
   "schemaPackage": "1.1.2",
   "bundleChecks": {
-    "pass": 8,
+    "pass": 11,
     "fail": 0,
     "scenarios": [
       "request scale normalization",
@@ -15,7 +15,10 @@
       "parsed warning cache survives a new Loon execution",
       "failed warning request passes through with safe diagnostics",
       "binary weather response retains Apple values and completes after native failures",
-      "missing minute data uses one configured backup after primary failure"
+      "missing minute data uses one configured backup after primary failure",
+      "HTTP 502 provider body with http failure cannot overwrite Apple weather",
+      "HTTP 200 provider body with invalid failure cannot overwrite Apple weather",
+      "one shared Caiyun callback can replace healthy weather while preserving failed Apple alerts"
     ],
     "withoutNodeWebCryptoHostTextEncoder": true,
     "providedWebAPIs": [
@@ -27,5 +30,5 @@
     "liveWeatherRequests": false,
     "deviceVPNValidation": false
   },
-  "lockfileSHA256": "3af815ee6d802f4efb6bda382f0335b1ffac4109afdcf31c7f13e8a5650b3736"
+  "lockfileSHA256": "0c10a78ed43bd7584b47eff8fe00dfa73fb42792f272b1a4060431cdb90423f6"
 }
