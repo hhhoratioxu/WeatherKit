@@ -34,6 +34,14 @@ jobs:
         run: npm ci --ignore-scripts --no-audit --no-fund
         env:
           NODE_AUTH_TOKEN: ${{ github.token }}
+      - name: Archive locked schema for local regression work
+        run: tar -czf "$RUNNER_TEMP/weatherkit-schema.tgz" -C node_modules/@nsringo/weatherkit .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: weatherkit-locked-schema
+          path: ${{ runner.temp }}/weatherkit-schema.tgz
+          retention-days: 1
+          if-no-files-found: error
       - name: Run all regression tests
         run: npm test
       - name: Build native Loon scripts and plugin
