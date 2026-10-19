@@ -1,0 +1,8 @@
+{
+  "version": "3.3.2-cache.1",
+  "sourceCommit": "8f2f8923ce1c1a7e64276d607fe53716a77efe9d",
+  "resourceRef": "cache-v1",
+  "node": "v22.23.3",
+  "schemaPackage": "1.1.2",
+  "lockfileSHA256": "fa3b4a19fc7f107a9bd73863364896f2a2c6e846ff6c5f25106859fe3d5cf3f9"
+}

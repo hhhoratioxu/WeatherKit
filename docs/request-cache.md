@@ -32,17 +32,17 @@ Loon JSON 网络请求沿用官方毫秒单位，明确使用 5,000 ms 原生超
 
 `npm run test:cache` 检查缓存失效、隔离、失败恢复、并发/容量边界，以及真实 WAQI 适配器和独立浏览器 bundle。在没有 Node、WebCrypto、TextEncoder 的模拟 Loon 环境中检查网络回调、重复回调和跨执行存储复用。这里的请求响应为测试夹具，调用次数对比不能代表真实天气服务的延迟或 iPhone 实测。
 
-`npm test` 运行完整回归测试。`npm run build:loon-cache` 先构建请求和响应源码，再生成本 Fork 的 Loon 文件、完整许可证、构建来源和 SHA-256 校验文件。完整构建需要读取上游 GitHub Packages 中的 `@nsringo/weatherkit@1.1.2`；不得用其他版本或伪造 schema 代替。本次不调用上游包含系统安全设置修改步骤的构建工作流。
+`npm test` 运行完整回归测试。`npm run build:loon-cache` 先构建请求和响应源码，再生成本 Fork 的 Loon 文件、完整许可证、构建来源和 SHA-256 校验文件。完整构建需要读取上游 GitHub Packages 中的 `@nsringo/weatherkit@1.1.2`；不得用其他版本或伪造 schema 代替。独立的 `cache-validation.yml` 使用 Actions 临时令牌，权限仅为 `contents: read` 与 `packages: read`，并通过 `NODE_AUTH_TOKEN` 环境变量传给 npm；没有创建个人 Token。Fork 中继承的 Build、Draft、Dev、Deploy、Release、Pre-Release 工作流保持禁用，避免运行上游依赖作者私有 Secrets 或修改系统安全设置的流程。
 
 源代码和模拟测试、CI 构建、发布文件字节校验、真实设备导入及 VPN 连续运行是不同验证层次。发布说明应分别记录结果。
 
 ### 2026-10-19 本次验证记录
 
-- 34 项缓存与适配器/浏览器 bundle 测试通过；12 项已有模块与参数合同测试通过，共 46 项定向测试，0 失败。
+- [GitHub Actions 运行 39193708665](https://github.com/hhhoratioxu/WeatherKit/actions/runs/39193708665) 使用锁文件安装真实依赖后，通过完整 144 项回归测试，0 失败、0 跳过，包括新增彩云/和风适配器、缓存与 FlatBuffer 回归。构建源码为 `8f2f8923ce1c1a7e64276d607fe53716a77efe9d`，Node.js 为 `v22.23.3`，上游 schema 包为 `1.1.2`。
 - 真实 WAQI 类在模拟 Loon 原生网络回调下进行对照：上游六个并发消费者发出六次请求，优化版发出一次；同一实例的下一批六个消费者，上游仍发出六次请求，优化版在有效期内不发请求。对照直接构建上游 `c40e8f8a13c8304a7ef500cb74acc5948af14b3f` 的 WAQI 类，网络响应均为测试夹具。
 - 可用 `node scripts/measure-cache-requests.mjs` 复现，结果及源码 SHA-256 保存在 [cache-request-measurements.json](cache-request-measurements.json)。这是请求次数验证，不是实际天气接口延迟、耗电或 VPN 稳定性测量。
 - 缓存核心使用现有 Rollup resolver 也不包含 Node 原生模块；模拟 Loon 浏览器 bundle 在没有 Node、WebCrypto、TextEncoder 的上下文中通过。Loon 参数文件生成成功，新增 TTL 为 String input，并保留五条原有 Script 的匹配范围。
-- 完整依赖安装被 GitHub Packages 拒绝，返回缺少所需 scope 的 HTTP 403；缺失的依赖是 `@nsringo/weatherkit@1.1.2`。完整 Rollup 构建因此失败。新增彩云/和风适配器集成测试、全量 FlatBuffer 回归及完整 Loon 脚本仍待该依赖可用后执行；没有发布可导入的完整插件。
+- 完整 Rollup 构建和 Loon 插件生成均通过。下载六个构建产物后，重新核对 SHA-256、锁文件摘要与来源提交；插件五条 Script 全部引用本 Fork 固定版本 `cache-v1`。两份实际发布 bundle 在模拟 Loon VM 中另通过请求空气质量标准规范化、响应可用能力合并、未处理正文透传三个场景，均只完成一次；测试没有 Node、WebCrypto 或 TextEncoder，也没有访问真实天气接口。详细文件大小、摘要与结果见 [loon-build-validation.json](loon-build-validation.json)。
 
 ## Loon 官方资料核对
 
