@@ -1,6 +1,6 @@
 // Modified by hhhoratioxu, 2026-10-19: cache weather data only; token endpoints remain uncached.
 import { Console, fetch } from "@nsnanocat/util";
-import ProviderRequestCache from "./ProviderRequestCache.mjs";
+import ProviderRequestCache, { providerErrorCode } from "./ProviderRequestCache.mjs";
 import AirQuality from "../class/AirQuality.mjs";
 import providerNameToLogo from "../function/providerNameToLogo.mjs";
 
@@ -25,6 +25,7 @@ export default class WAQI {
         return this.#requests.fetch(typeof $loon === "string" ? { ...request, timeout: request.timeout ?? 5000 } : request, {
             fetcher: fetch,
             partition: [this.Name, this.version, this.language, this.country],
+            group: [this.latitude, this.longitude, this.country],
             product: "air-quality",
             validate: body => {
                 if (request.url.includes("/mapq/")) return body?.status !== "error" && Array.isArray(body?.d) && body.d.length > 0;
@@ -139,7 +140,7 @@ export default class WAQI {
                     break;
             }
         } catch (error) {
-            Console.error(`Nearest: ${error}`);
+            Console.error(`Nearest: ${providerErrorCode(error)}`);
         } finally {
             //Console.debug(`airQuality: ${JSON.stringify(airQuality, null, 2)}`);
             Console.info("✅ Nearest");
@@ -155,7 +156,7 @@ export default class WAQI {
         };
         let token;
         try {
-            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#requests.fetch(request, { fetcher: fetch, cacheable: false, validate: () => true }).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.status) {
                 case "error":
                     throw JSON.stringify({ status: body?.status, reason: body?.data });
@@ -178,7 +179,7 @@ export default class WAQI {
                     break;
             }
         } catch (error) {
-            Console.error(`Token: ${error}`);
+            Console.error(`Token: ${providerErrorCode(error)}`);
         } finally {
             //Console.debug(`token: ${token}`);
             Console.info("✅ Token");
@@ -195,7 +196,7 @@ export default class WAQI {
         };
         let airQuality;
         try {
-            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#requests.fetch(request, { fetcher: fetch, cacheable: false, validate: () => true }).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.status) {
                 case "error":
                     throw JSON.stringify({ status: body?.status, reason: body?.data });
@@ -238,7 +239,7 @@ export default class WAQI {
                     break;
             }
         } catch (error) {
-            Console.error(`AQI: ${error}`);
+            Console.error(`AQI: ${providerErrorCode(error)}`);
         } finally {
             //Console.debug(`airQuality: ${JSON.stringify(airQuality, null, 2)}`);
             Console.info("✅ AQI");
@@ -284,7 +285,7 @@ export default class WAQI {
                     throw JSON.stringify({ status: body?.status, reason: body?.data });
             }
         } catch (error) {
-            Console.error(`AQI2: ${error}`);
+            Console.error(`AQI2: ${providerErrorCode(error)}`);
         } finally {
             //Console.debug(`airQuality: ${JSON.stringify(airQuality, null, 2)}`);
             Console.info("✅ AQI2");

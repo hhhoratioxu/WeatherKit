@@ -4,7 +4,8 @@ export default {
         Settings: {
             // 只有插件会修改的产品允许被配置关闭；其余 Apple 数据集必须始终透传。
             DataSets: ["airQuality", "currentWeather", "forecastDaily", "forecastHourly", "forecastNextHour", "weatherAlerts"],
-            RequestCache: { TTL: 60 },
+            RequestCache: { TTL: 60, ForecastTTL: 180, MinutelyTTL: 15, AlertsTTL: 15, BudgetMs: 8000, CooldownSeconds: 30, Diagnostics: false },
+            Region: { Fallback: "Auto" },
             Weather: { Replace: ["CN"], Provider: "ColorfulClouds" },
             WeatherAlerts: { Provider: "QWeatherWeb" },
             NextHour: { Provider: "ColorfulClouds" },

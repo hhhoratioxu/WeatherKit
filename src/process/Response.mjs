@@ -4,7 +4,9 @@ import * as flatbuffers from "flatbuffers";
 import AirQuality from "../class/AirQuality.mjs";
 import ColorfulClouds from "../class/ColorfulClouds.mjs";
 import QWeather from "../class/QWeather.mjs";
-import ProviderRequestCache from "../class/ProviderRequestCache.mjs";
+import recoverConfiguredProduct from "../function/recoverConfiguredProduct.mjs";
+import { cloneWeatherProduct, providerProductAvailable, activeProviderAlerts, weatherProductsEqual } from "../function/providerRecovery.mjs";
+import ProviderRequestCache, { providerErrorCode } from "../class/ProviderRequestCache.mjs";
 import WAQI from "../class/WAQI.mjs";
 import Weather from "../class/Weather.mjs";
 import WeatherAlerts from "../class/WeatherAlerts.mjs";
@@ -18,10 +20,10 @@ import setENV from "../function/setENV.mjs";
 export async function Response($request, $response) {
     // 解构URL
     const url = new URL($request.url);
-    Console.info(`url: ${url.toJSON()}`);
+    Console.info("WeatherKit response");
     // 获取连接参数
     const PATHs = url.pathname.split("/").filter(Boolean);
-    Console.info(`PATHs: ${PATHs}`);
+
     // 解析格式
     const FORMAT = ($response.headers?.["Content-Type"] ?? $response.headers?.["content-type"])?.split(";")?.[0];
     Console.info(`FORMAT: ${FORMAT}`);
@@ -31,133 +33,149 @@ export async function Response($request, $response) {
      */
     const { Settings, Caches, Configs } = setENV("iRingo", "WeatherKit", database);
     Console.logLevel = Settings.LogLevel;
-    // 创建空数据
-    let body = {};
-    // 格式判断
-    switch (FORMAT) {
-        case undefined: // 视为无body
-            break;
-        case "application/x-www-form-urlencoded":
-        case "text/plain":
-        default:
-            break;
-        case "application/x-mpegURL":
-        case "application/x-mpegurl":
-        case "application/vnd.apple.mpegurl":
-        case "audio/mpegurl":
-            break;
-        case "text/xml":
-        case "text/html":
-        case "text/plist":
-        case "application/xml":
-        case "application/plist":
-        case "application/x-plist":
-            break;
-        case "text/vtt":
-        case "application/vtt":
-            break;
-        case "text/json":
-        case "application/json":
-            body = JSON.parse($response.body);
-            switch (url.hostname) {
-                case "weatherkit.apple.com":
-                    // 路径判断
-                    switch (url.pathname) {
-                        default:
-                            if (url.pathname.startsWith("/api/v1/availability/")) {
-                                body = mergeWeatherKitAvailability(body, Configs?.Availability?.v2);
-                            }
-                            break;
-                    }
-                    break;
-            }
-            $response.body = JSON.stringify(body);
-            break;
-        case "application/vnd.apple.flatbuffer":
-        case "application/protobuf":
-        case "application/x-protobuf":
-        case "application/vnd.google.protobuf":
-        case "application/grpc":
-        case "application/grpc+proto":
-        case "application/octet-stream": {
-            let rawBody = $response.bodyBytes ? new Uint8Array($response.bodyBytes) : ($response.body ?? new Uint8Array());
-            switch (FORMAT) {
-                case "application/vnd.apple.flatbuffer": {
-                    // 解析FlatBuffer
-                    const ByteBuffer = new flatbuffers.ByteBuffer(rawBody);
-                    // 主机判断
-                    switch (url.hostname) {
-                        case "weatherkit.apple.com":
-                            // 路径判断
-                            if (url.pathname.startsWith("/api/v2/weather/")) {
-                                const parameters = parseWeatherKitURL(url);
-                                const dataSets = parameters.dataSets.filter(dataSet => Settings.DataSets.includes(dataSet));
-                                const rootNames = dataSets.map(dataSet => Configs.DataSets[dataSet] ?? dataSet);
-                                body = WeatherKit2.decode(ByteBuffer, rootNames);
-                                const providerParameters = { ...parameters, weatherKitLanguage: body.weatherAlerts?.metadata?.language };
-                                const requestCache = new ProviderRequestCache({ ttlSeconds: Settings?.RequestCache?.TTL });
-                                const enviroments = {
-                                    colorfulClouds: new ColorfulClouds(providerParameters, Settings?.API?.ColorfulClouds?.Token || "Y2FpeXVuX25vdGlmeQ==", requestCache),
-                                    qWeather: new QWeather(providerParameters, Settings?.API?.QWeather?.Token || "bdd98ec1d87747f3a2e8b1741a5af796", Settings?.API?.QWeather?.Host, requestCache),
-                                    waqi: new WAQI(parameters, Settings?.API?.WAQI?.Token, requestCache),
-                                    country: parameters.country,
-                                };
-
-                                await Promise.all(
-                                    dataSets.map(async dataSet => {
-                                        switch (dataSet) {
-                                            case "airQuality": {
-                                                body.airQuality = await InjectAirQuality(body.airQuality, Settings, Caches, enviroments);
-                                                break;
-                                            }
-                                            case "currentWeather": {
-                                                body.currentWeather = await InjectCurrentWeather(body.currentWeather, Settings, enviroments);
-                                                break;
-                                            }
-                                            case "forecastDaily": {
-                                                body.forecastDaily = await InjectForecastDaily(body.forecastDaily, Settings, enviroments);
-                                                break;
-                                            }
-                                            case "forecastHourly": {
-                                                body.forecastHourly = await InjectForecastHourly(body.forecastHourly, Settings, enviroments);
-                                                break;
-                                            }
-                                            case "forecastNextHour": {
-                                                body.forecastNextHour = await InjectForecastNextHour(body.forecastNextHour, Settings, enviroments);
-                                                break;
-                                            }
-                                            case "weatherAlerts": {
-                                                body.weatherAlerts = await InjectWeatherAlerts(body.weatherAlerts, Settings, enviroments);
-                                                break;
-                                            }
-                                            default:
-                                                break;
-                                        }
-                                    }),
-                                );
-                                rawBody = WeatherKit2.encode(ByteBuffer, body);
+    const requestCache = ProviderRequestCache.fromSettings(Settings);
+    try {
+        // 创建空数据
+        let body = {};
+        // 格式判断
+        switch (FORMAT) {
+            case undefined: // 视为无body
+                break;
+            case "application/x-www-form-urlencoded":
+            case "text/plain":
+            default:
+                break;
+            case "application/x-mpegURL":
+            case "application/x-mpegurl":
+            case "application/vnd.apple.mpegurl":
+            case "audio/mpegurl":
+                break;
+            case "text/xml":
+            case "text/html":
+            case "text/plist":
+            case "application/xml":
+            case "application/plist":
+            case "application/x-plist":
+                break;
+            case "text/vtt":
+            case "application/vtt":
+                break;
+            case "text/json":
+            case "application/json":
+                body = JSON.parse($response.body);
+                switch (url.hostname) {
+                    case "weatherkit.apple.com":
+                        // 路径判断
+                        switch (url.pathname) {
+                            default:
+                                if (url.pathname.startsWith("/api/v1/availability/")) {
+                                    body = mergeWeatherKitAvailability(body, Configs?.Availability?.v2);
+                                }
                                 break;
-                            }
-                            break;
-                    }
-                    break;
+                        }
+                        break;
                 }
-                case "application/protobuf":
-                case "application/x-protobuf":
-                case "application/vnd.google.protobuf":
-                    break;
-                case "application/grpc":
-                case "application/grpc+proto":
-                    break;
-                case "application/octet-stream":
-                    break;
+                $response.body = JSON.stringify(body);
+                break;
+            case "application/vnd.apple.flatbuffer":
+            case "application/protobuf":
+            case "application/x-protobuf":
+            case "application/vnd.google.protobuf":
+            case "application/grpc":
+            case "application/grpc+proto":
+            case "application/octet-stream": {
+                let rawBody = $response.bodyBytes ? new Uint8Array($response.bodyBytes) : ($response.body ?? new Uint8Array());
+                switch (FORMAT) {
+                    case "application/vnd.apple.flatbuffer": {
+                        // 解析FlatBuffer
+                        const ByteBuffer = new flatbuffers.ByteBuffer(rawBody);
+                        // 主机判断
+                        switch (url.hostname) {
+                            case "weatherkit.apple.com":
+                                // 路径判断
+                                if (url.pathname.startsWith("/api/v2/weather/")) {
+                                    const parameters = parseWeatherKitURL(url, { fallback: Settings.Region?.Fallback ?? "Auto" });
+                                    const dataSets = parameters.dataSets.filter(dataSet => Settings.DataSets.includes(dataSet));
+                                    const rootNames = dataSets.map(dataSet => Configs.DataSets[dataSet] ?? dataSet);
+                                    body = WeatherKit2.decode(ByteBuffer, rootNames);
+                                    const providerParameters = { ...parameters, weatherKitLanguage: body.weatherAlerts?.metadata?.language };
+                                    const enviroments = {
+                                        colorfulClouds: new ColorfulClouds(providerParameters, Settings?.API?.ColorfulClouds?.Token || "Y2FpeXVuX25vdGlmeQ==", requestCache),
+                                        qWeather: new QWeather(providerParameters, Settings?.API?.QWeather?.Token || "bdd98ec1d87747f3a2e8b1741a5af796", Settings?.API?.QWeather?.Host, requestCache),
+                                        waqi: new WAQI(parameters, Settings?.API?.WAQI?.Token, requestCache),
+                                        country: parameters.country,
+                                        requestCache,
+                                    };
+
+                                    let modified = false;
+                                    await Promise.all(
+                                        dataSets.map(async dataSet => {
+                                            if (!["airQuality", "currentWeather", "forecastDaily", "forecastHourly", "forecastNextHour", "weatherAlerts"].includes(dataSet)) return;
+                                            const original = body[dataSet];
+                                            try {
+                                                body[dataSet] = cloneWeatherProduct(original);
+                                                switch (dataSet) {
+                                                    case "airQuality": {
+                                                        body.airQuality = await InjectAirQuality(body.airQuality, Settings, Caches, enviroments);
+                                                        break;
+                                                    }
+                                                    case "currentWeather": {
+                                                        body.currentWeather = await InjectCurrentWeather(body.currentWeather, Settings, enviroments);
+                                                        break;
+                                                    }
+                                                    case "forecastDaily": {
+                                                        body.forecastDaily = await InjectForecastDaily(body.forecastDaily, Settings, enviroments);
+                                                        break;
+                                                    }
+                                                    case "forecastHourly": {
+                                                        body.forecastHourly = await InjectForecastHourly(body.forecastHourly, Settings, enviroments);
+                                                        break;
+                                                    }
+                                                    case "forecastNextHour": {
+                                                        body.forecastNextHour = await InjectForecastNextHour(body.forecastNextHour, Settings, enviroments);
+                                                        break;
+                                                    }
+                                                    case "weatherAlerts": {
+                                                        body.weatherAlerts = await InjectWeatherAlerts(body.weatherAlerts, Settings, enviroments);
+                                                        break;
+                                                    }
+                                                    default:
+                                                        break;
+                                                }
+                                                if (weatherProductsEqual(body[dataSet], original)) body[dataSet] = original;
+                                                else modified = true;
+                                            } catch (error) {
+                                                body[dataSet] = original;
+                                                requestCache.noteFallback(dataSet, providerErrorCode(error));
+                                            }
+                                        }),
+                                    );
+                                    if (modified) rawBody = WeatherKit2.encode(ByteBuffer, body);
+                                    break;
+                                }
+                                break;
+                        }
+                        break;
+                    }
+                    case "application/protobuf":
+                    case "application/x-protobuf":
+                    case "application/vnd.google.protobuf":
+                        break;
+                    case "application/grpc":
+                    case "application/grpc+proto":
+                        break;
+                    case "application/octet-stream":
+                        break;
+                }
+                // 写入二进制数据
+                $response.body = rawBody;
+                break;
             }
-            // 写入二进制数据
-            $response.body = rawBody;
-            break;
         }
+        return $response;
+    } finally {
+        requestCache.report("response");
     }
-    return $response;
 }
 
 /**
@@ -188,11 +206,13 @@ async function InjectCurrentWeather(currentWeather, Settings, enviroments) {
             break;
         }
     }
-    if (newCurrentWeather?.metadata) {
+    newCurrentWeather = await recoverConfiguredProduct("currentWeather", newCurrentWeather, currentWeather, Settings?.Weather?.Provider, { QWeather: () => enviroments.qWeather.WeatherNow(), ColorfulClouds: () => enviroments.colorfulClouds.CurrentWeather() }, Settings, enviroments.requestCache);
+    if (providerProductAvailable(newCurrentWeather)) {
         newCurrentWeather.metadata = { ...currentWeather?.metadata, ...newCurrentWeather.metadata };
         currentWeather = { ...currentWeather, ...newCurrentWeather };
         currentWeather.metadata.providerLogo ||= providerNameToLogo(currentWeather.metadata.providerName);
     }
+    if (newCurrentWeather && !providerProductAvailable(newCurrentWeather)) enviroments.requestCache?.noteFallback("currentWeather");
     Console.info("✅ InjectCurrentWeather");
     return currentWeather;
 }
@@ -227,11 +247,24 @@ async function InjectForecastDaily(forecastDaily, Settings, enviroments) {
             break;
         }
     }
-    if (newForecastDaily?.metadata) {
-        forecastDaily.metadata = { ...forecastDaily?.metadata, ...newForecastDaily.metadata };
-        Weather.mergeForecast(forecastDaily?.days, newForecastDaily?.days);
+    newForecastDaily = await recoverConfiguredProduct(
+        "forecastDaily",
+        newForecastDaily,
+        forecastDaily,
+        Settings?.Weather?.Provider,
+        { QWeather: () => enviroments.qWeather.Daily(), ColorfulClouds: () => enviroments.colorfulClouds.Daily(forecastDaily?.days?.length || 11, forecastDaily?.days?.[0]?.forecastStart) },
+        Settings,
+        enviroments.requestCache,
+    );
+    if (providerProductAvailable(newForecastDaily)) {
+        forecastDaily = {
+            ...forecastDaily,
+            metadata: { ...forecastDaily?.metadata, ...newForecastDaily.metadata },
+            days: forecastDaily?.days?.length ? Weather.mergeForecast(forecastDaily.days, newForecastDaily.days) : (newForecastDaily.days ?? []),
+        };
         forecastDaily.metadata.providerLogo ||= providerNameToLogo(forecastDaily.metadata.providerName);
     }
+    if (newForecastDaily && !providerProductAvailable(newForecastDaily)) enviroments.requestCache?.noteFallback("forecastDaily");
     Console.info("✅ InjectForecastDaily");
     return forecastDaily;
 }
@@ -266,11 +299,24 @@ async function InjectForecastHourly(forecastHourly, Settings, enviroments) {
             break;
         }
     }
-    if (newForecastHourly?.metadata) {
-        forecastHourly.metadata = { ...forecastHourly?.metadata, ...newForecastHourly.metadata };
-        forecastHourly.hours = Weather.mergeForecast(forecastHourly?.hours, newForecastHourly?.hours);
+    newForecastHourly = await recoverConfiguredProduct(
+        "forecastHourly",
+        newForecastHourly,
+        forecastHourly,
+        Settings?.Weather?.Provider,
+        { QWeather: () => enviroments.qWeather.Hourly(), ColorfulClouds: () => enviroments.colorfulClouds.ForecastHourly(forecastHourly?.hours?.length || 273, forecastHourly?.hours?.[0]?.forecastStart) },
+        Settings,
+        enviroments.requestCache,
+    );
+    if (providerProductAvailable(newForecastHourly)) {
+        forecastHourly = {
+            ...forecastHourly,
+            metadata: { ...forecastHourly?.metadata, ...newForecastHourly.metadata },
+            hours: forecastHourly?.hours?.length ? Weather.mergeForecast(forecastHourly.hours, newForecastHourly.hours) : (newForecastHourly.hours ?? []),
+        };
         forecastHourly.metadata.providerLogo ||= providerNameToLogo(forecastHourly.metadata.providerName);
     }
+    if (newForecastHourly && !providerProductAvailable(newForecastHourly)) enviroments.requestCache?.noteFallback("forecastHourly");
     Console.info("✅ InjectForecastHourly");
     return forecastHourly;
 }
@@ -304,11 +350,13 @@ async function InjectForecastNextHour(forecastNextHour, Settings, enviroments) {
             break;
         }
     }
-    if (newForecastNextHour?.metadata) {
+    newForecastNextHour = await recoverConfiguredProduct("forecastNextHour", newForecastNextHour, forecastNextHour, Settings?.NextHour?.Provider ?? "ColorfulClouds", { QWeather: () => enviroments.qWeather.Minutely(), ColorfulClouds: () => enviroments.colorfulClouds.Minutely() }, Settings, enviroments.requestCache);
+    if (providerProductAvailable(newForecastNextHour)) {
         newForecastNextHour.metadata = { ...forecastNextHour?.metadata, ...newForecastNextHour.metadata };
         forecastNextHour = { ...forecastNextHour, ...newForecastNextHour };
         forecastNextHour.metadata.providerLogo ||= providerNameToLogo(forecastNextHour.metadata.providerName);
     }
+    if (newForecastNextHour && !providerProductAvailable(newForecastNextHour)) enviroments.requestCache?.noteFallback("forecastNextHour");
     Console.info("✅ InjectForecastNextHour");
     return forecastNextHour;
 }
@@ -329,11 +377,11 @@ async function InjectWeatherAlerts(weatherAlerts, Settings, enviroments) {
             break;
         }
         case "ColorfulClouds": {
-            if (isNationalWarningCenter) newWeatherAlerts = await enviroments.colorfulClouds.WeatherAlert();
+            if (isNationalWarningCenter || !providerProductAvailable(weatherAlerts)) newWeatherAlerts = await enviroments.colorfulClouds.WeatherAlert();
             break;
         }
         case "QWeather": {
-            if (isNationalWarningCenter) newWeatherAlerts = await enviroments.qWeather.WeatherAlert();
+            if (isNationalWarningCenter || !providerProductAvailable(weatherAlerts)) newWeatherAlerts = await enviroments.qWeather.WeatherAlert();
             break;
         }
         case "QWeatherWeb":
@@ -342,12 +390,15 @@ async function InjectWeatherAlerts(weatherAlerts, Settings, enviroments) {
             break;
         }
     }
-    if (newWeatherAlerts?.metadata) {
+    newWeatherAlerts = await recoverConfiguredProduct("weatherAlerts", newWeatherAlerts, weatherAlerts, Settings?.WeatherAlerts?.Provider, { QWeather: () => enviroments.qWeather.WeatherAlert(), ColorfulClouds: () => enviroments.colorfulClouds.WeatherAlert() }, Settings, enviroments.requestCache);
+    if (providerProductAvailable(newWeatherAlerts)) {
+        weatherAlerts ??= {};
         weatherAlerts.metadata = { ...weatherAlerts?.metadata, ...newWeatherAlerts.metadata };
         weatherAlerts.detailsUrl = newWeatherAlerts.detailsUrl ?? weatherAlerts.detailsUrl;
-        weatherAlerts.alerts = WeatherAlerts.mergeAlerts(weatherAlerts?.alerts, newWeatherAlerts?.alerts);
+        weatherAlerts.alerts = WeatherAlerts.mergeAlerts(weatherAlerts?.alerts, activeProviderAlerts(newWeatherAlerts?.alerts));
         weatherAlerts.metadata.providerLogo ||= providerNameToLogo(weatherAlerts.metadata.providerName);
     }
+    if (newWeatherAlerts && !providerProductAvailable(newWeatherAlerts)) enviroments.requestCache?.noteFallback("weatherAlerts");
     Console.info("✅ InjectWeatherAlerts");
     return weatherAlerts;
 }
@@ -379,7 +430,14 @@ async function InjectAirQuality(airQuality, Settings, Caches, enviroments) {
     const previousDayComparison = needInjectIndex && Settings?.AirQuality?.Comparison?.ReplaceWhenCurrentChange ? AirQuality.Config.CompareCategoryIndexes.UNKNOWN : weatherKitComparison;
     const needInjectComparison = previousDayComparison === AirQuality.Config.CompareCategoryIndexes.UNKNOWN;
     const currentIndexProvider = needInjectIndex ? Settings?.AirQuality?.Current?.Index?.Provider : "WeatherKit";
-    const injectedComparison = needInjectComparison ? await InjectComparison(injectedIndex, currentIndexProvider, Settings, Caches, enviroments) : { ...injectedIndex, previousDayComparison: weatherKitComparison };
+    let injectedComparison = { ...injectedIndex, previousDayComparison: weatherKitComparison };
+    if (needInjectComparison) {
+        try {
+            injectedComparison = await InjectComparison(injectedIndex, currentIndexProvider, Settings, Caches, enviroments);
+        } catch (error) {
+            enviroments.requestCache?.noteFallback("airQuality", providerErrorCode(error));
+        }
+    }
 
     // Step5. 收集各阶段元数据，拼接最终 providerName 展示文案
     const weatherKitMetadata = airQuality?.metadata;
@@ -581,7 +639,7 @@ async function InjectComparison(airQuality, currentIndexProvider, Settings, Cach
             Storage.setItem("@iRingo.WeatherKit.Caches", { ...Caches, qweather: qweatherCache });
         };
 
-        const locationsGrid = await QWeather.GetLocationsGrid(Caches?.qweather, setQWeatherCache);
+        const locationsGrid = await QWeather.GetLocationsGrid(Caches?.qweather, setQWeatherCache, enviroments.requestCache);
         const { latitude, longitude } = enviroments.qWeather;
         const locationInfo = QWeather.GetLocationInfo(locationsGrid, latitude, longitude);
 

@@ -1,6 +1,7 @@
 // Modified by hhhoratioxu, 2026-10-19: bounded request coalescing and short-lived response caching.
 import { Lodash as _, Console, fetch, time } from "@nsnanocat/util";
-import ProviderRequestCache from "./ProviderRequestCache.mjs";
+import utf8Length from "../function/utf8Length.mjs";
+import ProviderRequestCache, { providerErrorCode } from "./ProviderRequestCache.mjs";
 import AirQuality from "../class/AirQuality.mjs";
 import providerNameToLogo from "../function/providerNameToLogo.mjs";
 import ForecastNextHour from "./ForecastNextHour.mjs";
@@ -37,6 +38,8 @@ export default class QWeather {
             fetcher: fetch,
             partition: [this.Name, this.version, this.language, this.country],
             product: path,
+            group: [this.latitude, this.longitude, this.country],
+            kind: /weatheralert/.test(path) ? "alerts" : /minutely/.test(path) ? "minutely" : /\/weather\/\d+[hd]$/.test(path) ? "forecast" : "current",
             maximumTTLSeconds: path.includes("/minutely/") ? 30 : 300,
             validate: body => {
                 if (body?.error) return false;
@@ -101,20 +104,173 @@ export default class QWeather {
             // QWeather 没有提供 CAP category，本表按官方事件名称映射；具体类别必须先于 Met 匹配。
             // QWeather does not provide CAP category; this table maps official event names, with specific categories matched before Met.
             EventCategories: [
-                { category: "Geo", codes: [[1013, 1013], [1037, 1037], [1241, 1251], [1603, 1603], [2032, 2032], [2159, 2159], [2163, 2163], [2320, 2323], [2348, 2348], [2363, 2363], [2373, 2373], [2378, 2378], [2399, 2400], [3140, 3140], [3144, 3144]] },
-                { category: "Safety", codes: [[1044, 1045], [1218, 1218], [2419, 2420], [2713, 2713]] },
+                {
+                    category: "Geo",
+                    codes: [
+                        [1013, 1013],
+                        [1037, 1037],
+                        [1241, 1251],
+                        [1603, 1603],
+                        [2032, 2032],
+                        [2159, 2159],
+                        [2163, 2163],
+                        [2320, 2323],
+                        [2348, 2348],
+                        [2363, 2363],
+                        [2373, 2373],
+                        [2378, 2378],
+                        [2399, 2400],
+                        [3140, 3140],
+                        [3144, 3144],
+                    ],
+                },
+                {
+                    category: "Safety",
+                    codes: [
+                        [1044, 1045],
+                        [1218, 1218],
+                        [2419, 2420],
+                        [2713, 2713],
+                    ],
+                },
                 { category: "Security", codes: [] },
                 { category: "Rescue", codes: [] },
-                { category: "Fire", codes: [[1025, 1026], [1041, 1041], [1077, 1077], [1084, 1084], [1605, 1605], [2005, 2005], [2132, 2132], [2158, 2158], [2192, 2192], [2207, 2207], [2302, 2302], [2349, 2349], [2414, 2414], [2743, 2743], [3139, 3139]] },
-                { category: "Health", codes: [[1024, 1024], [1042, 1042], [1066, 1066], [1068, 1069], [1071, 1072], [1082, 1082], [1210, 1210], [2851, 2851]] },
-                { category: "Env", codes: [[1029, 1029], [1032, 1032], [1067, 1067], [1074, 1074], [1217, 1217], [1271, 1274], [2202, 2202], [2374, 2374], [2389, 2389], [2413, 2413], [2527, 2527]] },
-                { category: "Transport", codes: [[1021, 1021], [1046, 1046], [1057, 1057], [2077, 2078], [2300, 2301], [2328, 2328], [2360, 2360], [2375, 2376], [2385, 2388], [2415, 2415], [2554, 2554], [2722, 2723], [2791, 2797]] },
-                { category: "Infra", codes: [[1081, 1081], [1203, 1204], [1216, 1216], [1221, 1221]] },
+                {
+                    category: "Fire",
+                    codes: [
+                        [1025, 1026],
+                        [1041, 1041],
+                        [1077, 1077],
+                        [1084, 1084],
+                        [1605, 1605],
+                        [2005, 2005],
+                        [2132, 2132],
+                        [2158, 2158],
+                        [2192, 2192],
+                        [2207, 2207],
+                        [2302, 2302],
+                        [2349, 2349],
+                        [2414, 2414],
+                        [2743, 2743],
+                        [3139, 3139],
+                    ],
+                },
+                {
+                    category: "Health",
+                    codes: [
+                        [1024, 1024],
+                        [1042, 1042],
+                        [1066, 1066],
+                        [1068, 1069],
+                        [1071, 1072],
+                        [1082, 1082],
+                        [1210, 1210],
+                        [2851, 2851],
+                    ],
+                },
+                {
+                    category: "Env",
+                    codes: [
+                        [1029, 1029],
+                        [1032, 1032],
+                        [1067, 1067],
+                        [1074, 1074],
+                        [1217, 1217],
+                        [1271, 1274],
+                        [2202, 2202],
+                        [2374, 2374],
+                        [2389, 2389],
+                        [2413, 2413],
+                        [2527, 2527],
+                    ],
+                },
+                {
+                    category: "Transport",
+                    codes: [
+                        [1021, 1021],
+                        [1046, 1046],
+                        [1057, 1057],
+                        [2077, 2078],
+                        [2300, 2301],
+                        [2328, 2328],
+                        [2360, 2360],
+                        [2375, 2376],
+                        [2385, 2388],
+                        [2415, 2415],
+                        [2554, 2554],
+                        [2722, 2723],
+                        [2791, 2797],
+                    ],
+                },
+                {
+                    category: "Infra",
+                    codes: [
+                        [1081, 1081],
+                        [1203, 1204],
+                        [1216, 1216],
+                        [1221, 1221],
+                    ],
+                },
                 { category: "CBRNE", codes: [] },
-                { category: "Other", codes: [[2166, 2166], [3106, 3106], [3147, 3147], [9999, 9999]] },
+                {
+                    category: "Other",
+                    codes: [
+                        [2166, 2166],
+                        [3106, 3106],
+                        [3147, 3147],
+                        [9999, 9999],
+                    ],
+                },
                 {
                     category: "Met",
-                    codes: [[1001, 1089], [1201, 1221], [1241, 1251], [1271, 1274], [1601, 1610], [1701, 1710], [1801, 1805], [2001, 2007], [2029, 2033], [2050, 2054], [2070, 2085], [2100, 2109], [2111, 2111], [2120, 2135], [2150, 2150], [2152, 2168], [2190, 2193], [2200, 2205], [2207, 2221], [2300, 2309], [2311, 2328], [2330, 2333], [2341, 2341], [2343, 2343], [2345, 2346], [2348, 2400], [2409, 2409], [2411, 2426], [2501, 2502], [2521, 2532], [2550, 2554], [2581, 2581], [2601, 2620], [2641, 2641], [2713, 2713], [2722, 2723], [2743, 2743], [2749, 2749], [2751, 2753], [2755, 2756], [2791, 2797], [2801, 2804], [2839, 2853], [2873, 2874], [3101, 3107], [3131, 3148]],
+                    codes: [
+                        [1001, 1089],
+                        [1201, 1221],
+                        [1241, 1251],
+                        [1271, 1274],
+                        [1601, 1610],
+                        [1701, 1710],
+                        [1801, 1805],
+                        [2001, 2007],
+                        [2029, 2033],
+                        [2050, 2054],
+                        [2070, 2085],
+                        [2100, 2109],
+                        [2111, 2111],
+                        [2120, 2135],
+                        [2150, 2150],
+                        [2152, 2168],
+                        [2190, 2193],
+                        [2200, 2205],
+                        [2207, 2221],
+                        [2300, 2309],
+                        [2311, 2328],
+                        [2330, 2333],
+                        [2341, 2341],
+                        [2343, 2343],
+                        [2345, 2346],
+                        [2348, 2400],
+                        [2409, 2409],
+                        [2411, 2426],
+                        [2501, 2502],
+                        [2521, 2532],
+                        [2550, 2554],
+                        [2581, 2581],
+                        [2601, 2620],
+                        [2641, 2641],
+                        [2713, 2713],
+                        [2722, 2723],
+                        [2743, 2743],
+                        [2749, 2749],
+                        [2751, 2753],
+                        [2755, 2756],
+                        [2791, 2797],
+                        [2801, 2804],
+                        [2839, 2853],
+                        [2873, 2874],
+                        [3101, 3107],
+                        [3131, 3148],
+                    ],
                 },
             ],
         },
@@ -124,7 +280,7 @@ export default class QWeather {
         },
     };
 
-    static async GetLocationsGrid(qweatherCache, setCache) {
+    static async GetLocationsGrid(qweatherCache, setCache, runtime = new ProviderRequestCache()) {
         Console.info("☑️ GetLocationsGrid");
         const locationsGrid = qweatherCache?.locationsGrid;
         // cache within 30 days
@@ -133,10 +289,13 @@ export default class QWeather {
             return locationsGrid.data;
         } else {
             Console.info("⚠️ GetLocationsGrid", "Cache not found or stale, fetching...");
-            const response = await fetch({
-                headers: locationsGrid?.etag ? { "If-None-Match": locationsGrid?.etag } : undefined,
-                url: "https://raw.githubusercontent.com/NSRingo/QWeather-Location-Grid/refs/heads/main/data/qweather-china-city-list-grid.json",
-            });
+            const response = await runtime.fetch(
+                {
+                    headers: locationsGrid?.etag ? { "If-None-Match": locationsGrid?.etag } : undefined,
+                    url: "https://raw.githubusercontent.com/NSRingo/QWeather-Location-Grid/refs/heads/main/data/qweather-china-city-list-grid.json",
+                },
+                { fetcher: fetch, cacheable: false, format: "text", allowNotModified: true, validate: () => true, maximumResponseCharacters: 2 * 1024 * 1024 },
+            );
 
             if (response.status === 304) {
                 Console.info("✅ GetLocationsGrid", "Cache not modified");
@@ -347,48 +506,37 @@ export default class QWeather {
      * @param {Record<string, string | string[] | undefined>} requestHeaders 原请求头 / Original request headers.
      * @returns {Promise<{alerts: Array<object>, areaName: string, source: string}>} 来源集合 / Source collection.
      */
-    static async FetchWeatherAlertPage(identifier, language = "zh-CN", requestHeaders = {}) {
+    static async FetchWeatherAlertPage(identifier, language = "zh-CN", requestHeaders = {}, runtime = new ProviderRequestCache()) {
         const sourceUrl = QWeather.BuildWeatherAlertPageURL(identifier, language);
         const normalizedHeaders = Object.fromEntries(Object.entries(requestHeaders).map(([key, value]) => [key.toLowerCase(), value]));
-        const sourceHeaders = {
-            Accept: "text/html,application/xhtml+xml",
-            "Accept-Language": normalizedHeaders["accept-language"] ?? language,
-            Referer: "https://www.qweather.com/",
-        };
+        const sourceHeaders = { Accept: "text/html,application/xhtml+xml", "Accept-Language": normalizedHeaders["accept-language"] ?? language, Referer: "https://www.qweather.com/" };
         if (normalizedHeaders["user-agent"]) sourceHeaders["User-Agent"] = normalizedHeaders["user-agent"];
-
-        Console.info("☑️ QWeather.FetchWeatherAlertPage", `url: ${sourceUrl}`, `language: ${language}`);
-        const sourceResponse = await fetch({
-            url: sourceUrl.toString(),
-            headers: sourceHeaders,
-            "auto-cookie": false,
-        });
-        const contentType = sourceResponse.headers?.["Content-Type"] ?? sourceResponse.headers?.["content-type"] ?? "";
-        Console.info("QWeather.FetchWeatherAlertPage", `status: ${sourceResponse.statusCode ?? sourceResponse.status}`, `contentType: ${contentType || "undefined"}`);
-        if (!sourceResponse.ok) {
-            Console.warn("QWeather.FetchWeatherAlertPage", `upstreamStatus: ${sourceResponse.statusCode ?? sourceResponse.status}`);
-            return { alerts: [], areaName: "", source: "QWeather" };
-        }
-        if (!contentType.toLowerCase().includes("text/html")) {
-            Console.warn("QWeather.FetchWeatherAlertPage", `unexpectedContentType: ${contentType || "undefined"}`);
-            return { alerts: [], areaName: "", source: "QWeather" };
-        }
-        const html = String(sourceResponse.body ?? "");
-        const sourceSize = new TextEncoder().encode(html).byteLength;
-        Console.debug("QWeather.FetchWeatherAlertPage", `bodyBytes: ${sourceSize}`);
-        if (sourceSize > QWeather.#MaximumWeatherAlertPageSize) throw new RangeError("QWeather alert page is too large");
-
-        const extracted = QWeather.ExtractWeatherAlertPage(html);
-        Console.info("✅ QWeather.FetchWeatherAlertPage", `alerts: ${extracted.alerts.length}`, `source: ${extracted.source}`);
+        const unavailable = { alerts: [], areaName: "", source: "QWeather", pageValid: false };
+        const response = await runtime.fetch(
+            { url: sourceUrl.toString(), headers: sourceHeaders, "auto-cookie": false },
+            {
+                partition: ["QWeatherWeb", language],
+                product: "weather-alert-page.v1",
+                kind: "alerts",
+                maximumTTLSeconds: 30,
+                group: [identifier],
+                validate: body => body?.pageValid === true && Array.isArray(body.alerts) && typeof body.areaName === "string",
+                fetcher: async request => {
+                    const source = await fetch(request);
+                    const type = String(source.headers?.["Content-Type"] ?? source.headers?.["content-type"] ?? "").toLowerCase();
+                    const html = typeof source.body === "string" ? source.body : "";
+                    if (html.length > QWeather.#MaximumWeatherAlertPageSize || utf8Length(html, QWeather.#MaximumWeatherAlertPageSize) > QWeather.#MaximumWeatherAlertPageSize) throw new RangeError("QWeather alert page is too large");
+                    const recognized = /\bc-submenu__location\b/.test(html) && /c-city-warning|暂无预警|无生效预警|No(?: active)? (?:weather )?warnings/i.test(html);
+                    const page = source.ok && type.includes("text/html") && recognized ? { ...QWeather.ExtractWeatherAlertPage(html), pageValid: true } : unavailable;
+                    // Persist only parsed alert records, not an entire HTML document.
+                    return { ...source, body: JSON.stringify(page) };
+                },
+            },
+        );
+        const parsed = JSON.parse(response.body);
+        if (!response.ok || parsed.pageValid !== true) return { ...unavailable, unavailable: true, metadata: { temporarilyUnavailable: true } };
         const areaId = identifier.match(/-(\d+)$/)?.[1];
-        return {
-            ...extracted,
-            alerts: extracted.alerts.map(alert => ({
-                ...alert,
-                ...(areaId && !alert.areaId ? { areaId } : {}),
-                ...(extracted.areaName && !alert.areaName ? { areaName: extracted.areaName } : {}),
-            })),
-        };
+        return { alerts: parsed.alerts.map(alert => ({ ...alert, ...(areaId && !alert.areaId ? { areaId } : {}), ...(parsed.areaName && !alert.areaName ? { areaName: parsed.areaName } : {}) })), areaName: parsed.areaName, source: parsed.source, metadata: { temporarilyUnavailable: false } };
     }
 
     async GeoAPI(path = "city/lookup") {
@@ -414,7 +562,7 @@ export default class QWeather {
                     throw Error(body?.code);
             }
         } catch (error) {
-            Console.error(`GeoAPI: ${error}`);
+            Console.error(`GeoAPI: ${providerErrorCode(error)}`);
         } finally {
             Console.debug(`metadata: ${JSON.stringify(metadata, null, 2)}`);
             Console.info("✅ GeoAPI");
@@ -431,6 +579,7 @@ export default class QWeather {
         Console.info("☑️ WeatherAlert");
         const failedWeatherAlerts = {
             metadata: {
+                temporarilyUnavailable: true,
                 attributionUrl: "https://developer.qweather.com/attribution.html",
             },
             detailsUrl: `https://weatherkit.apple.com/alertDetails/index.html?ids=${this.latitude},${this.longitude}&lang=${encodeURIComponent(this.weatherKitLanguage)}&party=QWeather`,
@@ -455,8 +604,9 @@ export default class QWeather {
             }
             if (!body?.metadata || !Array.isArray(body?.alerts)) throw Error(JSON.stringify(body?.error ?? body?.code ?? body));
             weatherAlerts = { ...failedWeatherAlerts, ...this.#CreateWeatherAlerts(body) };
+            if (!weatherAlerts.metadata?.temporarilyUnavailable || weatherAlerts !== failedWeatherAlerts) weatherAlerts.metadata = { ...weatherAlerts.metadata, temporarilyUnavailable: false };
         } catch (error) {
-            Console.error(`WeatherAlert: ${error}`);
+            Console.error(`WeatherAlert: ${providerErrorCode(error)}`);
         } finally {
             Console.info("✅ WeatherAlert");
         }
@@ -478,6 +628,7 @@ export default class QWeather {
         }
         const failedWeatherAlerts = {
             metadata: {
+                temporarilyUnavailable: true,
                 attributionUrl: String(url),
             },
             detailsUrl: QWeather.BuildAppleAlertDetailsURL(identifier, this.weatherKitLanguage),
@@ -487,9 +638,11 @@ export default class QWeather {
         };
         let weatherAlerts = failedWeatherAlerts;
         try {
-            weatherAlerts = { ...failedWeatherAlerts, ...(await QWeather.FetchWeatherAlertPage(identifier, this.weatherKitLanguage)) };
+            const source = await QWeather.FetchWeatherAlertPage(identifier, this.weatherKitLanguage, {}, this.#requests);
+            weatherAlerts = { ...failedWeatherAlerts, ...source, metadata: { ...failedWeatherAlerts.metadata, ...source.metadata } };
+            if (weatherAlerts !== failedWeatherAlerts && !weatherAlerts.unavailable) weatherAlerts.metadata = { ...weatherAlerts.metadata, temporarilyUnavailable: false };
         } catch (error) {
-            Console.error(`WeatherAlertWeb: ${error}`);
+            Console.error(`WeatherAlertWeb: ${providerErrorCode(error)}`);
         } finally {
             Console.info("✅ WeatherAlertWeb");
         }
@@ -548,7 +701,7 @@ export default class QWeather {
                     throw Error(body?.code);
             }
         } catch (error) {
-            Console.error(`WeatherNow: ${error}`);
+            Console.error(`WeatherNow: ${providerErrorCode(error)}`);
         } finally {
             //Console.debug(`currentWeather: ${JSON.stringify(currentWeather, null, 2)}`);
             Console.info("✅ WeatherNow");
@@ -605,7 +758,7 @@ export default class QWeather {
                     throw Error(body?.code);
             }
         } catch (error) {
-            Console.error(`AirNow: ${error}`);
+            Console.error(`AirNow: ${providerErrorCode(error)}`);
         } finally {
             //Console.debug(`airQuality: ${JSON.stringify(airQuality, null, 2)}`);
             Console.info("✅ AirNow");
@@ -630,7 +783,7 @@ export default class QWeather {
                     throw Error(JSON.stringify(body?.error, null, 2));
             }
         } catch (error) {
-            Console.error(`AirQualityCurrent: ${error}`);
+            Console.error(`AirQualityCurrent: ${providerErrorCode(error)}`);
         } finally {
             //Console.debug(`airQuality: ${JSON.stringify(airQuality, null, 2)}`);
             Console.info("✅ AirQualityCurrent");
@@ -713,7 +866,7 @@ export default class QWeather {
                     throw Error(body?.code);
             }
         } catch (error) {
-            Console.error(`Minutely: ${error}`);
+            Console.error(`Minutely: ${providerErrorCode(error)}`);
         } finally {
             //Console.debug(`forecastNextHour: ${JSON.stringify(forecastNextHour, null, 2)}`);
             Console.info("✅ Minutely");
@@ -792,7 +945,7 @@ export default class QWeather {
                     throw Error(body?.code);
             }
         } catch (error) {
-            Console.error(`Hourly: ${error}`);
+            Console.error(`Hourly: ${providerErrorCode(error)}`);
         } finally {
             //Console.debug(`airQuality: ${JSON.stringify(forecastHourly, null, 2)}`);
             Console.info("✅ Hourly");
@@ -937,7 +1090,7 @@ export default class QWeather {
                     throw Error(body?.code);
             }
         } catch (error) {
-            Console.error(`Daily: ${error}`);
+            Console.error(`Daily: ${providerErrorCode(error)}`);
         } finally {
             //Console.debug(`airQuality: ${JSON.stringify(forecastDaily, null, 2)}`);
             Console.info("✅ Daily");
@@ -969,7 +1122,7 @@ export default class QWeather {
                     throw Error(body?.code);
             }
         } catch (error) {
-            Console.error(`HistoricalAir: ${error}`);
+            Console.error(`HistoricalAir: ${providerErrorCode(error)}`);
         } finally {
             //Console.debug(`airQuality: ${JSON.stringify(airQuality, null, 2)}`);
             Console.info("✅ HistoricalAir");
