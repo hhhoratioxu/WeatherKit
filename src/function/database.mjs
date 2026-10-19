@@ -1,8 +1,10 @@
+// Modified by hhhoratioxu, 2026-10-19: default short-lived provider response cache.
 export default {
     WeatherKit: {
         Settings: {
             // 只有插件会修改的产品允许被配置关闭；其余 Apple 数据集必须始终透传。
             DataSets: ["airQuality", "currentWeather", "forecastDaily", "forecastHourly", "forecastNextHour", "weatherAlerts"],
+            RequestCache: { TTL: 60 },
             Weather: { Replace: ["CN"], Provider: "ColorfulClouds" },
             WeatherAlerts: { Provider: "QWeatherWeb" },
             NextHour: { Provider: "ColorfulClouds" },

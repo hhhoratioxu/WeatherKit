@@ -1,3 +1,4 @@
+// Modified by hhhoratioxu, 2026-10-19: expose bounded provider cache lifetime.
 import { defineConfig } from "@iringo/arguments-builder";
 
 type Arg = {
@@ -48,6 +49,16 @@ export const output = {
         scope: "@iRingo.WeatherKit.Settings",
     },
 };
+
+export const requestCache: Arg[] = [
+    {
+        key: "RequestCache.TTL",
+        name: "[请求缓存] 有效期（秒）",
+        defaultValue: "60",
+        type: "string",
+        description: "成功的第三方 JSON 响应默认缓存 60 秒，普通数据最多 300 秒，分钟降雨最多 30 秒。设为 0 只合并本次执行中尚未完成的相同请求。仅 Loon 使用有上限的跨次本地缓存。",
+    },
+];
 
 export const dataSets: Arg[] = [
     {
@@ -381,5 +392,5 @@ export const logLevel: Arg[] = [
 
 export default defineConfig({
     output,
-    args: [...dataSetsFull, ...weatherFull, ...weatherAlerts, ...nextHourFull, ...airQualityFull, ...calculateFull, ...api, ...storage, ...logLevel],
+    args: [...dataSetsFull, ...weatherFull, ...weatherAlerts, ...nextHourFull, ...airQualityFull, ...calculateFull, ...api, ...storage, ...logLevel, ...requestCache],
 });

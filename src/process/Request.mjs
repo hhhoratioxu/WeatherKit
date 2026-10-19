@@ -1,7 +1,9 @@
+// Modified by hhhoratioxu, 2026-10-19: honor cache TTL for provider JSON alert requests.
 import { Lodash as _, Console, Storage } from "@nsnanocat/util";
 import AirQualityScale from "../class/AirQualityScale.mjs";
 import ColorfulClouds from "../class/ColorfulClouds.mjs";
 import QWeather from "../class/QWeather.mjs";
+import ProviderRequestCache from "../class/ProviderRequestCache.mjs";
 import WeatherAlerts from "../class/WeatherAlerts.mjs";
 import database from "../function/database.mjs";
 import parseWeatherKitURL from "../function/parseWeatherKitURL.mjs";
@@ -169,7 +171,7 @@ async function GetWeatherAlerts(identifier, parameters, Settings, headers) {
                 switch (Settings?.WeatherAlerts?.Provider) {
                     case "ColorfulClouds": {
                         Console.info("☑️ ColorfulClouds.WeatherAlert", `ids: ${identifier}`);
-                        const colorfulClouds = new ColorfulClouds(parameters, Settings?.API?.ColorfulClouds?.Token || "Y2FpeXVuX25vdGlmeQ==");
+                        const colorfulClouds = new ColorfulClouds(parameters, Settings?.API?.ColorfulClouds?.Token || "Y2FpeXVuX25vdGlmeQ==", new ProviderRequestCache({ ttlSeconds: Settings?.RequestCache?.TTL }));
                         const source = await colorfulClouds.WeatherAlert();
                         body = WeatherAlerts.Build(source, {
                             attributionUrl: source?.metadata?.attributionUrl ?? "https://www.caiyunapp.com/h5",
@@ -181,7 +183,7 @@ async function GetWeatherAlerts(identifier, parameters, Settings, headers) {
                     }
                     case "QWeatherWeb":
                     case "QWeather": {
-                        const qWeather = new QWeather(parameters, Settings?.API?.QWeather?.Token || "bdd98ec1d87747f3a2e8b1741a5af796", Settings?.API?.QWeather?.Host);
+                        const qWeather = new QWeather(parameters, Settings?.API?.QWeather?.Token || "bdd98ec1d87747f3a2e8b1741a5af796", Settings?.API?.QWeather?.Host, new ProviderRequestCache({ ttlSeconds: Settings?.RequestCache?.TTL }));
                         body = WeatherAlerts.Build(await qWeather.WeatherAlert(), {
                             attributionUrl: "https://www.12379.cn/",
                             identifier: `${parameters.latitude},${parameters.longitude}`,

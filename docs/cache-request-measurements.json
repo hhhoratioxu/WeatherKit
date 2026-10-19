@@ -1,0 +1,26 @@
+{
+  "environment": "Node VM, browser bundles, simulated Loon callbacks and storage",
+  "liveWeatherRequests": false,
+  "deviceVPNValidation": false,
+  "baselineCommit": "c40e8f8a13c8304a7ef500cb74acc5948af14b3f",
+  "optimizedSourceSHA256": {
+    "src/class/WAQI.mjs": "f008fa00ddd8b7931fca12eb10403b78edbd8e2066040c3fe435a54ab69a0dd8",
+    "src/class/ProviderRequestCache.mjs": "8f5f7ffd6b2a99637feef9a23a0e9e2a734ea93d0dd46946b1cd34ccd87e8121"
+  },
+  "cases": [
+    {
+      "implementation": "upstream",
+      "coldConcurrentConsumers": 6,
+      "coldNativeRequests": 6,
+      "warmConcurrentConsumers": 6,
+      "warmNativeRequests": 6
+    },
+    {
+      "implementation": "optimized",
+      "coldConcurrentConsumers": 6,
+      "coldNativeRequests": 1,
+      "warmConcurrentConsumers": 6,
+      "warmNativeRequests": 0
+    }
+  ]
+}

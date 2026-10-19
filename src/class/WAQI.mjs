@@ -1,9 +1,12 @@
+// Modified by hhhoratioxu, 2026-10-19: cache weather data only; token endpoints remain uncached.
 import { Console, fetch } from "@nsnanocat/util";
+import ProviderRequestCache from "./ProviderRequestCache.mjs";
 import AirQuality from "../class/AirQuality.mjs";
 import providerNameToLogo from "../function/providerNameToLogo.mjs";
 
 export default class WAQI {
-    constructor(parameters, token) {
+    constructor(parameters, token, requestCache = new ProviderRequestCache()) {
+        this.#requests = requestCache;
         this.Name = "WAQI";
         this.Version = "1.4.3";
         Console.log(`🟧 ${this.Name} v${this.Version}`);
@@ -14,6 +17,21 @@ export default class WAQI {
         this.latitude = parameters.latitude;
         this.longitude = parameters.longitude;
         this.country = parameters.country;
+    }
+
+    #requests;
+
+    #Fetch(request) {
+        return this.#requests.fetch(typeof $loon === "string" ? { ...request, timeout: request.timeout ?? 5000 } : request, {
+            fetcher: fetch,
+            partition: [this.Name, this.version, this.language, this.country],
+            product: "air-quality",
+            validate: body => {
+                if (request.url.includes("/mapq/")) return body?.status !== "error" && Array.isArray(body?.d) && body.d.length > 0;
+                if (request.url.includes("/mapq2/")) return body?.status === "ok" && Array.isArray(body?.data?.stations) && body.data.stations.length > 0;
+                return body?.status === "ok" && Boolean(body?.data?.city);
+            },
+        });
     }
 
     #Configs = {
@@ -56,7 +74,7 @@ export default class WAQI {
         };
         let airQuality;
         try {
-            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (mapqVersion) {
                 case "mapq":
                     switch (body?.status) {
@@ -237,7 +255,7 @@ export default class WAQI {
         if (stationId) request.url = `https://api2.waqi.info/feed/@${stationId}/?token=${token}`;
         let airQuality;
         try {
-            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.status) {
                 case "ok": {
                     const timeStamp = (Date.now() / 1000) | 0;
