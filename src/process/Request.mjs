@@ -158,7 +158,7 @@ export async function Request($request) {
  * @param {Record<string, string>} headers - 请求头
  * @returns {Promise<object>} 天气预警响应
  */
-async function GetWeatherAlerts(identifier, parameters, Settings, headers, runtime) {
+export async function GetWeatherAlerts(identifier, parameters, Settings, headers, runtime) {
     let body = [];
     try {
         switch (true) {

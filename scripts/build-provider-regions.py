@@ -29,7 +29,7 @@ for feature in json.loads(raw)['features']:
     if not code: continue
     geometry=feature['geometry']; polys=geometry['coordinates'] if geometry['type']=='MultiPolygon' else [geometry['coordinates']]
     regions[code]=[[[[round(x,5),round(y,5)] for x,y,*_ in simplify(ring, 0.01 if code == "CN" else 0.001)] for ring in poly] for poly in polys]
-content='// Natural Earth public-domain data. Provider hints only; not authoritative boundaries.\n// Source: '+SOURCE+'\nexport default '+json.dumps(regions,separators=(',',':'))+';\n'
+content='// Natural Earth public-domain data. Provider hints only; not authoritative boundaries.\n// Source: '+SOURCE+'\nlet regions;\nexport default function getProviderRegions() {\n    return regions ??= JSON.parse('+json.dumps(json.dumps(regions,separators=(',',':')))+');\n}\n'
 (ROOT/'src/data').mkdir(exist_ok=True); (ROOT/'src/data/providerRegions.mjs').write_text(content)
 metadata={'url':SOURCE,'sourceSHA256':hashlib.sha256(raw).hexdigest(),'license':'Public domain','licenseURL':'https://www.naturalearthdata.com/about/terms-of-use/','providerCodes':list(regions),'simplificationToleranceDegrees':{'CN':0.01,'HK':0.001,'MO':0.001,'TW':0.001},'boundaryExclusionDegrees':{'CN':0.05,'HK':0.01,'MO':0.01,'TW':0.01},'quantizationDegrees':0.00001,'purpose':'Conservative weather-provider routing hints, not authoritative administrative boundaries'}
 (ROOT/'docs/provider-regions-source.json').write_text(json.dumps(metadata,indent=2)+'\n')

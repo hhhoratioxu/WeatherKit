@@ -6,14 +6,13 @@ globalThis.$environment = { "surge-version": "test" };
 globalThis.$persistentStore = { read: () => null, write: () => true };
 globalThis.$argument = { LogLevel: "OFF", Storage: "database" };
 
-const [{ default: WeatherKit2 }, { FlatBufferRootProcessor }, { News, Weather }, { Response }, { Response: ResponseDev }, { Console }, { default: database }] = await Promise.all([
+const [{ default: WeatherKit2 }, { FlatBufferRootProcessor }, { News, Weather }, { Response }, { Response: ResponseDev }, { Console }] = await Promise.all([
     import("../src/class/WeatherKit2.mjs"),
     import("@nsnanocat/flatbuffer-root"),
     import("@nsringo/weatherkit"),
     import("../src/process/Response.mjs"),
     import("../src/process/Response.dev.mjs"),
     import("@nsnanocat/util"),
-    import("../src/function/database.mjs"),
 ]);
 
 const supportedRootDataSets = Object.getOwnPropertyNames(Weather.prototype).filter(dataSet => !["constructor", "__init"].includes(dataSet));
@@ -290,7 +289,7 @@ test("response skips requested roots disabled by the user settings", async () =>
     assert.equal(requestCount, 0);
 });
 
-test("response does not expand a partial request to all configured roots", async () => {
+test("response decodes only eligible products from a partial request", async () => {
     const originalArgument = globalThis.$argument;
     const originalDecode = WeatherKit2.decode;
     let decodedRootNames;
@@ -298,7 +297,7 @@ test("response does not expand a partial request to all configured roots", async
         DataSets: ["airQuality", "currentWeather", "forecastDaily", "forecastHourly", "forecastNextHour", "weatherAlerts"],
         LogLevel: "OFF",
         Storage: "Argument",
-        Weather: { Replace: [] },
+        Weather: { Replace: "[]" },
     };
     WeatherKit2.decode = (byteBuffer, rootNames) => {
         decodedRootNames = rootNames;
@@ -306,22 +305,24 @@ test("response does not expand a partial request to all configured roots", async
     };
     try {
         for (const handler of [Response, ResponseDev]) {
-            await handler(
+            const original = createWeatherRoot([0, 1]);
+            const output = await handler(
                 {
                     url: "https://weatherkit.apple.com/api/v2/weather/en-US/22.5431/114.0579?dataSets=airQuality,currentWeather",
                 },
                 {
-                    bodyBytes: createWeatherRoot([0, 1]),
+                    bodyBytes: original,
                     headers: { "Content-Type": "application/vnd.apple.flatbuffer" },
                 },
             );
+            assert.deepEqual(originalDecode.call(WeatherKit2, new ByteBuffer(output.body), ["currentWeather"]), originalDecode.call(WeatherKit2, new ByteBuffer(original), ["currentWeather"]));
         }
     } finally {
         WeatherKit2.decode = originalDecode;
         globalThis.$argument = originalArgument;
     }
 
-    assert.deepEqual(decodedRootNames, ["airQuality", "currentWeather"]);
+    assert.deepEqual(decodedRootNames, ["airQuality"]);
 });
 
 test("response preserves requested roots when no dataSets are configured", async () => {
@@ -361,7 +362,7 @@ test("response preserves requested roots when no dataSets are configured", async
     assert.equal(requestCount, 0);
 });
 
-test("response maps configured dataSets to FlatBuffer root names before decoding", async () => {
+test("roots without an injector preserve the exact input without decoding", async () => {
     const originalArgument = globalThis.$argument;
     const originalDecode = WeatherKit2.decode;
     let decodedRootNames;
@@ -371,22 +372,23 @@ test("response maps configured dataSets to FlatBuffer root names before decoding
         return originalDecode.call(WeatherKit2, byteBuffer, rootNames);
     };
     try {
-        await Response(
+        const original = createWeatherRoot([7, 8]);
+        const output = await Response(
             {
                 url: "https://weatherkit.apple.com/api/v2/weather/en-US/22.5431/114.0579?dataSets=weatherChange,trendComparison",
             },
             {
-                bodyBytes: createWeatherRoot([7, 8]),
+                bodyBytes: original,
                 headers: { "Content-Type": "application/vnd.apple.flatbuffer" },
             },
         );
+        assert.strictEqual(output.body, original);
     } finally {
         WeatherKit2.decode = originalDecode;
         globalThis.$argument = originalArgument;
     }
 
-    assert.deepEqual(decodedRootNames, [database.WeatherKit.Configs.DataSets.weatherChange, database.WeatherKit.Configs.DataSets.trendComparison]);
-    assert.deepEqual(decodedRootNames, ["weatherChanges", "historicalComparisons"]);
+    assert.equal(decodedRootNames, undefined);
 });
 
 test("response preserves the user-supplied QWeather Alert API path", async () => {
@@ -655,6 +657,50 @@ test("development response preserves a disabled non-injection root as opaque dat
     const decoded = WeatherKit2.decode(new ByteBuffer(new Uint8Array(response.body)), ["news"]);
 
     assert.deepEqual(decoded.news, originalDecoded.news);
+});
+
+test("QWeather yesterday comparison works without an optional pollutant converter", async () => {
+    const [{ default: QWeather }, { default: AirQuality }] = await Promise.all([import("../src/class/QWeather.mjs"), import("../src/class/AirQuality.mjs")]);
+    const argument = globalThis.$argument,
+        grid = QWeather.GetLocationsGrid,
+        location = QWeather.GetLocationInfo,
+        yesterday = QWeather.prototype.YesterdayAirQuality,
+        current = QWeather.prototype.CurrentAirQuality;
+    let currentCalls = 0;
+    QWeather.GetLocationsGrid = async () => ({});
+    QWeather.GetLocationInfo = () => ({ id: "fixture" });
+    QWeather.prototype.YesterdayAirQuality = async () => ({ metadata: { providerName: "Fixture QWeather", temporarilyUnavailable: false }, categoryIndex: 3, index: 130, pollutants: [], scale: AirQuality.ToWeatherKitScale(AirQuality.Config.Scales.HJ6332012.weatherKitScale) });
+    QWeather.prototype.CurrentAirQuality = async () => {
+        currentCalls++;
+        return { metadata: { providerName: "Fixture QWeather", temporarilyUnavailable: false }, categoryIndex: 2, index: 70 };
+    };
+    globalThis.$argument = { Storage: "Argument", LogLevel: "OFF", DataSets: "airQuality", AirQuality: { Current: { Index: { Replace: "[]" } }, Comparison: { Yesterday: { IndexProvider: "QWeather" } } } };
+    try {
+        for (const categoryIndex of [2, -1]) {
+            const original = WeatherKit2.encode(undefined, {
+                airQuality: {
+                    metadata: { providerName: "Apple", temporarilyUnavailable: false },
+                    categoryIndex,
+                    index: 70,
+                    scale: AirQuality.ToWeatherKitScale(AirQuality.Config.Scales.HJ6332012.weatherKitScale),
+                    pollutants: [{ pollutantType: "PM2_5", amount: 20, units: "MICROGRAMS_PER_CUBIC_METER" }],
+                    previousDayComparison: "UNKNOWN",
+                },
+            });
+            for (const handler of [Response, ResponseDev]) {
+                const output = await handler({ url: "https://weatherkit.apple.com/api/v2/weather/zh-Hans-CN/31.2/121.5?country=CN&dataSets=airQuality" }, { body: original, headers: { "Content-Type": "application/vnd.apple.flatbuffer" } });
+                const result = WeatherKit2.decode(new ByteBuffer(output.body), ["airQuality"]);
+                assert.equal(result.airQuality.previousDayComparison, "BETTER");
+            }
+        }
+        assert.equal(currentCalls, 2, "Invalid current category -1 fetches current data instead of producing a fake comparison");
+    } finally {
+        globalThis.$argument = argument;
+        QWeather.GetLocationsGrid = grid;
+        QWeather.GetLocationInfo = location;
+        QWeather.prototype.YesterdayAirQuality = yesterday;
+        QWeather.prototype.CurrentAirQuality = current;
+    }
 });
 
 function createWeatherRoot(presentSlots) {

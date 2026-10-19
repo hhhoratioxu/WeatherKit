@@ -15,7 +15,7 @@ export default class QWeather {
         this.#requests = requestCache;
         this.Name = "QWeather";
         this.Version = "5.3.1";
-        Console.log(`🟧 ${this.Name} v${this.Version}`);
+        Console.info(`🟧 ${this.Name} v${this.Version}`);
         this.endpoint = `https://${host}`;
         this.headers = { "X-QW-Api-Key": token };
         this.version = parameters.version;

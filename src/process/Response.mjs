@@ -2,15 +2,15 @@
 import { Console, Storage } from "@nsnanocat/util";
 import * as flatbuffers from "flatbuffers";
 import AirQuality from "../class/AirQuality.mjs";
-import ColorfulClouds from "../class/ColorfulClouds.mjs";
 import QWeather from "../class/QWeather.mjs";
 import recoverConfiguredProduct from "../function/recoverConfiguredProduct.mjs";
 import { cloneWeatherProduct, providerProductAvailable, activeProviderAlerts, weatherProductsEqual } from "../function/providerRecovery.mjs";
 import ProviderRequestCache, { providerErrorCode } from "../class/ProviderRequestCache.mjs";
-import WAQI from "../class/WAQI.mjs";
 import Weather from "../class/Weather.mjs";
 import WeatherAlerts from "../class/WeatherAlerts.mjs";
-import WeatherKit2 from "../class/WeatherKit2.mjs";
+import WeatherKit2, { hasForecastNextHour } from "../class/WeatherKit2.mjs";
+import planWeatherProducts from "../function/planWeatherProducts.mjs";
+import createProviderEnvironment from "../function/createProviderEnvironment.mjs";
 import database from "../function/database.mjs";
 import mergeWeatherKitAvailability from "../function/mergeWeatherKitAvailability.mjs";
 import parseWeatherKitURL from "../function/parseWeatherKitURL.mjs";
@@ -20,20 +20,22 @@ import setENV from "../function/setENV.mjs";
 export async function Response($request, $response) {
     // 解构URL
     const url = new URL($request.url);
-    Console.info("WeatherKit response");
-    // 获取连接参数
-    const PATHs = url.pathname.split("/").filter(Boolean);
 
     // 解析格式
     const FORMAT = ($response.headers?.["Content-Type"] ?? $response.headers?.["content-type"])?.split(";")?.[0];
-    Console.info(`FORMAT: ${FORMAT}`);
+    if (FORMAT === "application/json" || FORMAT === "text/json") {
+        if (url.hostname === "weatherkit.apple.com" && url.pathname.startsWith("/api/v1/availability/")) $response.body = JSON.stringify(mergeWeatherKitAvailability(JSON.parse($response.body), database.WeatherKit.Configs.Availability.v2));
+        return $response;
+    }
+    if (FORMAT !== "application/vnd.apple.flatbuffer" || url.hostname !== "weatherkit.apple.com" || !url.pathname.startsWith("/api/v2/weather/")) return $response;
     /**
      * 设置
      * @type {{Settings: import('../types').Settings}}
      */
     const { Settings, Caches, Configs } = setENV("iRingo", "WeatherKit", database);
     Console.logLevel = Settings.LogLevel;
-    const requestCache = ProviderRequestCache.fromSettings(Settings);
+    Console.info("WeatherKit response", `FORMAT: ${FORMAT}`);
+    let requestCache;
     try {
         // 创建空数据
         let body = {};
@@ -84,7 +86,8 @@ export async function Response($request, $response) {
             case "application/grpc":
             case "application/grpc+proto":
             case "application/octet-stream": {
-                let rawBody = $response.bodyBytes ? new Uint8Array($response.bodyBytes) : ($response.body ?? new Uint8Array());
+                const bytes = $response.bodyBytes;
+                let rawBody = bytes ? (bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes)) : ($response.body ?? new Uint8Array());
                 switch (FORMAT) {
                     case "application/vnd.apple.flatbuffer": {
                         // 解析FlatBuffer
@@ -95,17 +98,14 @@ export async function Response($request, $response) {
                                 // 路径判断
                                 if (url.pathname.startsWith("/api/v2/weather/")) {
                                     const parameters = parseWeatherKitURL(url, { fallback: Settings.Region?.Fallback ?? "Auto" });
-                                    const dataSets = parameters.dataSets.filter(dataSet => Settings.DataSets.includes(dataSet));
+                                    const requested = parameters.dataSets.filter(dataSet => Settings.DataSets.includes(dataSet));
+                                    const dataSets = planWeatherProducts(requested, Settings, parameters.country, requested.includes("forecastNextHour") && hasForecastNextHour(ByteBuffer));
+                                    if (!dataSets.length) break;
+                                    requestCache = ProviderRequestCache.fromSettings(Settings);
                                     const rootNames = dataSets.map(dataSet => Configs.DataSets[dataSet] ?? dataSet);
                                     body = WeatherKit2.decode(ByteBuffer, rootNames);
                                     const providerParameters = { ...parameters, weatherKitLanguage: body.weatherAlerts?.metadata?.language };
-                                    const enviroments = {
-                                        colorfulClouds: new ColorfulClouds(providerParameters, Settings?.API?.ColorfulClouds?.Token || "Y2FpeXVuX25vdGlmeQ==", requestCache),
-                                        qWeather: new QWeather(providerParameters, Settings?.API?.QWeather?.Token || "bdd98ec1d87747f3a2e8b1741a5af796", Settings?.API?.QWeather?.Host, requestCache),
-                                        waqi: new WAQI(parameters, Settings?.API?.WAQI?.Token, requestCache),
-                                        country: parameters.country,
-                                        requestCache,
-                                    };
+                                    const enviroments = createProviderEnvironment(providerParameters, Settings, requestCache);
 
                                     let modified = false;
                                     await Promise.all(
@@ -174,7 +174,7 @@ export async function Response($request, $response) {
         }
         return $response;
     } finally {
-        requestCache.report("response");
+        requestCache?.report("response");
     }
 }
 
@@ -602,7 +602,7 @@ async function InjectComparison(airQuality, currentIndexProvider, Settings, Cach
         });
 
         if (!yesterdayAirQuality.metadata.temporarilyUnavailable) {
-            if (currentCategoryIndex) {
+            if (Number.isFinite(Number(currentCategoryIndex)) && Number(currentCategoryIndex) > 0) {
                 const comparisonAirQuality = {
                     ...yesterdayAirQuality,
                     metadata: getMetadata(false),
@@ -652,7 +652,7 @@ async function InjectComparison(airQuality, currentIndexProvider, Settings, Cach
         });
 
         if (!yesterdayQWeather.metadata.temporarilyUnavailable) {
-            const airQualityFromPollutants = pollutantsToAirQuality(yesterdayQWeather);
+            const airQualityFromPollutants = pollutantsToAirQuality?.(yesterdayQWeather);
             const yesterdayAirQuality = pollutantsToAirQuality
                 ? {
                       ...airQualityFromPollutants,
@@ -669,7 +669,7 @@ async function InjectComparison(airQuality, currentIndexProvider, Settings, Cach
                       },
                   };
 
-            if (currentCategoryIndex) {
+            if (Number.isFinite(Number(currentCategoryIndex)) && Number(currentCategoryIndex) > 0) {
                 const comparisonAirQuality = {
                     ...yesterdayQWeather,
                     metadata: getMetadata(yesterdayAirQuality.metadata.providerName, false),

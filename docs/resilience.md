@@ -1,6 +1,19 @@
-# WeatherKit 缓存与弱网处理 v3
+# WeatherKit 缓存与弱网处理 v4
 
-2026-10-19，版本 `3.3.2-cache.3`。Loon 插件订阅地址保持为 `main/Loon/script/WeatherKit.plugin`，运行脚本固定引用 `cache-v3`，旧 `cache-v2` 与 `cache-v1` 保留用于回退。
+2026-10-19，版本 `3.3.2-cache.4`。Loon 插件订阅地址保持为 `main/Loon/script/WeatherKit.plugin`，运行脚本固定引用 `cache-v4`，旧 `cache-v3`、`cache-v2` 与 `cache-v1` 保留用于回退。
+
+## v4 减少处理与存储开销
+
+- Loon 功能列表由原生 `response.json.jq` 补齐，保留 Apple 顺序、未知能力并去重；未知结构透传。普通 AQI 标尺的数字版本后缀由原生 URL Rewrite 移除，保留查询参数和条件请求头；仅 GET、HEAD、OPTIONS 生效。这两类路由没有 JavaScript Script 规则。
+- HK/CN 自定义 AQHI 标尺使用独立的 `scale.bundle.js`，不读取设置、响应缓存、地图或供应商凭据。预警详情使用独立入口；失败透传时保留原请求的条件头，且 `ids` 位于第一个参数时也能匹配。
+- 每次执行中只读取、解析一次响应缓存快照。每次命中仍核对过期时间、数据类型与配置 TTL；真正写入前重新读取、合并其他执行的新条目。容量和现有并发限制不变，仍无持久化事务保证。
+- 彩云“昨天空气质量”的小时请求从变化的秒时间戳改为前一天对应的整点，修复同一小时反复刷新无法命中的缓存。仍使用原有 180 秒预报有效期，跨小时立即换查询键，不缓存过期数据。
+- 未启用替换、不在替换地区、只透传的数据项不解码、不复制，也不构造供应商对象。已有 Apple 下一小时表仅检查表是否存在，保持原有保留行为；发生替换时继续保留其他根表。已有 Uint8Array 正文复用原视图。
+- 离线地区多边形按真正需要的坐标推断延迟解析；明确国家和 Locale 模式不构造整张点表。相同坐标与国家的确认记录每小时最多写一次，国家改变、到期和时钟回退仍重新处理。
+- Loon 独立入口移除无条件启动／结束日志，供应商版本日志遵守 LogLevel。可选诊断保留；没有需要处理的数据时不会构造协调器或生成空统计。
+- 修复和风昨日 AQI 对比未传入可选转换函数时的异常；无效类别 -1 不再参与昨日比较，会按既有路径获取合法类别。
+
+默认新鲜度、缓存容量、请求预算、最多三个活跃请求与功能开关均保持不变。没有后台轮询、新增权限或设备设置变更。可复现实验及限制见 [处理开销对比](power-work.md) 和 [原始测量](power-work-measurements.json)。
 
 ## v3 修复内容
 
@@ -53,10 +66,14 @@ JSON 及结构化预警仍沿用八条响应、单条 96 Ki UTF-16 字符、总�
 
 ## 验证边界
 
-本地与 CI 完整回归 192 项通过，0 失败、0 跳过。生成后的完整请求/响应 bundle 另有 11 个模拟 Loon 场景，覆盖正文透传、网页预警、跨次缓存、失败透传、地区识别、原始二进制保留、配置备用来源补全、HTTP 错误正文隔离与共用接口的子项失败隔离，并检查原生回调结束后仅调用一次 `$done`。模拟环境没有 Node、WebCrypto 或宿主 TextEncoder；为已有 URL/FlatBuffer 代码提供 URL、URLSearchParams 与 TextDecoder。FlatBuffer 编码使用有界 UTF-8 兼容实现（仅宿主缺少 TextEncoder 时安装），覆盖 Unicode 代理对与孤立代理字符；单次字符串编码最多 2 MiB。设置合并使用独立副本，连续执行不会修改共享默认值或继承前次凭据。
+构建会运行完整回归，以及实际压缩的请求、响应、自定义标尺三个 bundle 的模拟 Loon 检查。覆盖网页预警、跨次缓存、失败透传、地区识别、原始二进制保留、已有分钟数据短路、配置备用来源补全、HTTP 错误正文隔离与共用接口的子项失败隔离；检查原生回调结束后仅调用一次 `$done`。最终次数和通过结果以 [构建验证记录](loon-build-validation.json) 为准。
+
+模拟环境没有 Node、WebCrypto 或宿主 TextEncoder；提供 URL、URLSearchParams 与 TextDecoder。FlatBuffer 编码使用有界 UTF-8 兼容实现（仅宿主缺少 TextEncoder 时安装），覆盖 Unicode 代理对与孤立代理字符；单次字符串编码最多 2 MiB。设置合并使用独立副本，连续执行不会修改共享默认值或继承前次凭据。
+
+原生规则另外检查实际导入文件中的表达式、正则路由、参数保留与系统 jq 的转换结果；这不是 Loon 原生配置解析器，也不能证明手机已成功导入。处理开销测量使用真实源码和实际 bundle、模拟 HTTP 回调与存储，不对真实天气 API 发出请求。
 
 CI 使用锁定的原始上游 schema `@nsringo/weatherkit@1.1.2` 重新测试与构建。最终发布的来源提交、bundle 验证与 SHA-256 保存在构建来源文件和 `docs/loon-build-validation.json`。桌面模拟、CI 和资源字节校验均不等于真实 iPhone 的天气显示、耗电、延迟或 VPN 连续运行结论。
 
 ## 官方文档核对
 
-2026-10-19 核对 [Loon Script](https://nsloon.app/docs/Script/script_v2/)、[Script API](https://nsloon.app/docs/Script/script_api/) 与 [插件](https://nsloon.app/docs/Plugin/)。只使用公开的原生 HTTP callback、毫秒 timeout、字符串持久化存储及一次性完成接口。未使用取消请求、定时器竞赛、全局存储清空或其他客户端的私有配置项。
+2026-10-19 核对 [Loon Rewrite](https://nsloon.app/docs/Rewrite/rewrite_v2/)、[Loon Script](https://nsloon.app/docs/Script/script_v2/)、[Script API](https://nsloon.app/docs/Script/script_api/) 与 [插件](https://nsloon.app/docs/Plugin/)。原生 Rewrite 使用官方 `response.json.jq`、`${request.method}`、必选 URL Guard 与 `${scale.1}` 命名捕获；只替换 URL 匹配部分并保留查询后缀。Rewrite 语法要求 3.5.1(978)，本插件最高要求仍为 Script 的 3.5.1(983)。独立入口直接使用 Loon 原生 `$done`，没有依赖跨客户端完成适配。只使用公开的原生 HTTP callback、毫秒 timeout、字符串持久化存储及一次性完成接口。未使用取消请求、定时器竞赛、全局存储清空或其他客户端的私有配置项。
