@@ -18,6 +18,6 @@
 
 另有 273 小时、85 分钟、25,376 字节的真实 FlatBuffer 固定样本，设置为保留 Apple 数据。每版运行 45 次新模拟执行，前五次预热不计入延迟，共 40 个延迟样本；每次核对原字节、零附加请求和仅一次完成。延迟范围从编译脚本求值到异步完成，不包含 VM 创建或脚本预编译；进程 CPU 指标另含 VM 创建、预热与输出断言，不能当成相同口径的脚本时间。原始记录报告两版中位数与 p95，随 Node 版本和机器负载变化。
 
-复现：先在锁定依赖环境运行 `npm run build:loon-cache`，再运行 `node scripts/measure-power-work.mjs`。该脚本读取本地 Git 中的固定基线，使用 Rollup 和真实数据模型，在 Node VM 内提供模拟 Loon 同步存储与 HTTP 回调，不访问真实供应商。写入 `docs/power-work-measurements.json`。原生规则检查另使用系统 `jq`，检查表达式和匹配样例，未调用真实 Loon 配置解析器。
+复现 v4 时使用 `cache-v4` 固定版本的工作目录，先在锁定依赖环境运行 `npm run build:loon-cache`，再运行 `node scripts/measure-power-work.mjs`。该脚本读取本地 Git 中的固定基线，使用 Rollup 和真实数据模型，在 Node VM 内提供模拟 Loon 同步存储与 HTTP 回调，不访问真实供应商。写入 `docs/power-work-measurements.json`。原生规则检查另使用系统 `jq`，检查表达式和匹配样例，未调用真实 Loon 配置解析器。
 
 这些结果证明固定场景减少了哪些工作，不是手机耗电百分比。真实 iPhone 的 Loon 导入、天气显示、后台耗电、CPU 峰值与 VPN 连续运行仍未验收。已配置其他 WeatherKit 的用户应只启用一个实例；默认关闭诊断和高级调试，减少额外日志。

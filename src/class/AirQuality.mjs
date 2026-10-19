@@ -45,7 +45,7 @@ export default class AirQuality {
         const failedCategoryIndex = -1;
 
         if (!categories?.ranges || !Array.isArray(categories.ranges) || categories.ranges.length === 0) {
-            Console.debug(`categories: ${JSON.stringify(categories)}`);
+            if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`categories: ${JSON.stringify(categories)}`);
             Console.error("GetPrimaryPollutant", "categories无效");
             return failedCategoryIndex;
         }
@@ -514,7 +514,7 @@ export default class AirQuality {
                   const [minAmount, maxAmount] = amounts;
                   return AirQuality.#CeilByPrecision(pollutant.amount, minAmount) >= minAmount && AirQuality.#CeilByPrecision(pollutant.amount, maxAmount) <= maxAmount;
               });
-        Console.debug(`indexes: ${JSON.stringify(indexes)}`, `amounts: ${JSON.stringify(amounts)}`);
+        if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`indexes: ${JSON.stringify(indexes)}`, `amounts: ${JSON.stringify(amounts)}`);
 
         const [minIndex, maxIndex] = indexes;
         const [minAmount, maxAmount] = amounts;
@@ -562,7 +562,7 @@ export default class AirQuality {
         const failedPollutant = { pollutantType: "NOT_AVAILABLE", index: -1, categoryIndex: -1 };
 
         if (!Array.isArray(pollutants) || pollutants.length === 0) {
-            Console.debug(`pollutants: ${JSON.stringify(pollutants)}`);
+            if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`pollutants: ${JSON.stringify(pollutants)}`);
             Console.error("PrimaryPollutant", "pollutants无效");
             return failedPollutant;
         }
@@ -576,7 +576,7 @@ export default class AirQuality {
             .sort((a, b) => b.index - a.index);
 
         if (indexesWithCategory.length === 0) {
-            Console.debug(`pollutants: ${JSON.stringify(pollutants)}`, `indexesWithCategory: ${JSON.stringify(indexesWithCategory)}`);
+            if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`pollutants: ${JSON.stringify(pollutants)}`, `indexesWithCategory: ${JSON.stringify(indexesWithCategory)}`);
             Console.error("PrimaryPollutant", "找不到有效的index");
             return failedPollutant;
         }
@@ -640,7 +640,7 @@ export default class AirQuality {
         const allowOverRange = options?.allowOverRange ?? true;
 
         if (!Array.isArray(pollutants) || pollutants.length === 0) {
-            Console.debug(`pollutants: ${JSON.stringify(pollutants)}`);
+            if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`pollutants: ${JSON.stringify(pollutants)}`);
             Console.error("PollutantsToAirQuality", "pollutants无效");
             return { metadata: { providerName: "iRingo", temporarilyUnavailable: true } };
         }
@@ -651,7 +651,7 @@ export default class AirQuality {
         }
 
         newPollutants = AirQuality.#PollutantsToIndexes(newPollutants, scale.pollutants);
-        Console.debug("PollutantsToAirQuality", `convertedPollutants: ${JSON.stringify(newPollutants)}`);
+        if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug("PollutantsToAirQuality", `convertedPollutants: ${JSON.stringify(newPollutants)}`);
 
         const primaryPollutant = AirQuality.PrimaryPollutant(newPollutants, scale.categories);
         const maxIndex = scale?.weatherKitScale?.maxIndex;
@@ -688,7 +688,7 @@ export default class AirQuality {
         Console.info("☑️ PollutantsToAQHI");
 
         if (!Array.isArray(pollutants) || pollutants.length === 0) {
-            Console.debug(`pollutants: ${JSON.stringify(pollutants)}`);
+            if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`pollutants: ${JSON.stringify(pollutants)}`);
             Console.error("PollutantsToAQHI", "pollutants无效");
             return { metadata: { providerName: "iRingo", temporarilyUnavailable: true } };
         }
@@ -771,7 +771,7 @@ export default class AirQuality {
         Console.info("☑️ PollutantsToAQHIMulti");
 
         if (!Array.isArray(pollutants) || pollutants.length === 0) {
-            Console.debug(`pollutants: ${JSON.stringify(pollutants)}`);
+            if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`pollutants: ${JSON.stringify(pollutants)}`);
             Console.error("PollutantsToAQHIMulti", "pollutants无效");
             return { metadata: { providerName: "iRingo", temporarilyUnavailable: true } };
         }

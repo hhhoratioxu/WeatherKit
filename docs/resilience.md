@@ -1,6 +1,14 @@
-# WeatherKit 缓存与弱网处理 v4
+# WeatherKit 缓存与弱网处理 v5
 
-2026-10-19，版本 `3.3.2-cache.4`。Loon 插件订阅地址保持为 `main/Loon/script/WeatherKit.plugin`，运行脚本固定引用 `cache-v4`，旧 `cache-v3`、`cache-v2` 与 `cache-v1` 保留用于回退。
+2026-10-19，版本 `3.3.2-cache.5`。Loon 插件订阅地址保持为 `main/Loon/script/WeatherKit.plugin`，运行脚本固定引用 `cache-v5`，旧 `cache-v4`、`cache-v3`、`cache-v2` 与 `cache-v1` 保留用于回退。
+
+## v5 减少内存分配
+
+小时／每日预报改为只读复用未修改数据，按匹配时间复制需要替换的行，取消替换前的整份深复制；AQI 与预警的可变处理继续使用隔离副本。供应商 JSON 的校验结果只交给当前消费者使用，不在保存和转换时重复解析，不在不同消费者之间共享可变对象。缓存、状态／结构验证、回调完成和备用来源边界不变。
+
+解码时复用同一行的 schema 视图；每产品累计向量项不超过 8192，数量异常或超预算时停止该产品解码，未取得有效替换则保留原始根表，并继续其他产品。关闭调试时不构造数据对象的 JSON 日志字符串。二进制天气正文超过 4 MiB 时直接保留原响应，不继续读取设置、解码和替换；这是应用处理上限，不能限制 Loon 已持有的原生缓冲或保证宿主峰值。默认更新时效和预报内容不变。
+
+独立进程的 V8 堆与分配测量方法、完整样本及限制见 [内存分配优化](memory-work.md)。
 
 ## v4 减少处理与存储开销
 
@@ -77,3 +85,5 @@ CI 使用锁定的原始上游 schema `@nsringo/weatherkit@1.1.2` 重新测试�
 ## 官方文档核对
 
 2026-10-19 核对 [Loon Rewrite](https://nsloon.app/docs/Rewrite/rewrite_v2/)、[Loon Script](https://nsloon.app/docs/Script/script_v2/)、[Script API](https://nsloon.app/docs/Script/script_api/) 与 [插件](https://nsloon.app/docs/Plugin/)。原生 Rewrite 使用官方 `response.json.jq`、`${request.method}`、必选 URL Guard 与 `${scale.1}` 命名捕获；只替换 URL 匹配部分并保留查询后缀。Rewrite 语法要求 3.5.1(978)，本插件最高要求仍为 Script 的 3.5.1(983)。独立入口直接使用 Loon 原生 `$done`，没有依赖跨客户端完成适配。只使用公开的原生 HTTP callback、毫秒 timeout、字符串持久化存储及一次性完成接口。未使用取消请求、定时器竞赛、全局存储清空或其他客户端的私有配置项。
+
+2026-10-19 v5 重新核对官方 Script 与 Script API 的 Uint8Array、同步字符串存储、异步任务完成后单次 $done 约定。本次没有新增 Loon 语法、宿主 API、参数、权限、定时器或最低版本要求；JSON 解析对象仅属于单个消费者，不跨执行保存。4 MiB 是脚本解码边界，不宣称为宿主内存限制。

@@ -159,6 +159,29 @@ export default async function verifyLoonCache(root) {
     });
     assert.deepEqual(Array.from(disabled.output.body), Array.from(raw));
     scenarios.push("Apple-only provider preserves original binary weather without a decoder round trip");
+    const large = new Uint8Array(4 * 1024 * 1024 + 1);
+    const bounded = await run(responseCode, { url: "https://weatherkit.apple.com/api/v2/weather/en-US/31.2/121.5?country=CN&dataSets=forecastHourly", method: "GET", headers: {} }, { status: 200, headers: { "Content-Type": "application/vnd.apple.flatbuffer" }, body: large }, noNetwork);
+    assert.strictEqual(bounded.output.body, large);
+    scenarios.push("oversized binary input retains the original view without decoding or provider work");
+    const hourlyRaw = WeatherKit2.encode(undefined, { forecastHourly: { metadata: { providerName: "Apple", temporarilyUnavailable: false }, hours: [0, 1].map(i => ({ forecastStart: 1792368000 + i * 3600, temperature: 20 + i, precipitationAmountByType: [] })) } });
+    const replacedHourly = await run(
+        responseCode,
+        { url: "https://weatherkit.apple.com/api/v2/weather/zh-Hans-CN/31.2/121.5?country=CN&dataSets=forecastHourly", method: "GET", headers: {} },
+        { status: 200, headers: { "Content-Type": "application/vnd.apple.flatbuffer" }, body: hourlyRaw },
+        (_, callback) =>
+            callback(
+                null,
+                { status: 200, headers: {} },
+                JSON.stringify({ code: "200", updateTime: "2026-10-19T00:00:00Z", hourly: [{ fxTime: new Date(1792368000000).toISOString(), temp: "30", text: "晴", cloud: "20", humidity: "50", precip: "0", pop: "10", pressure: "1000", dew: "10", wind360: "90", windSpeed: "2" }] }),
+            ),
+        { DataSets: "forecastHourly", "Weather.Provider": "QWeather" },
+    );
+    const hours = WeatherKit2.decode(new ByteBuffer(replacedHourly.output.body), ["forecastHourly"]).forecastHourly.hours;
+    assert.equal(replacedHourly.nativeRequests, 1);
+    assert.equal(hours[0].temperature, 30);
+    assert.equal(hours[1].temperature, 21);
+    assert.equal(WeatherKit2.decode(new ByteBuffer(hourlyRaw), ["forecastHourly"]).forecastHourly.hours[0].temperature, 20);
+    scenarios.push("partial hourly replacement changes only a matching row and leaves source binary intact");
     const backup = await run(
         responseCode,
         { url: "https://weatherkit.apple.com/api/v2/weather/zh-Hans-US/32.390/119.499?dataSets=forecastNextHour", method: "GET", headers: {} },

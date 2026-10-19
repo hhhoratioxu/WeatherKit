@@ -38,6 +38,11 @@ export function providerErrorCode(error) {
     return /timeout|timed out|超时/i.test(String(error?.message ?? error ?? "")) ? "timeout" : "network";
 }
 const copyResponse = response => ({ ...response, headers: { ...response?.headers } });
+const parsedJSON = Symbol("validated provider JSON");
+// Each consumer owns this parsed value. It is never shared through pending work or persisted.
+export function readProviderJSON(response) {
+    return response && Object.hasOwn(response, parsedJSON) ? response[parsedJSON] : JSON.parse(response?.body ?? "{}");
+}
 
 export default class ProviderRequestCache {
     #memory = new Map();
@@ -105,7 +110,7 @@ export default class ProviderRequestCache {
         const preferred = this.#ttls[kind] === undefined ? this.#ttl : requestCacheTTL(this.#ttls[kind]);
         return Math.min(preferred, requestCacheTTL(maximum), kind === "alerts" || kind === "minutely" ? 30 : 300);
     }
-    async fetch(request, { fetcher, partition = [], product = "", kind = "current", group, maximumTTLSeconds = 300, validate, format = "json", maximumResponseCharacters = REQUEST_CACHE_LIMITS.responseCharacters, cacheable = true, allowNotModified = false } = {}) {
+    async fetch(request, { fetcher, partition = [], product = "", kind = "current", group, maximumTTLSeconds = 300, validate, format = "json", maximumResponseCharacters = REQUEST_CACHE_LIMITS.responseCharacters, cacheable = true, allowNotModified = false, includeJSON = false } = {}) {
         if (typeof fetcher !== "function") throw new TypeError("Provider cache requires a fetch function");
         const method = String(request.method ?? "GET").toUpperCase();
         const eligible = cacheable && method === "GET" && request.body === undefined && request.bodyBytes === undefined;
@@ -115,14 +120,29 @@ export default class ProviderRequestCache {
         const scope = identity ? fingerprint(JSON.stringify(["validated-product.v2", identity, kind, format, maximum])) : undefined;
         const key = eligible ? identity : undefined;
         const ttl = this.#lifetime(kind, maximumTTLSeconds);
-        const valid = body => typeof body === "string" && body.length <= maximum && this.#validBody(body, validate, format);
+        let parsed;
+        const valid = body => {
+            if (typeof body !== "string" || body.length > maximum || typeof validate !== "function") return false;
+            try {
+                const value = format === "text" ? body : JSON.parse(body);
+                if (validate(value) !== true) return false;
+                if (includeJSON && format !== "text") parsed = value;
+                return true;
+            } catch {
+                return false;
+            }
+        };
+        const result = response => {
+            if (includeJSON && format !== "text") Object.defineProperty(response, parsedJSON, { value: parsed });
+            return response;
+        };
         if (key && ttl > 0) {
             const memory = this.#memory.get(key);
             if (this.#fresh(memory, ttl) && valid(memory.body)) {
                 memory.lastUsedAt = this.#now();
                 this.#remember(memory);
                 this.#stats.memoryHits++;
-                return this.#response(memory);
+                return result(this.#response(memory));
             }
             this.#memory.delete(key);
             const persisted = this.#read().find(entry => entry.key === key && this.#fresh(entry, ttl));
@@ -130,7 +150,7 @@ export default class ProviderRequestCache {
                 persisted.lastUsedAt = this.#now();
                 this.#remember(persisted);
                 this.#stats.persistentHits++;
-                return this.#response(persisted);
+                return result(this.#response(persisted));
             }
         }
         if (scope && this.#cooling(scope)) {
@@ -149,7 +169,8 @@ export default class ProviderRequestCache {
         try {
             // Share the native response, not the first consumer's validation outcome.
             const response = await pending.response;
-            const code = Number(response.statusCode ?? response.status) === 304 && !allowNotModified ? "http" : !valid(response.body) ? "invalid" : undefined;
+            const body = response.body;
+            const code = Number(response.statusCode ?? response.status) === 304 && !allowNotModified ? "http" : !valid(body) ? "invalid" : undefined;
             if (code) {
                 const failure = scope ?? owner;
                 if (!pending.invalid.has(failure)) {
@@ -161,9 +182,11 @@ export default class ProviderRequestCache {
             if (scope) this.#success(scope);
             if (key && ttl > 0 && Number(response.statusCode ?? response.status) !== 304 && !pending.saved.has(key)) {
                 pending.saved.add(key);
-                this.#save(key, response, ttl, valid, group);
+                this.#save(key, response, body, ttl, group);
             }
-            return copyResponse(response);
+            const output = copyResponse(response);
+            output.body = body;
+            return result(output);
         } finally {
             if (this.#inFlight.get(owner) === pending) this.#inFlight.delete(owner);
         }
@@ -244,14 +267,6 @@ export default class ProviderRequestCache {
             now - entry.storedAt < ttl * 1000
         );
     }
-    #validBody(body, validate, format) {
-        if (typeof validate !== "function") return false;
-        try {
-            return validate(format === "text" ? body : JSON.parse(body)) === true;
-        } catch {
-            return false;
-        }
-    }
     #read(force = false) {
         if (!force && this.#snapshot) return this.#snapshot;
         this.#snapshot = [];
@@ -286,15 +301,15 @@ export default class ProviderRequestCache {
             }
         return selected;
     }
-    #save(key, response, ttl, valid, group) {
-        if (response.body.length > REQUEST_CACHE_LIMITS.bodyCharacters) return;
+    #save(key, response, body, ttl, group) {
+        if (body.length > REQUEST_CACHE_LIMITS.bodyCharacters) return;
         const headers = Object.fromEntries(Object.entries(response.headers ?? {}).map(([name, value]) => [name.toLowerCase(), String(value)]));
         if (/\b(no-store|no-cache)\b/i.test(headers["cache-control"] ?? "") || headers.vary?.split(",").some(value => value.trim() === "*")) return;
         const maxAge = headers["cache-control"]?.match(/(?:^|,)\s*max-age\s*=\s*"?(\d+)/i)?.[1];
         if (maxAge !== undefined) ttl = Math.min(ttl, Math.max(0, Number(maxAge) - Math.max(0, Number(headers.age) || 0)));
-        if (ttl <= 0 || !valid(response.body)) return;
+        if (ttl <= 0) return;
         const storedAt = this.#now(),
-            entry = { key, storedAt, lastUsedAt: storedAt, expiresAt: storedAt + ttl * 1000, status: Number(response.statusCode ?? response.status), body: response.body, group: group ? fingerprint(JSON.stringify(group)) : key };
+            entry = { key, storedAt, lastUsedAt: storedAt, expiresAt: storedAt + ttl * 1000, status: Number(response.statusCode ?? response.status), body, group: group ? fingerprint(JSON.stringify(group)) : key };
         this.#remember(entry);
         if (!this.#store) return;
         const merged = new Map(this.#read(true).map(item => [item.key, item]));

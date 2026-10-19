@@ -1,11 +1,11 @@
 // Modified by hhhoratioxu, 2026-10-19: bounded request coalescing and short-lived response caching.
 import { Lodash as _, Console, time } from "@nsnanocat/util";
-import fetch from "../function/fetchProvider.mjs";
-import utf8Length from "../function/utf8Length.mjs";
-import ProviderRequestCache, { providerErrorCode } from "./ProviderRequestCache.mjs";
 import AirQuality from "../class/AirQuality.mjs";
+import fetch from "../function/fetchProvider.mjs";
 import providerNameToLogo from "../function/providerNameToLogo.mjs";
+import utf8Length from "../function/utf8Length.mjs";
 import ForecastNextHour from "./ForecastNextHour.mjs";
+import ProviderRequestCache, { providerErrorCode, readProviderJSON } from "./ProviderRequestCache.mjs";
 import Weather from "./Weather.mjs";
 
 export default class QWeather {
@@ -37,6 +37,7 @@ export default class QWeather {
         const path = new URL(request.url).pathname;
         return this.#requests.fetch(typeof $loon === "string" ? { ...request, timeout: request.timeout ?? 5000 } : request, {
             fetcher: fetch,
+            includeJSON: true,
             partition: [this.Name, this.version, this.language, this.country],
             product: path,
             group: [this.latitude, this.longitude, this.country],
@@ -305,7 +306,7 @@ export default class QWeather {
                 return locationsGrid.data;
             }
 
-            const newLocationsGrid = JSON.parse(response.body);
+            const newLocationsGrid = readProviderJSON(response);
             setCache({
                 ...qweatherCache,
                 locationsGrid: { etag: response.headers.ETag, lastUpdated: Date.now(), data: newLocationsGrid },
@@ -520,6 +521,7 @@ export default class QWeather {
                 { url: sourceUrl.toString(), headers: sourceHeaders, "auto-cookie": false },
                 {
                     partition: ["QWeatherWeb", language],
+                    includeJSON: true,
                     product: "weather-alert-page.v1",
                     kind: "alerts",
                     maximumTTLSeconds: 30,
@@ -540,7 +542,7 @@ export default class QWeather {
         } catch {
             return { ...unavailable, unavailable: true, metadata: { temporarilyUnavailable: true } };
         }
-        const parsed = JSON.parse(response.body);
+        const parsed = readProviderJSON(response);
         if (!response.ok || parsed.pageValid !== true) return { ...unavailable, unavailable: true, metadata: { temporarilyUnavailable: true } };
         const areaId = identifier.match(/-(\d+)$/)?.[1];
         return { alerts: parsed.alerts.map(alert => ({ ...alert, ...(areaId && !alert.areaId ? { areaId } : {}), ...(parsed.areaName && !alert.areaName ? { areaName: parsed.areaName } : {}) })), areaName: parsed.areaName, source: parsed.source, metadata: { temporarilyUnavailable: false } };
@@ -554,7 +556,7 @@ export default class QWeather {
         };
         let metadata;
         try {
-            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => readProviderJSON(response));
             switch (body?.code) {
                 case "200":
                     metadata = {
@@ -571,7 +573,7 @@ export default class QWeather {
         } catch (error) {
             Console.error(`GeoAPI: ${providerErrorCode(error)}`);
         } finally {
-            Console.debug(`metadata: ${JSON.stringify(metadata, null, 2)}`);
+            if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`metadata: ${JSON.stringify(metadata, null, 2)}`);
             Console.info("✅ GeoAPI");
         }
         return metadata;
@@ -604,7 +606,7 @@ export default class QWeather {
         let weatherAlerts = failedWeatherAlerts;
         try {
             const response = await this.#Fetch(request);
-            const body = JSON.parse(response?.body ?? "{}");
+            const body = readProviderJSON(response);
             if (response?.ok === false) {
                 Console.warn("WeatherAlert", `upstreamStatus: ${response.statusCode ?? response.status}`);
                 return failedWeatherAlerts;
@@ -664,7 +666,7 @@ export default class QWeather {
         };
         let currentWeather;
         try {
-            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => readProviderJSON(response));
             switch (body?.code) {
                 case "200": {
                     const timeStamp = (Date.now() / 1000) | 0;
@@ -724,7 +726,7 @@ export default class QWeather {
         };
         let airQuality;
         try {
-            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => readProviderJSON(response));
             switch (body?.code) {
                 case "200": {
                     const timeStamp = (Date.now() / 1000) | 0;
@@ -781,7 +783,7 @@ export default class QWeather {
             headers: this.headers,
         };
         try {
-            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => readProviderJSON(response));
             switch (body?.error) {
                 case undefined: {
                     return body;
@@ -812,7 +814,7 @@ export default class QWeather {
         };
         let forecastNextHour;
         try {
-            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => readProviderJSON(response));
             switch (body?.code) {
                 case "200": {
                     const timeStamp = (Date.now() / 1000) | 0;
@@ -837,7 +839,7 @@ export default class QWeather {
                         forecastEnd: 0,
                         forecastStart: minuteStemp,
                         minutes: body?.minutely
-                            ?.map((minutely, index) => {
+                            ?.map(minutely => {
                                 const minute = {
                                     perceivedPrecipitationIntensity: 0,
                                     precipitationChance: 0,
@@ -889,7 +891,7 @@ export default class QWeather {
         };
         let forecastHourly;
         try {
-            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => readProviderJSON(response));
             switch (body?.code) {
                 case "200": {
                     const timeStamp = (Date.now() / 1000) | 0;
@@ -968,7 +970,7 @@ export default class QWeather {
         };
         let forecastDaily;
         try {
-            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => readProviderJSON(response));
             switch (body?.code) {
                 case "200": {
                     const timeStamp = (Date.now() / 1000) | 0;
@@ -1112,7 +1114,7 @@ export default class QWeather {
             headers: this.headers,
         };
         try {
-            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => readProviderJSON(response));
             switch (body?.code) {
                 case "200": {
                     return body;
@@ -1229,7 +1231,7 @@ export default class QWeather {
      */
     #CreatePollutants(pollutantsObj, scaleCode) {
         Console.info("☑️ CreatePollutants");
-        Console.debug(`pollutantsObj: ${JSON.stringify(pollutantsObj)}`);
+        if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`pollutantsObj: ${JSON.stringify(pollutantsObj)}`);
 
         // TODO: what is ppmC? https://dev.qweather.com/docs/resource/air-info/#pollutants
         const pollutants = pollutantsObj
@@ -1264,7 +1266,7 @@ export default class QWeather {
      */
     #CreatePollutantsV7(pollutantsObj) {
         Console.info("☑️ CreatePollutantsV7");
-        Console.debug(`pollutantsObj: ${JSON.stringify(pollutantsObj)}`);
+        if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`pollutantsObj: ${JSON.stringify(pollutantsObj)}`);
 
         const { mgm3, ugm3 } = AirQuality.Config.Units.WeatherKit;
         const pollutants = Object.entries(pollutantsObj)
