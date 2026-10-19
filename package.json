@@ -52,7 +52,7 @@
         "submodule": "git submodule update --remote",
         "update": "npm update --save",
         "test:cache": "node --test tests/providerRequestCache.test.mjs tests/waqiRequestCache.test.mjs tests/providerCacheBundle.test.mjs",
-        "test": "node --test tests/*.test.mjs",
+        "test": "node --test --test-concurrency=1 tests/*.test.mjs",
         "build:loon-cache": "npm run build && node scripts/build-loon-cache.mjs"
     },
     "browserslist": [
@@ -84,5 +84,5 @@
             "puppeteer": "25.7.0"
         }
     },
-    "version": "3.3.2-cache.1"
+    "version": "3.3.2-cache.2"
 }

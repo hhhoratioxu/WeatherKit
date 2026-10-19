@@ -1,6 +1,6 @@
 // Modified by hhhoratioxu, 2026-10-19: bounded request coalescing and short-lived response caching.
 import { Console, fetch, Lodash as _ } from "@nsnanocat/util";
-import ProviderRequestCache from "./ProviderRequestCache.mjs";
+import ProviderRequestCache, { providerErrorCode } from "./ProviderRequestCache.mjs";
 import Weather from "./Weather.mjs";
 import AirQuality from "./AirQuality.mjs";
 import ForecastNextHour from "./ForecastNextHour.mjs";
@@ -33,12 +33,14 @@ export default class ColorfulClouds {
     };
     #requests;
 
-    #Fetch(request) {
+    #Fetch(request, kind) {
         const product = new URL(request.url).pathname.split("/").at(-1);
         return this.#requests.fetch(typeof $loon === "string" ? { ...request, timeout: request.timeout ?? 5000 } : request, {
             fetcher: fetch,
             partition: [this.Name, this.version, this.language, this.country],
             product,
+            group: [this.latitude, this.longitude, this.country],
+            kind: kind ?? (product === "minutely" ? "minutely" : /hourly|daily/.test(product) ? "forecast" : product === "location" ? "alerts" : "current"),
             maximumTTLSeconds: product === "minutely" ? 30 : 300,
             validate: body => {
                 if (product === "location") return !body?.error && Array.isArray(body?.alerts);
@@ -224,7 +226,7 @@ export default class ColorfulClouds {
         },
     };
 
-    async #RealTime() {
+    async #RealTime(kind = "current") {
         Console.info("☑️ RealTime");
         this.#cache.alert = {};
 
@@ -233,7 +235,7 @@ export default class ColorfulClouds {
             headers: this.headers,
         };
         try {
-            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request, kind).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.status) {
                 case "ok": {
                     switch (body?.result?.realtime?.status) {
@@ -261,7 +263,7 @@ export default class ColorfulClouds {
                     throw Error(JSON.stringify(body ?? {}));
             }
         } catch (error) {
-            Console.error(`RealTime: ${error}`);
+            Console.error(`RealTime: ${providerErrorCode(error)}`);
         } finally {
             //Console.debug(`airQuality: ${JSON.stringify(airQuality, null, 2)}`);
             Console.info("✅ RealTime");
@@ -344,7 +346,7 @@ export default class ColorfulClouds {
                     throw Error(JSON.stringify(body ?? {}));
             }
         } catch (error) {
-            Console.error(`Minutely: ${error}`);
+            Console.error(`Minutely: ${providerErrorCode(error)}`);
         } finally {
             //Console.debug(`forecastNextHour: ${JSON.stringify(forecastNextHour, null, 2)}`);
             Console.info("✅ Minutely");
@@ -362,6 +364,7 @@ export default class ColorfulClouds {
         Console.info("☑️ WeatherAlert");
         const failedWeatherAlerts = {
             metadata: {
+                temporarilyUnavailable: true,
                 attributionUrl: "https://www.caiyunapp.com/h5",
             },
             detailsUrl: `https://weatherkit.apple.com/alertDetails/index.html?ids=${this.latitude},${this.longitude}&lang=${encodeURIComponent(this.weatherKitLanguage)}&party=ColorfulClouds`,
@@ -371,11 +374,12 @@ export default class ColorfulClouds {
         };
         let weatherAlerts = failedWeatherAlerts;
         try {
-            await this.#RealTime();
+            await this.#RealTime("alerts");
             if (!Array.isArray(this.#cache.alert?.content)) throw Error(JSON.stringify(this.#cache.alert));
             weatherAlerts = { ...failedWeatherAlerts, ...this.#CreateWeatherAlerts(this.#cache.alert) };
+            if (!weatherAlerts.metadata?.temporarilyUnavailable || weatherAlerts !== failedWeatherAlerts) weatherAlerts.metadata = { ...weatherAlerts.metadata, temporarilyUnavailable: false };
         } catch (error) {
-            Console.error(`WeatherAlert: ${error}`);
+            Console.error(`WeatherAlert: ${providerErrorCode(error)}`);
         } finally {
             Console.info("✅ WeatherAlert");
         }
@@ -391,6 +395,7 @@ export default class ColorfulClouds {
         Console.info("☑️ WeatherAlertV3CAP");
         const failedWeatherAlerts = {
             metadata: {
+                temporarilyUnavailable: true,
                 attributionUrl: "https://www.caiyunapp.com/h5",
             },
             detailsUrl: `https://weatherkit.apple.com/alertDetails/index.html?ids=${this.latitude},${this.longitude}&lang=${encodeURIComponent(this.weatherKitLanguage)}&party=ColorfulClouds`,
@@ -416,9 +421,9 @@ export default class ColorfulClouds {
                 return failedWeatherAlerts;
             }
             if (!Array.isArray(body?.alerts)) throw Error(JSON.stringify(body?.error ?? body?.reason ?? body?.code ?? body));
-            weatherAlerts = { ...failedWeatherAlerts, ...this.#CreateWeatherAlertsV3CAP(body) };
+            weatherAlerts = { ...failedWeatherAlerts, ...this.#CreateWeatherAlertsV3CAP(body), metadata: { ...failedWeatherAlerts.metadata, temporarilyUnavailable: false } };
         } catch (error) {
-            Console.error(`WeatherAlertV3CAP: ${error}`);
+            Console.error(`WeatherAlertV3CAP: ${providerErrorCode(error)}`);
         } finally {
             Console.info("✅ WeatherAlertV3CAP");
         }
@@ -452,7 +457,7 @@ export default class ColorfulClouds {
                     throw Error(JSON.stringify(body ?? {}));
             }
         } catch (error) {
-            Console.error(`Hourly: ${error}`);
+            Console.error(`Hourly: ${providerErrorCode(error)}`);
         } finally {
             //Console.debug(`airQuality: ${JSON.stringify(this.airQuality, null, 2)}`);
             Console.info("✅ Hourly");
@@ -592,7 +597,7 @@ export default class ColorfulClouds {
                     throw Error(JSON.stringify(body ?? {}));
             }
         } catch (error) {
-            Console.error(`Daily: ${error}`);
+            Console.error(`Daily: ${providerErrorCode(error)}`);
         } finally {
             //Console.debug(`Daily: ${JSON.stringify(Daily, null, 2)}`);
             Console.info("✅ Daily");

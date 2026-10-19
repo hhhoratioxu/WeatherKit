@@ -1,3 +1,4 @@
+import "../function/ensureTextEncoder.mjs";
 import { FlatBufferRootProcessor } from "@nsnanocat/flatbuffer-root";
 import * as WK2 from "@nsringo/weatherkit";
 import database from "../function/database.mjs";

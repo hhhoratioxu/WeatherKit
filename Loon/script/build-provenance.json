@@ -1,8 +1,31 @@
 {
-  "version": "3.3.2-cache.1",
-  "sourceCommit": "8f2f8923ce1c1a7e64276d607fe53716a77efe9d",
-  "resourceRef": "cache-v1",
+  "version": "3.3.2-cache.2",
+  "sourceCommit": "8e89ec426a6a6e77bfca014704dd8784020e749c",
+  "resourceRef": "cache-v2",
   "node": "v22.23.3",
   "schemaPackage": "1.1.2",
-  "lockfileSHA256": "fa3b4a19fc7f107a9bd73863364896f2a2c6e846ff6c5f25106859fe3d5cf3f9"
+  "bundleChecks": {
+    "pass": 8,
+    "fail": 0,
+    "scenarios": [
+      "request scale normalization",
+      "availability preserves Apple and appends plugin requirements",
+      "unhandled content passthrough",
+      "web warning parsing without TextEncoder",
+      "parsed warning cache survives a new Loon execution",
+      "failed warning request passes through with safe diagnostics",
+      "binary weather response retains Apple values and completes after native failures",
+      "missing minute data uses one configured backup after primary failure"
+    ],
+    "withoutNodeWebCryptoHostTextEncoder": true,
+    "providedWebAPIs": [
+      "URL",
+      "URLSearchParams",
+      "TextDecoder"
+    ],
+    "doneExactlyOnce": true,
+    "liveWeatherRequests": false,
+    "deviceVPNValidation": false
+  },
+  "lockfileSHA256": "3af815ee6d802f4efb6bda382f0335b1ffac4109afdcf31c7f13e8a5650b3736"
 }
