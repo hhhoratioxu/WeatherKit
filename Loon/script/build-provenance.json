@@ -1,11 +1,11 @@
 {
-  "version": "3.3.2-cache.4",
-  "sourceCommit": "241ab6868086a313c9147462a17afae8adaab3d9",
-  "resourceRef": "cache-v4",
-  "node": "v22.23.3",
+  "version": "3.3.2-cache.5",
+  "sourceCommit": "4a586e1373c55c76e2a2fa195eaafa1a8d51c038",
+  "resourceRef": "cache-v5",
+  "node": "v24.19.0",
   "schemaPackage": "1.1.2",
   "bundleChecks": {
-    "pass": 14,
+    "pass": 16,
     "fail": 0,
     "scenarios": [
       "custom scale uses a standalone bundle without storage or provider requests",
@@ -18,6 +18,8 @@
       "binary weather response retains Apple values and completes after native failures",
       "existing Apple minute table is preserved without provider work or routine logs",
       "Apple-only provider preserves original binary weather without a decoder round trip",
+      "oversized binary input retains the original view without decoding or provider work",
+      "partial hourly replacement changes only a matching row and leaves source binary intact",
       "missing minute data uses one configured backup after primary failure",
       "HTTP 502 provider body with http failure cannot overwrite Apple weather",
       "HTTP 200 provider body with invalid failure cannot overwrite Apple weather",
@@ -52,5 +54,5 @@
     "liveWeatherRequests": false,
     "deviceVPNValidation": false
   },
-  "lockfileSHA256": "09dac08686d097031f3a0c97a00f9dcf8f222f8e9ba8f9f54614a79e037d5629"
+  "lockfileSHA256": "9ac82a43fe08c04ef1ff0819b57ef2f900d4631dc4c83a5305c06681f7676ce3"
 }

@@ -1,9 +1,9 @@
 // Modified by hhhoratioxu, 2026-10-19: cache weather data only; token endpoints remain uncached.
 import { Console } from "@nsnanocat/util";
-import fetch from "../function/fetchProvider.mjs";
-import ProviderRequestCache, { providerErrorCode } from "./ProviderRequestCache.mjs";
 import AirQuality from "../class/AirQuality.mjs";
+import fetch from "../function/fetchProvider.mjs";
 import providerNameToLogo from "../function/providerNameToLogo.mjs";
+import ProviderRequestCache, { providerErrorCode, readProviderJSON } from "./ProviderRequestCache.mjs";
 
 export default class WAQI {
     constructor(parameters, token, requestCache = new ProviderRequestCache()) {
@@ -25,6 +25,7 @@ export default class WAQI {
     #Fetch(request) {
         return this.#requests.fetch(typeof $loon === "string" ? { ...request, timeout: request.timeout ?? 5000 } : request, {
             fetcher: fetch,
+            includeJSON: true,
             partition: [this.Name, this.version, this.language, this.country],
             group: [this.latitude, this.longitude, this.country],
             product: "air-quality",
@@ -76,7 +77,7 @@ export default class WAQI {
         };
         let airQuality;
         try {
-            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => readProviderJSON(response));
             switch (mapqVersion) {
                 case "mapq":
                     switch (body?.status) {
@@ -165,7 +166,7 @@ export default class WAQI {
                     product: "token",
                     validate: value => value?.rxs?.status === "ok" && value.rxs.obs?.[0]?.status === "ok" && typeof value.rxs.obs[0].msg?.token === "string" && value.rxs.obs[0].msg.token.trim().length > 0,
                 })
-                .then(response => JSON.parse(response?.body ?? "{}"));
+                .then(response => readProviderJSON(response));
             switch (body?.status) {
                 case "error":
                     throw JSON.stringify({ status: body?.status, reason: body?.data });
@@ -213,7 +214,7 @@ export default class WAQI {
                     product: "authenticated-air-quality",
                     validate: value => value?.rxs?.status === "ok" && value.rxs.obs?.[0]?.status === "ok" && Boolean(value.rxs.obs[0].msg?.city) && value.rxs.obs[0].msg.aqi !== null && String(value.rxs.obs[0].msg.aqi).trim() !== "" && Number.isFinite(Number(value.rxs.obs[0].msg.aqi)),
                 })
-                .then(response => JSON.parse(response?.body ?? "{}"));
+                .then(response => readProviderJSON(response));
             switch (body?.status) {
                 case "error":
                     throw JSON.stringify({ status: body?.status, reason: body?.data });
@@ -273,7 +274,7 @@ export default class WAQI {
         if (stationId) request.url = `https://api2.waqi.info/feed/@${stationId}/?token=${token}`;
         let airQuality;
         try {
-            const body = await this.#Fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
+            const body = await this.#Fetch(request).then(response => readProviderJSON(response));
             switch (body?.status) {
                 case "ok": {
                     const timeStamp = (Date.now() / 1000) | 0;

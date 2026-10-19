@@ -3,20 +3,21 @@ import { Console, Storage } from "@nsnanocat/util";
 import * as flatbuffers from "flatbuffers";
 import AirQuality from "../class/AirQuality.mjs";
 import MatchEnum from "../class/MatchEnum.mjs";
-import QWeather from "../class/QWeather.mjs";
-import recoverConfiguredProduct from "../function/recoverConfiguredProduct.mjs";
-import { cloneWeatherProduct, providerProductAvailable, activeProviderAlerts, weatherProductsEqual } from "../function/providerRecovery.mjs";
 import ProviderRequestCache, { providerErrorCode } from "../class/ProviderRequestCache.mjs";
-import Weather from "../class/Weather.mjs";
+import QWeather from "../class/QWeather.mjs";
 import WeatherAlerts from "../class/WeatherAlerts.mjs";
 import WeatherKit2, { hasForecastNextHour } from "../class/WeatherKit2.mjs";
-import planWeatherProducts from "../function/planWeatherProducts.mjs";
 import createProviderEnvironment from "../function/createProviderEnvironment.mjs";
 import database from "../function/database.mjs";
+import mergeForecastCopy from "../function/mergeForecastCopy.mjs";
 import mergeWeatherKitAvailability from "../function/mergeWeatherKitAvailability.mjs";
 import parseWeatherKitURL from "../function/parseWeatherKitURL.mjs";
+import planWeatherProducts from "../function/planWeatherProducts.mjs";
 import providerNameToLogo from "../function/providerNameToLogo.mjs";
+import { activeProviderAlerts, cloneWeatherProduct, providerProductAvailable, weatherProductsEqual } from "../function/providerRecovery.mjs";
+import recoverConfiguredProduct from "../function/recoverConfiguredProduct.mjs";
 import setENV from "../function/setENV.mjs";
+import { MAX_WEATHER_BODY_BYTES } from "../function/weatherMemoryLimits.mjs";
 /***************** Processing *****************/
 export async function Response($request, $response) {
     // 解构URL
@@ -29,6 +30,8 @@ export async function Response($request, $response) {
         return $response;
     }
     if (FORMAT !== "application/vnd.apple.flatbuffer" || url.hostname !== "weatherkit.apple.com" || !url.pathname.startsWith("/api/v2/weather/")) return $response;
+    const input = $response.bodyBytes ?? $response.body;
+    if ((input?.byteLength ?? input?.length ?? 0) > MAX_WEATHER_BODY_BYTES) return $response;
     /**
      * 设置
      * @type {{Settings: import('./types').Settings}}
@@ -82,7 +85,7 @@ export async function Response($request, $response) {
                         switch (url.pathname) {
                             default:
                                 if (url.pathname.startsWith("/api/v1/availability/")) {
-                                    Console.debug(`body: ${JSON.stringify(body)}`);
+                                    if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`body: ${JSON.stringify(body)}`);
                                     body = mergeWeatherKitAvailability(body, Configs?.Availability?.v2);
                                 }
                                 break;
@@ -131,7 +134,7 @@ export async function Response($request, $response) {
                                             if (!["airQuality", "currentWeather", "forecastDaily", "forecastHourly", "forecastNextHour", "weatherAlerts"].includes(dataSet)) return;
                                             const original = body[dataSet];
                                             try {
-                                                body[dataSet] = cloneWeatherProduct(original);
+                                                body[dataSet] = dataSet === "airQuality" || dataSet === "weatherAlerts" ? cloneWeatherProduct(original) : original;
                                                 switch (dataSet) {
                                                     case "airQuality": {
                                                         if (Settings?.LogLevel === "DEBUG" || Settings?.LogLevel === "ALL") {
@@ -157,7 +160,7 @@ export async function Response($request, $response) {
                                                         break;
                                                     }
                                                     case "forecastNextHour": {
-                                                        Console.debug(`body.forecastNextHour: ${JSON.stringify(body?.forecastNextHour, null, 2)}`);
+                                                        if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`body.forecastNextHour: ${JSON.stringify(body?.forecastNextHour, null, 2)}`);
                                                         if (Settings?.LogLevel === "DEBUG" || Settings?.LogLevel === "ALL") {
                                                             matchEnum.conditionType();
                                                             matchEnum.forecastToken();
@@ -169,7 +172,7 @@ export async function Response($request, $response) {
                                                         if (Settings?.LogLevel === "DEBUG" || Settings?.LogLevel === "ALL") {
                                                             matchEnum.placementType();
                                                         }
-                                                        Console.debug(`body.news: ${JSON.stringify(body?.news, null, 2)}`);
+                                                        if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`body.news: ${JSON.stringify(body?.news, null, 2)}`);
                                                         break;
                                                     }
                                                     case "weatherAlerts": {
@@ -182,11 +185,11 @@ export async function Response($request, $response) {
                                                             matchEnum.responseType();
                                                         }
                                                         body.weatherAlerts = await InjectWeatherAlerts(body.weatherAlerts, Settings, enviroments);
-                                                        Console.debug(`body.weatherAlerts: ${JSON.stringify(body?.weatherAlerts, null, 2)}`);
+                                                        if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`body.weatherAlerts: ${JSON.stringify(body?.weatherAlerts, null, 2)}`);
                                                         break;
                                                     }
                                                     case "locationInfo": {
-                                                        Console.debug(`body.locationInfo: ${JSON.stringify(body?.locationInfo, null, 2)}`);
+                                                        if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`body.locationInfo: ${JSON.stringify(body?.locationInfo, null, 2)}`);
                                                         break;
                                                     }
                                                     default:
@@ -312,7 +315,7 @@ async function InjectForecastDaily(forecastDaily, Settings, enviroments) {
         forecastDaily = {
             ...forecastDaily,
             metadata: { ...forecastDaily?.metadata, ...newForecastDaily.metadata },
-            days: forecastDaily?.days?.length ? Weather.mergeForecast(forecastDaily.days, newForecastDaily.days) : (newForecastDaily.days ?? []),
+            days: forecastDaily?.days?.length ? mergeForecastCopy(forecastDaily.days, newForecastDaily.days) : (newForecastDaily.days ?? []),
         };
         forecastDaily.metadata.providerLogo ||= providerNameToLogo(forecastDaily.metadata.providerName);
         //Console.debug(`forecastDaily: ${JSON.stringify(forecastDaily, null, 2)}`);
@@ -366,7 +369,7 @@ async function InjectForecastHourly(forecastHourly, Settings, enviroments) {
         forecastHourly = {
             ...forecastHourly,
             metadata: { ...forecastHourly?.metadata, ...newForecastHourly.metadata },
-            hours: forecastHourly?.hours?.length ? Weather.mergeForecast(forecastHourly.hours, newForecastHourly.hours) : (newForecastHourly.hours ?? []),
+            hours: forecastHourly?.hours?.length ? mergeForecastCopy(forecastHourly.hours, newForecastHourly.hours) : (newForecastHourly.hours ?? []),
         };
         forecastHourly.metadata.providerLogo ||= providerNameToLogo(forecastHourly.metadata.providerName);
         //Console.debug(`forecastHourly: ${JSON.stringify(forecastHourly, null, 2)}`);
@@ -410,7 +413,7 @@ async function InjectForecastNextHour(forecastNextHour, Settings, enviroments) {
         newForecastNextHour.metadata = { ...forecastNextHour?.metadata, ...newForecastNextHour.metadata };
         forecastNextHour = { ...forecastNextHour, ...newForecastNextHour };
         forecastNextHour.metadata.providerLogo ||= providerNameToLogo(forecastNextHour.metadata.providerName);
-        Console.debug(`forecastNextHour: ${JSON.stringify(forecastNextHour, null, 2)}`);
+        if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`forecastNextHour: ${JSON.stringify(forecastNextHour, null, 2)}`);
     }
     if (Settings?.NextHour?.Provider !== "WeatherKit" && !providerProductAvailable(newForecastNextHour)) enviroments.requestCache?.noteFallback("forecastNextHour");
     Console.info("✅ InjectForecastNextHour");
@@ -522,7 +525,7 @@ async function InjectAirQuality(airQuality, Settings, Caches, enviroments) {
         pollutants: AirQuality.ConvertPollutants(airQuality, injectedPollutants, needInjectIndex, injectedIndex, Settings) ?? [],
         previousDayComparison: injectedComparison?.previousDayComparison ?? AirQuality.Config.CompareCategoryIndexes.UNKNOWN,
     };
-    Console.debug(`airQuality: ${JSON.stringify(airQuality, null, 2)}`);
+    if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`airQuality: ${JSON.stringify(airQuality, null, 2)}`);
     return airQuality;
 }
 

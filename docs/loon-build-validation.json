@@ -1,15 +1,27 @@
 {
-  "verifiedDate": "2026-10-19",
-  "version": "3.3.2-cache.4",
-  "sourceCommit": "241ab6868086a313c9147462a17afae8adaab3d9",
-  "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/39210121980",
+  "verifiedDate": "2026-10-20",
+  "version": "3.3.2-cache.5",
+  "sourceCommit": "4a586e1373c55c76e2a2fa195eaafa1a8d51c038",
+  "validationOrigin": "local",
+  "buildEnvironment": {
+    "platform": "Darwin",
+    "arch": "arm64",
+    "node": "v24.19.0",
+    "schemaPackage": "1.1.2",
+    "lockedDependencyVersionsVerified": true
+  },
+  "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/39280821737",
+  "ciStatusAtVerification": "queued",
+  "ciConclusionAtVerification": null,
+  "ciHeadSHA": "4a586e1373c55c76e2a2fa195eaafa1a8d51c038",
+  "ciArtifactsUsed": false,
   "regressionTests": {
-    "pass": 201,
+    "pass": 212,
     "fail": 0,
     "skip": 0
   },
   "bundledVMSmokeChecks": {
-    "pass": 14,
+    "pass": 16,
     "fail": 0,
     "scenarios": [
       "custom scale uses a standalone bundle without storage or provider requests",
@@ -22,6 +34,8 @@
       "binary weather response retains Apple values and completes after native failures",
       "existing Apple minute table is preserved without provider work or routine logs",
       "Apple-only provider preserves original binary weather without a decoder round trip",
+      "oversized binary input retains the original view without decoding or provider work",
+      "partial hourly replacement changes only a matching row and leaves source binary intact",
       "missing minute data uses one configured backup after primary failure",
       "HTTP 502 provider body with http failure cannot overwrite Apple weather",
       "HTTP 200 provider body with invalid failure cannot overwrite Apple weather",
@@ -75,27 +89,27 @@
   "artifacts": {
     "LICENSE.txt": {
       "bytes": 12826,
-      "sha256": "fcf8702aa2d2f98c1e639a9f2ec498ba14d453db6715d0aed1921cabf4e20e78"
+      "sha256": "821dd061acf5fbff093f61bc797a8ed34c964ecea08ce61ff22527d5aa3414f4"
     },
     "SHA256SUMS.txt": {
       "bytes": 501,
-      "sha256": "44b741ad823298d30e747c46e44e4bd35defee89143810190135bb74ef114199"
+      "sha256": "6cb239458d89a1bd45a5c5646382e8586872c6a03957539eb26a465fcd8ecb0e"
     },
     "WeatherKit.plugin": {
       "bytes": 8047,
-      "sha256": "e53ea81562e2b624feb6d216478e8b856e489e3f22ee9f1c361412d9751acc3a"
+      "sha256": "828e9831c52d39fe1846648cc6950315d263a4e666ae16c2ac138ec1fd1a1584"
     },
     "build-provenance.json": {
-      "bytes": 2527,
-      "sha256": "a01b6ae0c19ed290822a2a662cef2c0d3f422bca472a96c0e204117e435a886f"
+      "bytes": 2715,
+      "sha256": "bacd568bae6acdc0519002d9604a6e4b4154698e452de6d81da7e0ef1f92bad4"
     },
     "request.bundle.js": {
-      "bytes": 288435,
-      "sha256": "29b2e466774555423b4a56b4bcb75a4dcb2f3eefb2feee1ffbdfb1d7cfd59b97"
+      "bytes": 288841,
+      "sha256": "bec7d36cbdf73292c00fc58ab15868090a42ddd112e3d054ec2b1272fc7bd311"
     },
     "response.bundle.js": {
-      "bytes": 432099,
-      "sha256": "6b64e688f37501d2f6481f64bf403f013aebe0cdcbc76b244bf527618b85861a"
+      "bytes": 430154,
+      "sha256": "184159572ea392e09a5fd263cdb2af107862566ce093ae937d75d24d03c6b611"
     },
     "scale.bundle.js": {
       "bytes": 29703,

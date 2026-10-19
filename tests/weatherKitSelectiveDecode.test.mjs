@@ -703,6 +703,108 @@ test("QWeather yesterday comparison works without an optional pollutant converte
     }
 });
 
+test("failed hourly replacement does not copy unused forecast fields and keeps exact Apple bytes", async () => {
+    const { default: QWeather } = await import("../src/class/QWeather.mjs");
+    const originalArgument = globalThis.$argument,
+        decode = WeatherKit2.decode,
+        hourly = QWeather.prototype.Hourly;
+    let copiedFields = 0,
+        calls = 0;
+    const untouched = Object.freeze({
+        forecastStart: 1,
+        get largeUnusedField() {
+            copiedFields++;
+            return Array(500).fill("fixture");
+        },
+    });
+    const product = Object.freeze({ metadata: Object.freeze({ providerName: "Apple", temporarilyUnavailable: false }), hours: Object.freeze([untouched]) });
+    globalThis.$argument = { Storage: "Argument", LogLevel: "OFF", DataSets: "forecastHourly", Weather: { Provider: "QWeather", Replace: "CN" } };
+    WeatherKit2.decode = () => ({ forecastHourly: product });
+    QWeather.prototype.Hourly = async () => {
+        calls++;
+        return undefined;
+    };
+    try {
+        const raw = createWeatherRoot([3]);
+        for (const handler of [Response, ResponseDev]) {
+            const output = await handler({ url: "https://weatherkit.apple.com/api/v2/weather/zh-Hans-CN/31.2/121.5?country=CN&dataSets=forecastHourly" }, { body: raw, headers: { "Content-Type": "application/vnd.apple.flatbuffer" } });
+            assert.strictEqual(output.body, raw);
+        }
+        assert.equal(calls, 2);
+        assert.equal(copiedFields, 0);
+    } finally {
+        globalThis.$argument = originalArgument;
+        WeatherKit2.decode = decode;
+        QWeather.prototype.Hourly = hourly;
+    }
+});
+
+test("oversized binary weather stays opaque before settings, provider work or decoding", async () => {
+    const { MAX_WEATHER_BODY_BYTES } = await import("../src/function/weatherMemoryLimits.mjs");
+    const decode = WeatherKit2.decode,
+        persistent = globalThis.$persistentStore;
+    WeatherKit2.decode = () => {
+        throw new Error("oversized input must not decode");
+    };
+    globalThis.$persistentStore = {
+        read: () => {
+            throw new Error("oversized input must not read settings");
+        },
+    };
+    try {
+        const raw = new Uint8Array(MAX_WEATHER_BODY_BYTES + 1);
+        for (const handler of [Response, ResponseDev]) {
+            const original = { body: raw, headers: { "Content-Type": "application/vnd.apple.flatbuffer" } };
+            const output = await handler({ url: "https://weatherkit.apple.com/api/v2/weather/zh-Hans-CN/31.2/121.5?country=CN&dataSets=forecastHourly" }, original);
+            assert.strictEqual(output, original);
+            assert.strictEqual(output.body, raw);
+        }
+    } finally {
+        WeatherKit2.decode = decode;
+        globalThis.$persistentStore = persistent;
+    }
+});
+
+test("hourly decoding constructs one schema view per row instead of one per field", async () => {
+    const { HourlyForecastData } = await import("@nsringo/weatherkit");
+    const hours = HourlyForecastData.prototype.hours;
+    let views = 0;
+    const raw = WeatherKit2.encode(undefined, { forecastHourly: { metadata: {}, hours: Array.from({ length: 273 }, (_, index) => ({ forecastStart: index, temperature: index, precipitationAmountByType: [] })) } });
+    HourlyForecastData.prototype.hours = function (...args) {
+        views++;
+        return hours.apply(this, args);
+    };
+    try {
+        const output = WeatherKit2.decode(new ByteBuffer(raw), ["forecastHourly"]);
+        assert.equal(output.forecastHourly.hours.length, 273);
+        assert.equal(output.forecastHourly.hours[272].temperature, 272);
+        assert.equal(views, 273);
+    } finally {
+        HourlyForecastData.prototype.hours = hours;
+    }
+});
+
+test("a forged vector length is rejected before reading rows and cannot discard another root", async () => {
+    const { HourlyForecastData } = await import("@nsringo/weatherkit");
+    const hours = HourlyForecastData.prototype.hours,
+        length = HourlyForecastData.prototype.hoursLength;
+    let reads = 0;
+    HourlyForecastData.prototype.hoursLength = () => 1000000000;
+    HourlyForecastData.prototype.hours = () => {
+        reads++;
+        throw new Error("must not read an unbounded row");
+    };
+    try {
+        const output = WeatherKit2.decode(new ByteBuffer(createWeatherRoot([1, 3])), ["currentWeather", "forecastHourly"]);
+        assert.ok(output.currentWeather);
+        assert.equal(output.forecastHourly, undefined);
+        assert.equal(reads, 0);
+    } finally {
+        HourlyForecastData.prototype.hours = hours;
+        HourlyForecastData.prototype.hoursLength = length;
+    }
+});
+
 function createWeatherRoot(presentSlots) {
     const builder = new Builder(256);
     const tables = new Map(presentSlots.map(slot => [slot, createEmptyTable(builder)]));
