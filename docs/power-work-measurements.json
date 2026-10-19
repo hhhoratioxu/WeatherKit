@@ -1,0 +1,129 @@
+{
+  "measuredDate": "2026-10-19",
+  "environment": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "node": "v24.19.0",
+    "runtime": "Node VM with real modules and compiled bundles; mocked Loon storage and HTTP",
+    "timingScope": "script evaluation and async completion; VM creation and precompilation excluded from per-script latency",
+    "nativeRewriteScope": "emitted configuration, regex fixtures and system jq, not Loon execution"
+  },
+  "baselineCommit": "6e5a73124e4ff7e45d263e954f365d87af5095c8",
+  "optimizedSourceSHA256": {
+    "src/class/ProviderRequestCache.mjs": "2688aea8497b45d9e0d210a9ce5c62b9b4c4f261ec22859d9a6948ce0de23c0e",
+    "src/class/ColorfulClouds.mjs": "c1c11c1a4d94b37528556448a54834188178efb43a9961ef11a07742ffae22e3",
+    "src/function/resolveWeatherRegion.mjs": "251e61c4f8112f0eb9e929ecf6476d2c3f28f3700e3d20613fd49c73c011cf40",
+    "src/process/Response.mjs": "2bdd2cd0ba3293cff8e4fee45583654b7e9a7383f21fcc723d5799cf348c9f6e",
+    "template/loon.handlebars": "84a94bf4ab231323ab654026de7f9f71d817ea1364a8d1d3fb29de8516d79f6d"
+  },
+  "optimizedBundleSHA256": {
+    "WeatherKit.plugin": "e53ea81562e2b624feb6d216478e8b856e489e3f22ee9f1c361412d9751acc3a",
+    "request.bundle.js": "29b2e466774555423b4a56b4bcb75a4dcb2f3eefb2feee1ffbdfb1d7cfd59b97",
+    "response.bundle.js": "6b64e688f37501d2f6481f64bf403f013aebe0cdcbc76b244bf527618b85861a",
+    "scale.bundle.js": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f"
+  },
+  "startup": [
+    {
+      "route": "availability",
+      "beforeJavaScriptStarts": 1,
+      "afterJavaScriptStarts": 0,
+      "beforeScriptBytes": 432356,
+      "afterScriptBytes": 0
+    },
+    {
+      "route": "ordinary scale",
+      "beforeJavaScriptStarts": 1,
+      "afterJavaScriptStarts": 0,
+      "beforeScriptBytes": 321150,
+      "afterScriptBytes": 0
+    },
+    {
+      "route": "custom HK/CN scale",
+      "beforeJavaScriptStarts": 1,
+      "afterJavaScriptStarts": 1,
+      "beforeScriptBytes": 321150,
+      "afterScriptBytes": 29703
+    },
+    {
+      "route": "alert details",
+      "beforeJavaScriptStarts": 1,
+      "afterJavaScriptStarts": 1,
+      "beforeScriptBytes": 321150,
+      "afterScriptBytes": 288435
+    }
+  ],
+  "persistedProductReads": [
+    {
+      "implementation": "cache-v3",
+      "consumers": 6,
+      "snapshotReads": 6,
+      "persistentHits": 6
+    },
+    {
+      "implementation": "cache-v4",
+      "consumers": 6,
+      "snapshotReads": 1,
+      "persistentHits": 6
+    }
+  ],
+  "yesterdayAirQuality": [
+    {
+      "implementation": "cache-v3",
+      "freshExecutions": 6,
+      "intervalSeconds": 10,
+      "forecastTTLSeconds": 180,
+      "nativeRequests": 6
+    },
+    {
+      "implementation": "cache-v4",
+      "freshExecutions": 6,
+      "intervalSeconds": 10,
+      "forecastTTLSeconds": 180,
+      "nativeRequests": 1
+    }
+  ],
+  "coordinateHintWrites": [
+    {
+      "implementation": "cache-v3",
+      "refreshes": 6,
+      "hintWrites": 6
+    },
+    {
+      "implementation": "cache-v4",
+      "refreshes": 6,
+      "hintWrites": 1
+    }
+  ],
+  "unchangedForecast": [
+    {
+      "implementation": "cache-v3",
+      "fixtureBytes": 25376,
+      "fixtureHours": 273,
+      "fixtureMinutes": 85,
+      "samples": 40,
+      "discardedWarmups": 5,
+      "medianScriptMilliseconds": 8.231,
+      "p95ScriptMilliseconds": 11.942,
+      "totalProcessCpuMillisecondsIncludingContextsAndAssertions": 592.019,
+      "originalBytesPreserved": true,
+      "totalLogMessagesWithLogLevelOFF": 180
+    },
+    {
+      "implementation": "cache-v4",
+      "fixtureBytes": 25376,
+      "fixtureHours": 273,
+      "fixtureMinutes": 85,
+      "samples": 40,
+      "discardedWarmups": 5,
+      "medianScriptMilliseconds": 1.392,
+      "p95ScriptMilliseconds": 1.598,
+      "totalProcessCpuMillisecondsIncludingContextsAndAssertions": 145.319,
+      "originalBytesPreserved": true,
+      "totalLogMessagesWithLogLevelOFF": 0
+    }
+  ],
+  "liveProviderRequests": false,
+  "actualBatteryMeasurement": false,
+  "actualLoonDeviceValidation": false,
+  "limits": "Work counts are reproducible fixtures, not traffic-wide or energy savings. Timing and CPU results depend on Node, host load and fixture. Native Rewrite still costs Loon CPU. Default freshness, concurrency and cache capacity are unchanged."
+}

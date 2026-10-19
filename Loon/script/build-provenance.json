@@ -1,25 +1,47 @@
 {
-  "version": "3.3.2-cache.3",
-  "sourceCommit": "e63e7e82eb11dd101ddfef015b3e86e58737f608",
-  "resourceRef": "cache-v3",
+  "version": "3.3.2-cache.4",
+  "sourceCommit": "241ab6868086a313c9147462a17afae8adaab3d9",
+  "resourceRef": "cache-v4",
   "node": "v22.23.3",
   "schemaPackage": "1.1.2",
   "bundleChecks": {
-    "pass": 11,
+    "pass": 14,
     "fail": 0,
     "scenarios": [
-      "request scale normalization",
+      "custom scale uses a standalone bundle without storage or provider requests",
+      "unknown scale language falls through with conditional headers intact",
       "availability preserves Apple and appends plugin requirements",
       "unhandled content passthrough",
       "web warning parsing without TextEncoder",
       "parsed warning cache survives a new Loon execution",
       "failed warning request passes through with safe diagnostics",
       "binary weather response retains Apple values and completes after native failures",
+      "existing Apple minute table is preserved without provider work or routine logs",
+      "Apple-only provider preserves original binary weather without a decoder round trip",
       "missing minute data uses one configured backup after primary failure",
       "HTTP 502 provider body with http failure cannot overwrite Apple weather",
       "HTTP 200 provider body with invalid failure cannot overwrite Apple weather",
       "one shared Caiyun callback can replace healthy weather while preserving failed Apple alerts"
     ],
+    "nativeRewrites": {
+      "pass": 11,
+      "fail": 0,
+      "scenarios": [
+        "native scale URL: EU.EAQI.2604",
+        "native scale URL: US.AQI.12?lang=en-US&v=1#s",
+        "native scale URL: HK.AQHI.8",
+        "native scale URL: CN.AQHI.8",
+        "native scale URL: EU.EAQI",
+        "native scale URL: EU.EAQI.preview",
+        "URL normalization preserves POST and unrelated hosts",
+        "availability and ordinary scales start no JavaScript; custom scales use the small entry",
+        "alert routes accept first or subsequent ids parameters",
+        "native jq keeps Apple ordering and unknown capabilities without duplicates",
+        "native jq preserves unknown shapes and handles an empty capability list"
+      ],
+      "validation": "emitted expressions, JavaScript regex fixtures and system jq; not a Loon parser",
+      "deviceValidation": false
+    },
     "withoutNodeWebCryptoHostTextEncoder": true,
     "providedWebAPIs": [
       "URL",
@@ -30,5 +52,5 @@
     "liveWeatherRequests": false,
     "deviceVPNValidation": false
   },
-  "lockfileSHA256": "0c10a78ed43bd7584b47eff8fe00dfa73fb42792f272b1a4060431cdb90423f6"
+  "lockfileSHA256": "09dac08686d097031f3a0c97a00f9dcf8f222f8e9ba8f9f54614a79e037d5629"
 }
