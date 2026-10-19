@@ -263,7 +263,7 @@ async function InjectCurrentWeather(currentWeather, Settings, enviroments) {
         currentWeather.metadata.providerLogo ||= providerNameToLogo(currentWeather.metadata.providerName);
         //Console.debug(`currentWeather: ${JSON.stringify(currentWeather, null, 2)}`);
     }
-    if (newCurrentWeather && !providerProductAvailable(newCurrentWeather)) enviroments.requestCache?.noteFallback("currentWeather");
+    if (["ColorfulClouds", "QWeather"].includes(Settings?.Weather?.Provider) && !providerProductAvailable(newCurrentWeather)) enviroments.requestCache?.noteFallback("currentWeather");
     Console.info("✅ InjectCurrentWeather");
     return currentWeather;
 }
@@ -317,7 +317,7 @@ async function InjectForecastDaily(forecastDaily, Settings, enviroments) {
         forecastDaily.metadata.providerLogo ||= providerNameToLogo(forecastDaily.metadata.providerName);
         //Console.debug(`forecastDaily: ${JSON.stringify(forecastDaily, null, 2)}`);
     }
-    if (newForecastDaily && !providerProductAvailable(newForecastDaily)) enviroments.requestCache?.noteFallback("forecastDaily");
+    if (["ColorfulClouds", "QWeather"].includes(Settings?.Weather?.Provider) && !providerProductAvailable(newForecastDaily)) enviroments.requestCache?.noteFallback("forecastDaily");
     Console.info("✅ InjectForecastDaily");
     return forecastDaily;
 }
@@ -371,7 +371,7 @@ async function InjectForecastHourly(forecastHourly, Settings, enviroments) {
         forecastHourly.metadata.providerLogo ||= providerNameToLogo(forecastHourly.metadata.providerName);
         //Console.debug(`forecastHourly: ${JSON.stringify(forecastHourly, null, 2)}`);
     }
-    if (newForecastHourly && !providerProductAvailable(newForecastHourly)) enviroments.requestCache?.noteFallback("forecastHourly");
+    if (["ColorfulClouds", "QWeather"].includes(Settings?.Weather?.Provider) && !providerProductAvailable(newForecastHourly)) enviroments.requestCache?.noteFallback("forecastHourly");
     Console.info("✅ InjectForecastHourly");
     return forecastHourly;
 }
@@ -412,7 +412,7 @@ async function InjectForecastNextHour(forecastNextHour, Settings, enviroments) {
         forecastNextHour.metadata.providerLogo ||= providerNameToLogo(forecastNextHour.metadata.providerName);
         Console.debug(`forecastNextHour: ${JSON.stringify(forecastNextHour, null, 2)}`);
     }
-    if (newForecastNextHour && !providerProductAvailable(newForecastNextHour)) enviroments.requestCache?.noteFallback("forecastNextHour");
+    if (Settings?.NextHour?.Provider !== "WeatherKit" && !providerProductAvailable(newForecastNextHour)) enviroments.requestCache?.noteFallback("forecastNextHour");
     Console.info("✅ InjectForecastNextHour");
     return forecastNextHour;
 }
@@ -454,7 +454,7 @@ async function InjectWeatherAlerts(weatherAlerts, Settings, enviroments) {
         weatherAlerts.alerts = WeatherAlerts.mergeAlerts(weatherAlerts?.alerts, activeProviderAlerts(newWeatherAlerts?.alerts));
         weatherAlerts.metadata.providerLogo ||= providerNameToLogo(weatherAlerts.metadata.providerName);
     }
-    if (newWeatherAlerts && !providerProductAvailable(newWeatherAlerts)) enviroments.requestCache?.noteFallback("weatherAlerts");
+    if (Settings?.WeatherAlerts?.Provider !== "WeatherKit" && !providerProductAvailable(newWeatherAlerts)) enviroments.requestCache?.noteFallback("weatherAlerts");
     Console.info("✅ InjectWeatherAlerts");
     return weatherAlerts;
 }

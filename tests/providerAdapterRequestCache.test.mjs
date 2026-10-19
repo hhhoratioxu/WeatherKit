@@ -83,3 +83,64 @@ test("QWeather real provider shares requests and isolates changed authorization"
     finish({ ...weatherNow, now: { ...weatherNow.now, temp: "24" } });
     assert.equal((await next).temperature, 24);
 });
+
+for (const order of ["alerts-first", "current-first"]) {
+    test(`Caiyun keeps healthy current weather when its shared alert subproduct fails (${order})`, async () => {
+        values.clear();
+        const cache = new ProviderRequestCache();
+        const provider = new ColorfulClouds(parameters, "fixture-caiyun-token", cache);
+        const tasks = order === "alerts-first" ? [provider.WeatherAlert(), provider.CurrentWeather()] : [provider.CurrentWeather(), provider.WeatherAlert()];
+        assert.equal(pending.length, 1);
+        finish({ ...realtime, result: { ...realtime.result, alert: { status: "error" } } });
+        const results = await Promise.all(tasks);
+        const [alerts, current] = order === "alerts-first" ? results : results.toReversed();
+        assert.equal(alerts.metadata.temporarilyUnavailable, true);
+        assert.equal(current.temperature, 23);
+        assert.equal(cache.stats.requests, 1);
+        assert.equal(cache.stats.failures, 1);
+    });
+}
+
+test("QWeather rejects nonnumeric temperature even if its JSON code says 200", async () => {
+    values.clear();
+    const cache = new ProviderRequestCache();
+    const provider = new QWeather(parameters, "fixture-qweather-token", "devapi.qweather.com", cache);
+    const task = provider.WeatherNow();
+    finish({ ...weatherNow, now: { ...weatherNow.now, temp: "not-a-number" } });
+    assert.equal(await task, undefined);
+    assert.equal(cache.stats.failureReasons.invalid, 1);
+});
+
+test("an unchanged QWeather location grid survives a native 304 response", async () => {
+    const existing = { lastUpdated: Date.now() - 31 * 86400000, etag: "fixture-grid", data: { "31,121": [{ name: "fixture" }] } };
+    const runtime = new ProviderRequestCache();
+    let updated;
+    const task = QWeather.GetLocationsGrid(
+        { locationsGrid: existing },
+        value => {
+            updated = value;
+        },
+        runtime,
+    );
+    assert.equal(pending.length, 1);
+    assert.equal(pending[0].request.headers["If-None-Match"], "fixture-grid");
+    finish(undefined, 304);
+    assert.deepEqual(await task, existing.data);
+    assert.equal(updated.locationsGrid.data, existing.data);
+    assert.equal(updated.locationsGrid.etag, existing.etag);
+    assert.ok(updated.locationsGrid.lastUpdated > existing.lastUpdated);
+    assert.equal(runtime.stats.failures, 0);
+});
+
+test("a provider receives exactly 499 ms when only 499 ms of the dispatch budget remains", async () => {
+    values.clear();
+    let now = 100000;
+    const runtime = new ProviderRequestCache({ now: () => now, budgetMs: 1000 });
+    const provider = new QWeather(parameters, "fixture-budget-token", "devapi.qweather.com", runtime);
+    now += 501;
+    const task = provider.WeatherNow();
+    assert.equal(pending.length, 1);
+    assert.equal(pending[0].request.timeout, 499);
+    finish(weatherNow);
+    assert.equal((await task).temperature, 23);
+});

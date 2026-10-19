@@ -1,5 +1,6 @@
 // Modified by hhhoratioxu, 2026-10-19: bounded request coalescing and short-lived response caching.
-import { Console, fetch, Lodash as _ } from "@nsnanocat/util";
+import { Console, Lodash as _ } from "@nsnanocat/util";
+import fetch from "../function/fetchProvider.mjs";
 import ProviderRequestCache, { providerErrorCode } from "./ProviderRequestCache.mjs";
 import Weather from "./Weather.mjs";
 import AirQuality from "./AirQuality.mjs";
@@ -45,7 +46,7 @@ export default class ColorfulClouds {
             validate: body => {
                 if (product === "location") return !body?.error && Array.isArray(body?.alerts);
                 const result = body?.result;
-                return body?.status === "ok" && result?.[product]?.status === "ok" && (product !== "realtime" || !result.alert || result.alert.status === "ok");
+                return body?.status === "ok" && result?.[product]?.status === "ok" && (product !== "realtime" || kind !== "alerts" || (result.alert?.status === "ok" && Array.isArray(result.alert.content)));
             },
         });
     }

@@ -70,13 +70,16 @@ test("rate limits cool down immediately and Retry-After is bounded to 120 second
         calls = 0;
     const failures = store();
     const make = () => new Cache({ now: () => now, store: store(), failureStore: failures, cooldownSeconds: 30 });
-    await make().fetch(request, {
-        ...options,
-        fetcher: async () => {
-            calls++;
-            return response(429, { "Retry-After": "999999" });
-        },
-    });
+    await assert.rejects(
+        make().fetch(request, {
+            ...options,
+            fetcher: async () => {
+                calls++;
+                return response(429, { "Retry-After": "999999" });
+            },
+        }),
+        error => error.code === "rate_limit",
+    );
     now += 119999;
     await assert.rejects(make().fetch(request, { ...options, fetcher: async () => response() }), /cooldown/);
     now++;

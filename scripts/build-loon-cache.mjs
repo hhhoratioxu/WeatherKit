@@ -7,7 +7,7 @@ import verifyLoonCache from "./verify-loon-cache.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const pkg = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
-const resourceRef = process.env.WEATHERKIT_RESOURCE_REF || "cache-v2";
+const resourceRef = process.env.WEATHERKIT_RESOURCE_REF || "cache-v3";
 if (!/^[A-Za-z0-9._/-]+$/.test(resourceRef)) throw new Error("Invalid resource ref");
 const schemaPackage = JSON.parse(await readFile(path.join(root, "node_modules/@nsringo/weatherkit/package.json"), "utf8"));
 if (schemaPackage.version !== "1.1.2") throw new Error("Expected the upstream WeatherKit 1.1.2 schema package");

@@ -108,9 +108,13 @@ export default class ProviderRequestCache {
         if (typeof fetcher !== "function") throw new TypeError("Provider cache requires a fetch function");
         const method = String(request.method ?? "GET").toUpperCase();
         const eligible = cacheable && method === "GET" && request.body === undefined && request.bodyBytes === undefined;
-        const ttl = this.#lifetime(kind, maximumTTLSeconds),
-            key = eligible ? this.#key(request, partition, product) : undefined;
-        const valid = body => this.#validBody(body, validate, format);
+        const maximum = bounded(maximumResponseCharacters, REQUEST_CACHE_LIMITS.responseCharacters, 1, 2 * 1024 * 1024);
+        // Transport identity also protects uncached authentication requests. Only hashes persist.
+        const identity = this.#key(request, partition, product);
+        const scope = identity ? fingerprint(JSON.stringify(["validated-product.v2", identity, kind, format, maximum])) : undefined;
+        const key = eligible ? identity : undefined;
+        const ttl = this.#lifetime(kind, maximumTTLSeconds);
+        const valid = body => typeof body === "string" && body.length <= maximum && this.#validBody(body, validate, format);
         if (key && ttl > 0) {
             const memory = this.#memory.get(key);
             if (this.#fresh(memory, ttl) && valid(memory.body)) {
@@ -128,48 +132,71 @@ export default class ProviderRequestCache {
                 return this.#response(persisted);
             }
         }
-        if (key && this.#inFlight.has(key)) {
-            this.#stats.coalesced++;
-            return copyResponse(await this.#inFlight.get(key));
+        if (scope && this.#cooling(scope)) {
+            this.#stats.cooldownSkips++;
+            throw new ProviderRequestError("cooldown");
         }
-        if (this.#inFlight.size >= REQUEST_CACHE_LIMITS.pending) throw new ProviderRequestError("queue_full");
-        const owner = key ?? Symbol("uncacheable request");
-        const pending = this.#schedule(async () => {
-            if (key && this.#cooling(key)) {
-                this.#stats.cooldownSkips++;
-                throw new ProviderRequestError("cooldown");
-            }
-            const remaining = this.#budget ? this.#budget - (this.#now() - this.#startedAt) : Number.POSITIVE_INFINITY;
-            if (remaining < 250 || (this.#budget > 0 && this.#now() < this.#startedAt)) {
-                this.#stats.budgetSkips++;
-                throw new ProviderRequestError("budget");
-            }
-            const outgoing = typeof $loon === "string" ? { ...request, timeout: Math.max(1, Math.floor(Math.min(bounded(request.timeout, 5000, 1, 5000), remaining))) } : request;
-            const started = this.#now();
-            this.#stats.requests++;
-            try {
-                // Await the native callback. No detached timer, cancellation or early $done.
-                const response = await fetcher(outgoing);
-                const maximum = bounded(maximumResponseCharacters, REQUEST_CACHE_LIMITS.responseCharacters, 1, 2 * 1024 * 1024);
-                if (typeof response?.body !== "string" || response.body.length > maximum) throw new ProviderRequestError("invalid");
-                const status = Number(response.statusCode ?? response.status);
-                if (response.ok !== false && Number.isInteger(status) && ((status >= 200 && status < 300) || (allowNotModified && status === 304)) && valid(response.body)) {
-                    if (key) this.#success(key);
-                    if (key && ttl > 0) this.#save(key, response, ttl, valid, group);
-                } else this.#failure(key, status === 429 ? "rate_limit" : status === 401 || status === 403 ? "auth" : status >= 400 ? "http" : "invalid", response.headers);
-                return response;
-            } catch (error) {
-                this.#failure(key, providerErrorCode(error));
-                throw new ProviderRequestError(providerErrorCode(error));
-            } finally {
-                this.#stats.networkMs += Math.max(0, this.#now() - started);
-            }
-        });
-        this.#inFlight.set(owner, pending);
+        const owner = eligible && identity ? identity : Symbol("uncacheable request");
+        let pending = this.#inFlight.get(owner);
+        if (pending) this.#stats.coalesced++;
+        else {
+            if (this.#inFlight.size >= REQUEST_CACHE_LIMITS.pending) throw new ProviderRequestError("queue_full");
+            pending = { invalid: new Set(), saved: new Set() };
+            pending.response = this.#schedule(() => this.#dispatch(request, fetcher, identity));
+            this.#inFlight.set(owner, pending);
+        }
         try {
-            return copyResponse(await pending);
+            // Share the native response, not the first consumer's validation outcome.
+            const response = await pending.response;
+            const code = Number(response.statusCode ?? response.status) === 304 && !allowNotModified ? "http" : !valid(response.body) ? "invalid" : undefined;
+            if (code) {
+                const failure = scope ?? owner;
+                if (!pending.invalid.has(failure)) {
+                    pending.invalid.add(failure);
+                    this.#failure(scope, code);
+                }
+                throw new ProviderRequestError(code);
+            }
+            if (scope) this.#success(scope);
+            if (key && ttl > 0 && Number(response.statusCode ?? response.status) !== 304 && !pending.saved.has(key)) {
+                pending.saved.add(key);
+                this.#save(key, response, ttl, valid, group);
+            }
+            return copyResponse(response);
         } finally {
             if (this.#inFlight.get(owner) === pending) this.#inFlight.delete(owner);
+        }
+    }
+    async #dispatch(request, fetcher, identity) {
+        if (identity && this.#cooling(identity)) {
+            this.#stats.cooldownSkips++;
+            throw new ProviderRequestError("cooldown");
+        }
+        const remaining = this.#budget ? this.#budget - (this.#now() - this.#startedAt) : Number.POSITIVE_INFINITY;
+        if (remaining < 250 || (this.#budget > 0 && this.#now() < this.#startedAt)) {
+            this.#stats.budgetSkips++;
+            throw new ProviderRequestError("budget");
+        }
+        const outgoing = typeof $loon === "string" ? { ...request, timeout: Math.max(1, Math.floor(Math.min(bounded(request.timeout, 5000, 1, 5000), remaining))) } : request;
+        const started = this.#now();
+        let headers;
+        this.#stats.requests++;
+        try {
+            // Await the native callback. No detached timer, cancellation or early $done.
+            const response = await fetcher(outgoing);
+            headers = response?.headers;
+            const status = Number(response?.statusCode ?? response?.status);
+            if (!Number.isInteger(status)) throw new ProviderRequestError("invalid");
+            if (status !== 304 && (response?.ok === false || !(status >= 200 && status < 300))) throw new ProviderRequestError(status === 429 ? "rate_limit" : status === 401 || status === 403 ? "auth" : "http");
+            if (typeof response.body !== "string" || response.body.length > 2 * 1024 * 1024) throw new ProviderRequestError("invalid");
+            if (identity) this.#success(identity);
+            return response;
+        } catch (error) {
+            const code = providerErrorCode(error);
+            this.#failure(identity, code, headers);
+            throw new ProviderRequestError(code);
+        } finally {
+            this.#stats.networkMs += Math.max(0, this.#now() - started);
         }
     }
     #key(request, partition, product) {
