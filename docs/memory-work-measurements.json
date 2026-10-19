@@ -620,5 +620,16 @@
   "realLoonMemoryMeasurement": false,
   "actualDeviceValidation": false,
   "limits": "V8 heap excludes Loon/JSC native HTTP and compression buffers. Isolated fixtures are not overall VPN memory, device stability or battery measurements. Estimated allocations and retained-heap deltas can vary or regress; raw samples include both.",
-  "optimizedSourceCommit": "4a586e1373c55c76e2a2fa195eaafa1a8d51c038"
+  "optimizedSourceCommit": "4a586e1373c55c76e2a2fa195eaafa1a8d51c038",
+  "buildComparison": {
+    "baselineOrigin": "GitHub CI locked install",
+    "baselineNode": "v22.23.3",
+    "baselineLockedTerser": "5.49.0",
+    "optimizedOrigin": "local installed dependencies",
+    "optimizedNode": "v24.19.0",
+    "optimizedInstalledTerser": "5.51.2",
+    "fullLockfileInstall": false,
+    "dependencyAudit": "docs/local-build-dependencies.json",
+    "limitation": "Compressed-response-bundle comparisons include compiler and build-environment differences. These are observed published-bundle results, not an isolated causal measurement of source changes. JSON parse counts and source-level schema/immutability regressions are independently checked."
+  }
 }

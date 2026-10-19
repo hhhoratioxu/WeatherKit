@@ -8,7 +8,10 @@
     "arch": "arm64",
     "node": "v24.19.0",
     "schemaPackage": "1.1.2",
-    "lockedDependencyVersionsVerified": true
+    "directLockedDependencyVersionsVerified": true,
+    "fullLockfileInstall": false,
+    "dependencyAudit": "docs/local-build-dependencies.json",
+    "transitiveVersionMismatches": 35
   },
   "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/39280821737",
   "ciStatusAtVerification": "queued",
@@ -115,5 +118,6 @@
       "bytes": 29703,
       "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f"
     }
-  }
+  },
+  "recordCorrectionDate": "2026-10-20"
 }
