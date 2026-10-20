@@ -10,7 +10,9 @@ export default async function verifyLoonCache(root) {
     const requestCode = await readFile(path.join(directory, "request.bundle.js"), "utf8"),
         responseCode = await readFile(path.join(directory, "response.bundle.js"), "utf8"),
         scaleCode = await readFile(path.join(directory, "scale.bundle.js"), "utf8");
-    const nativeRewrites = verifyLoonRewrites(await readFile(path.join(directory, "WeatherKit.plugin"), "utf8"));
+    const plugin = await readFile(path.join(directory, "WeatherKit.lpx"), "utf8");
+    assert.equal(await readFile(path.join(directory, "WeatherKit.plugin"), "utf8"), plugin, "The legacy subscription must match the canonical .lpx entry");
+    const nativeRewrites = verifyLoonRewrites(plugin);
     const storage = new Map(),
         scenarios = [];
     async function run(code, request, response, http, argument = {}, expectedErrors = false) {

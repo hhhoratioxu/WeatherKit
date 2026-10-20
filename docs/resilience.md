@@ -1,6 +1,8 @@
 # WeatherKit 缓存与弱网处理 v5
 
-2026-10-19，版本 `3.3.2-cache.5`。Loon 插件订阅地址保持为 `main/Loon/script/WeatherKit.plugin`，运行脚本固定引用 `cache-v5`，旧 `cache-v4`、`cache-v3`、`cache-v2` 与 `cache-v1` 保留用于回退。
+2026-10-19，版本 `3.3.2-cache.5`。Loon 插件正式订阅地址为 `main/Loon/script/WeatherKit.lpx`，运行脚本固定引用 `cache-v5`，旧 `cache-v4`、`cache-v3`、`cache-v2` 与 `cache-v1` 保留用于回退。
+
+2026-10-20 规范导入文件后缀：新增 `.lpx` 正式入口，保留内容完全相同的 `WeatherKit.plugin` 兼容地址，并更新生成器与校验。重新核对 [Loon 插件结构](https://nsloon.app/docs/Plugin/) 和 [官方导入链接格式](https://nsloon.app/docs/Scheme/)；此次只修正入口命名与链接，运行脚本字节、运行时语法、API、最低版本及内存优化保持 cache-v5 的实现。主分支校验清单新增 `.lpx`；旧标签和 Release 的归档文件保持原样。
 
 ## v5 减少内存分配
 

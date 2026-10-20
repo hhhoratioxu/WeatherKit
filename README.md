@@ -2,7 +2,7 @@
 
 本 Fork 为 Loon 增加数据源失败回退、受限网络预算、网页预警缓存、地区识别修复，以及按数据类型区分的短时缓存。本版继续减少脚本启动、重复存储读取、无效查询和无需替换的数据解码。保留上游作者、许可证与 Git 历史。
 
-实现、默认值、限制及验证边界见 [稳定性与缓存优化 v5](docs/resilience.md)。Loon 导入文件由 `npm run build:loon-cache` 生成至 `Loon/script/WeatherKit.plugin`，运行脚本固定引用本 Fork 的 `cache-v5`。
+实现、默认值、限制及验证边界见 [稳定性与缓存优化 v5](docs/resilience.md)。Loon 导入文件由 `npm run build:loon-cache` 生成至 `Loon/script/WeatherKit.lpx`，运行脚本固定引用本 Fork 的 `cache-v5`。
 
 ## 本次更新
 
@@ -14,7 +14,9 @@
 
 ## 安装与更新
 
-[一键导入 Loon](https://www.nsloon.com/openloon/import?plugin=https%3A%2F%2Fraw.githubusercontent.com%2Fhhhoratioxu%2FWeatherKit%2Fmain%2FLoon%2Fscript%2FWeatherKit.plugin) · [插件订阅直链](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/WeatherKit.plugin) · [固定版本 cache-v5](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/cache-v5/Loon/script/WeatherKit.plugin) · [旧版 cache-v4](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v4) · [旧版 cache-v3](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v3) · [旧版 cache-v2](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v2) · [旧版 cache-v1](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v1)
+[一键导入 Loon](https://www.nsloon.com/openloon/import?plugin=https%3A%2F%2Fraw.githubusercontent.com%2Fhhhoratioxu%2FWeatherKit%2Fmain%2FLoon%2Fscript%2FWeatherKit.lpx) · [插件订阅直链（.lpx）](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/WeatherKit.lpx) · [cache-v5 归档入口（旧后缀）](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/cache-v5/Loon/script/WeatherKit.plugin) · [旧版 cache-v4](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v4) · [旧版 cache-v3](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v3) · [旧版 cache-v2](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v2) · [旧版 cache-v1](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v1)
+
+2026-10-20 将正式入口后缀规范为 `.lpx`；旧 `WeatherKit.plugin` 地址继续作为内容完全相同的兼容入口保留。构建会同时生成两个文件并校验内容一致。已安装旧入口可继续更新；切换到新入口时先停用旧入口，避免同时启用两份 WeatherKit。
 
 使用 Loon `3.5.1(983)` 或以上，在「配置 → 插件」中添加插件直链并启用；已订阅该地址的用户更新插件后重载配置即可。若已安装其他 WeatherKit 脚本版，请先停用旧版，避免同一接口重复处理。沿用已有的 Loon MitM 证书；首次使用需按 [Loon 官方 MitM 文档](https://nsloon.app/docs/MitM/) 配置证书。系统版本沿用上游的 iOS/iPadOS 18、macOS 15 及以上要求。
 

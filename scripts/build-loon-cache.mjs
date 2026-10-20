@@ -36,6 +36,8 @@ if (!regionLine) throw new Error("Missing Loon region selector");
 plugin = plugin.replace(regionLine, regionLine.replace(",tag=", ",type=string,tag="));
 plugin = plugin.replace(/^(#!system_version = .+)$/m, "$1\n#!loon_version = 3.5.1(983)");
 if (plugin.includes(`${upstreamBase}/`)) throw new Error("The fork must load its own optimized scripts");
+await writeFile(path.join(output, "WeatherKit.lpx"), plugin);
+// Keep existing subscriptions working; both names contain the same Loon plugin.
 await writeFile(path.join(output, "WeatherKit.plugin"), plugin);
 for (const name of ["request.bundle.js", "response.bundle.js", "scale.bundle.js"]) {
     const bytes = await readFile(path.join(root, "dist", name));
@@ -49,7 +51,7 @@ await writeFile(path.join(output, "LICENSE.txt"), `${notice}${await readFile(pat
 const digest = value => createHash("sha256").update(value).digest("hex");
 const sourceCommit = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
 await writeFile(path.join(output, "build-provenance.json"), `${JSON.stringify({ version: pkg.version, sourceCommit, resourceRef, node: process.version, schemaPackage: schemaPackage.version, bundleChecks, lockfileSHA256: digest(await readFile(path.join(root, "package-lock.json"))) }, null, 2)}\n`);
-const files = ["WeatherKit.plugin", "request.bundle.js", "response.bundle.js", "scale.bundle.js", "LICENSE.txt", "build-provenance.json"];
+const files = ["WeatherKit.lpx", "WeatherKit.plugin", "request.bundle.js", "response.bundle.js", "scale.bundle.js", "LICENSE.txt", "build-provenance.json"];
 const hashes = await Promise.all(files.map(async name => `${digest(await readFile(path.join(output, name)))}  ${name}`));
 await writeFile(path.join(output, "SHA256SUMS.txt"), `${hashes.join("\n")}\n`);
 console.log(`Generated Loon cache plugin and ${files.length} verified files in Loon/script`);

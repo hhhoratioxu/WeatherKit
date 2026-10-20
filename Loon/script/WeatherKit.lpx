@@ -1,0 +1,53 @@
+#!name =  WeatherKit · 稳定性与缓存优化
+#!desc = iOS 18 & macOS 15 & watchOS 11\n1.解锁全部天气功能\n2.修改空气质量数据\n3.修改下一小时降水数据\n4.修改天气数据\n5.修改天气预警数据
+#!openUrl = http://boxjs.com/#/app/iRingo.WeatherKit
+#!author = VirgilClyne[https://github.com/VirgilClyne],WordlessEcho[https://github.com/WordlessEcho],001[https://github.com/001ProMax],hhh2210[https://github.com/hhh2210],hhhoratioxu[https://github.com/hhhoratioxu]
+#!homepage = https://github.com/hhhoratioxu/WeatherKit
+#!icon = https://developer.apple.com/assets/elements/icons/weatherkit/weatherkit-128x128.png
+#!tag =  iRingo
+#!system = iOS,iPadOS,macOS,watchOS
+#!date = 2026-10-19 23:59:37
+#!version = 3.3.2-cache.5
+#!system_version = 18
+#!loon_version = 3.5.1(983)
+
+[Argument]
+DataSets = input,"airQuality,currentWeather,forecastDaily,forecastHourly,forecastNextHour,weatherAlerts",tag=[数据集],desc=选择需要解析并处理的数据集；未选择的数据槽始终保持原样透传，不作修改。
+Weather.Provider = select,"ColorfulClouds","WeatherKit","QWeather",tag=[天气] 数据源,desc=使用选定的数据源替换天气数据。
+WeatherAlerts.Provider = select,"QWeatherWeb","WeatherKit","QWeather","ColorfulClouds",tag=[天气预警] 数据源,desc=使用选定的数据源处理天气预警数据。
+NextHour.Provider = select,"ColorfulClouds","WeatherKit","QWeather",tag=[未来一小时降水强度] 数据源,desc=使用选定的数据源填充未来一小时降水强度的数据。
+AirQuality.Current.Pollutants.Provider = select,"ColorfulClouds","QWeather",tag=[今日污染物] 数据源,desc=使用选定的数据源填补污染物数据。
+AirQuality.Calculate.Algorithm = select,"EU_EAQI","None","UBA","WAQI_InstantCast_US","WAQI_InstantCast_CN","WAQI_InstantCast_CN_25_DRAFT","CA_AQHI","HK_AQHI","AQHI_Multi_CN","AQHI_Multi_CN_HK","CN_DEATH_AQHI","CN_DEATH_HK_AQHI",tag=[iRingo内置算法] 算法,desc=使用内置算法，通过污染物数据本地计算空气指数。InstantCast源自于WAQI，美标版本使用了WAQI的臭氧标准。
+API.ColorfulClouds.Token = input,"",tag=[API] 彩云天气令牌,desc=彩云天气 API 令牌
+API.QWeather.Host = input,"devapi.qweather.com",tag=[API] 和风天气主机,desc=和风天气 API 使用的主机名
+API.QWeather.Token = input,"",tag=[API] 和风天气令牌,desc=和风天气 API 令牌
+API.WAQI.Token = input,"",tag=[API] WAQI 令牌,desc=WAQI API 令牌，填写此字段将自动使用WAQI高级API
+Storage = select,"Argument","PersistentStore","database",tag=[储存] 配置类型,desc=选择要使用的配置类型。未设置此选项或不通过此选项的旧版本的配置顺序依旧是 $persistentStore (BoxJs) > $argument > database。
+LogLevel = select,"WARN","OFF","ERROR","INFO","DEBUG","ALL",tag=[调试] 日志等级,desc=选择脚本日志的输出等级，低于所选等级的日志将全部输出。
+RequestCache.TTL = input,"60",type=string,tag=[请求缓存] 实况与空气质量（秒）,desc=0 禁用所有已完成响应缓存，仍合并在途请求。最大 300 秒。
+RequestCache.ForecastTTL = input,"180",type=string,tag=[请求缓存] 小时与每日预报（秒）,desc=变化较慢的预报缓存，最大 300 秒。
+RequestCache.MinutelyTTL = input,"15",type=string,tag=[请求缓存] 分钟降雨（秒）,desc=分钟降雨缓存，最大 30 秒。
+RequestCache.AlertsTTL = input,"15",type=string,tag=[请求缓存] 天气预警（秒）,desc=JSON 与网页预警缓存，最大 30 秒；不使用过期预警。
+RequestCache.BudgetMs = input,"8000",type=string,tag=[弱网] 网络发起预算（毫秒）,desc=1000–15000 毫秒。队列与后续请求共享预算；已发出的请求仍等待原生回调，不取消请求或提前完成。
+RequestCache.CooldownSeconds = input,"30",type=string,tag=[弱网] 失败冷却（秒）,desc=相同接口连续失败两次后冷却；鉴权错误与限流立即冷却。最大 120 秒；0 禁用。
+RequestCache.Diagnostics = switch,false,type=boolean,tag=[诊断] 输出运行统计,desc=每次执行汇总缓存、请求、耗时与回退原因，不包含令牌、原始地址或坐标。
+Region.Fallback = select,"Auto","Locale","CN","HK","MO","TW",type=string,tag=[地区] 缺少 country 时,desc=明确的 country 参数始终优先；自动模式使用同坐标确认记录与离线多边形，边界不确定时沿用语言区域。
+
+[Rule]
+DOMAIN,weather-analytics-events.apple.com,REJECT-DROP
+DOMAIN-SUFFIX,tthr.apple.com,REJECT-DROP
+DOMAIN,tether.edge.apple,REJECT-DROP
+AND,((OR,((IP-ASN,714,no-resolve),(IP-ASN,6185,no-resolve))),(PROTOCOL,QUIC)),REJECT-DROP
+
+[Rewrite]
+response if ${url} ~= /^https?:\/\/weatherkit\.apple\.com\/api\/v1\/availability\// then response.json.jq("if type == \"array\" and all(.[]; type == \"string\") then reduce (. + [\"airQuality\",\"currentWeather\",\"forecastDaily\",\"forecastHourly\",\"forecastPeriodic\",\"historicalComparisons\",\"weatherChanges\",\"forecastNextHour\",\"weatherAlerts\",\"weatherAlertNotifications\",\"news\"])[] as $item ([]; if index($item) == null then . + [$item] else . end) else . end")
+request if (${request.method} == "GET" || ${request.method} == "HEAD" || ${request.method} == "OPTIONS") && ${url} ~= /^(https?:\/\/weatherkit\.apple\.com\/api\/v1\/airQualityScale\/[A-Z0-9]+(?:-[A-Z0-9]+)*\/[^\/?#]+)\.\d+(?=[?#]|$)/i as scale then url.replace("${scale.1}")
+
+[Script]
+http-request ^https?:\/\/weatherkit\.apple\.com\/api\/v1\/airQualityScale\/[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*\/(?:HK|CN)\.AQHI(?:\.\d+)?(?:[?#]|$) script-path=https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/cache-v5/Loon/script/scale.bundle.js, tag=🌤 WeatherKit.api.v1.airQualityScale.request
+http-request ^https?:\/\/weatherkit\.apple\.com\/api\/v1\/weatherAlerts\?(?:[^#]*&)?ids=[^&#]*-[0-9]{9}(?:&|$) script-path=https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/cache-v5/Loon/script/request.bundle.js, tag=🌤 WeatherKit.api.v1.weatherAlerts.html.request, argument=[{DataSets},{Weather.Provider},{WeatherAlerts.Provider},{NextHour.Provider},{AirQuality.Current.Pollutants.Provider},{AirQuality.Calculate.Algorithm},{API.ColorfulClouds.Token},{API.QWeather.Host},{API.QWeather.Token},{API.WAQI.Token},{Storage},{LogLevel},{RequestCache.TTL},{RequestCache.ForecastTTL},{RequestCache.MinutelyTTL},{RequestCache.AlertsTTL},{RequestCache.BudgetMs},{RequestCache.CooldownSeconds},{RequestCache.Diagnostics},{Region.Fallback}]
+http-request ^https?:\/\/weatherkit\.apple\.com\/api\/v1\/weatherAlerts\?(?:[^#]*&)?ids=-?[0-9]+(?:\.[0-9]+)?,-?[0-9]+(?:\.[0-9]+)?(?:&|$) script-path=https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/cache-v5/Loon/script/request.bundle.js, tag=🌤 WeatherKit.api.v1.weatherAlerts.api.request, argument=[{DataSets},{Weather.Provider},{WeatherAlerts.Provider},{NextHour.Provider},{AirQuality.Current.Pollutants.Provider},{AirQuality.Calculate.Algorithm},{API.ColorfulClouds.Token},{API.QWeather.Host},{API.QWeather.Token},{API.WAQI.Token},{Storage},{LogLevel},{RequestCache.TTL},{RequestCache.ForecastTTL},{RequestCache.MinutelyTTL},{RequestCache.AlertsTTL},{RequestCache.BudgetMs},{RequestCache.CooldownSeconds},{RequestCache.Diagnostics},{Region.Fallback}]
+http-response ^https?:\/\/weatherkit\.apple\.com\/api\/v2\/weather\/ requires-body=1, binary-body-mode=1, script-path=https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/cache-v5/Loon/script/response.bundle.js, tag=🌤 WeatherKit.api.v2.weather.response, argument=[{DataSets},{Weather.Provider},{WeatherAlerts.Provider},{NextHour.Provider},{AirQuality.Current.Pollutants.Provider},{AirQuality.Calculate.Algorithm},{API.ColorfulClouds.Token},{API.QWeather.Host},{API.QWeather.Token},{API.WAQI.Token},{Storage},{LogLevel},{RequestCache.TTL},{RequestCache.ForecastTTL},{RequestCache.MinutelyTTL},{RequestCache.AlertsTTL},{RequestCache.BudgetMs},{RequestCache.CooldownSeconds},{RequestCache.Diagnostics},{Region.Fallback}]
+
+[MITM]
+hostname = weatherkit.apple.com
