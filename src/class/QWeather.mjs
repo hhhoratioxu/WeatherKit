@@ -1427,7 +1427,7 @@ export default class QWeather {
     }
 
     async YesterdayAirQuality(locationInfo) {
-        Console.info("☑️ YesterdayAirQuality", `locationInfo ${JSON.stringify(locationInfo)}`);
+        if (Console.logLevel === "INFO" || Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.info("☑️ YesterdayAirQuality", `locationInfo ${JSON.stringify(locationInfo)}`);
         const failedAirQuality = {
             metadata: this.#Metadata(undefined, undefined, true),
             categoryIndex: -1,
@@ -1458,7 +1458,7 @@ export default class QWeather {
         const pollutants = this.#CreatePollutantsV7(historicalAir.airHourly[hour]);
         Console.debug(`hour: ${hour}`, `index: ${index}`);
 
-        Console.info("✅ YesterdayAirQuality", `pollutants: ${JSON.stringify(pollutants)}`, `categoryIndex: ${categoryIndex}`);
+        if (Console.logLevel === "INFO" || Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.info("✅ YesterdayAirQuality", `pollutants: ${JSON.stringify(pollutants)}`, `categoryIndex: ${categoryIndex}`);
         return {
             metadata: this.#Metadata(historicalAir.fxLink),
             categoryIndex,

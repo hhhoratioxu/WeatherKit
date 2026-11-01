@@ -869,37 +869,38 @@ function decodeWeatherAlerts(data) {
         detailsUrl: WeatherAlertCollectionData.detailsUrl(),
     };
     for (let i = 0, count = decodedVectorLength(WeatherAlertCollectionData.alertsLength(), budget); i < count; i++) {
+        const alertView = WeatherAlertCollectionData.alerts(i);
         const alert = {
-            areaId: WeatherAlertCollectionData.alerts(i).areaId(),
-            areaName: WeatherAlertCollectionData.alerts(i).areaName(),
-            attributionUrl: WeatherAlertCollectionData.alerts(i).attributionUrl(),
-            certainty: WK2.Certainty[WeatherAlertCollectionData.alerts(i).certainty()],
-            countryCode: WeatherAlertCollectionData.alerts(i).countryCode(),
-            description: WeatherAlertCollectionData.alerts(i).description(),
-            detailsUrl: WeatherAlertCollectionData.alerts(i).detailsUrl(),
-            effectiveTime: WeatherAlertCollectionData.alerts(i).effectiveTime(),
-            eventEndTime: WeatherAlertCollectionData.alerts(i).eventEndTime(),
-            eventOnsetTime: WeatherAlertCollectionData.alerts(i).eventOnsetTime(),
-            eventSource: WeatherAlertCollectionData.alerts(i).eventSource(),
-            expireTime: WeatherAlertCollectionData.alerts(i).expireTime(),
-            id: decodeUuid(WeatherAlertCollectionData.alerts(i).id()),
-            importance: WK2.ImportanceType[WeatherAlertCollectionData.alerts(i).importance()],
-            issuedTime: WeatherAlertCollectionData.alerts(i).issuedTime(),
-            phenomenon: WeatherAlertCollectionData.alerts(i).phenomenon(),
+            areaId: alertView.areaId(),
+            areaName: alertView.areaName(),
+            attributionUrl: alertView.attributionUrl(),
+            certainty: WK2.Certainty[alertView.certainty()],
+            countryCode: alertView.countryCode(),
+            description: alertView.description(),
+            detailsUrl: alertView.detailsUrl(),
+            effectiveTime: alertView.effectiveTime(),
+            eventEndTime: alertView.eventEndTime(),
+            eventOnsetTime: alertView.eventOnsetTime(),
+            eventSource: alertView.eventSource(),
+            expireTime: alertView.expireTime(),
+            id: decodeUuid(alertView.id()),
+            importance: WK2.ImportanceType[alertView.importance()],
+            issuedTime: alertView.issuedTime(),
+            phenomenon: alertView.phenomenon(),
             responses: [],
-            severity: WK2.Severity[WeatherAlertCollectionData.alerts(i).severity()],
-            significance: WK2.SignificanceType[WeatherAlertCollectionData.alerts(i).significance()],
-            source: WeatherAlertCollectionData.alerts(i).source(),
-            token: WeatherAlertCollectionData.alerts(i).token(),
-            urgency: WK2.Urgency[WeatherAlertCollectionData.alerts(i).urgency()],
-            unknown23: WeatherAlertCollectionData.alerts(i).unknown23(),
-            unknown24: WeatherAlertCollectionData.alerts(i).unknown24(),
-            unknown25: WeatherAlertCollectionData.alerts(i).unknown25(),
-            unknown26: WeatherAlertCollectionData.alerts(i).unknown26(),
+            severity: WK2.Severity[alertView.severity()],
+            significance: WK2.SignificanceType[alertView.significance()],
+            source: alertView.source(),
+            token: alertView.token(),
+            urgency: WK2.Urgency[alertView.urgency()],
+            unknown23: alertView.unknown23(),
+            unknown24: alertView.unknown24(),
+            unknown25: alertView.unknown25(),
+            unknown26: alertView.unknown26(),
         };
-        //for (let j = 0, count = decodedVectorLength(WeatherAlertCollectionData.alerts(i).idLength(), budget); j < count; j++) alert.id.push(WeatherAlertCollectionData.alerts(i).id(j));
-        //for (let j = 0, count = decodedVectorLength(WeatherAlertCollectionData.alerts(i).idLength(), budget); j < count; j++) alert.id.push({ "lowBytes": WeatherAlertCollectionData.alerts(i).id(j).lowBytes(), "highBytes": WeatherAlertCollectionData.alerts(i).id(j).highBytes() });
-        for (let j = 0, count = decodedVectorLength(WeatherAlertCollectionData.alerts(i).responsesLength(), budget); j < count; j++) alert.responses.push(WK2.ResponseType[WeatherAlertCollectionData.alerts(i).responses(j)]);
+        //for (let j = 0, count = decodedVectorLength(alertView.idLength(), budget); j < count; j++) alert.id.push(alertView.id(j));
+        //for (let j = 0, count = decodedVectorLength(alertView.idLength(), budget); j < count; j++) alert.id.push({ "lowBytes": alertView.id(j).lowBytes(), "highBytes": alertView.id(j).highBytes() });
+        for (let j = 0, count = decodedVectorLength(alertView.responsesLength(), budget); j < count; j++) alert.responses.push(WK2.ResponseType[alertView.responses(j)]);
         data.alerts.push(alert);
     }
     return data;

@@ -590,7 +590,7 @@ export default class AirQuality {
         }
 
         const primaryPollutant = primaryPollutants[0];
-        Console.info("✅ PrimaryPollutant", `primaryPollutant: ${JSON.stringify(primaryPollutant)}`);
+        if (Console.logLevel === "INFO" || Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.info("✅ PrimaryPollutant", `primaryPollutant: ${JSON.stringify(primaryPollutant)}`);
         return primaryPollutant;
     }
 

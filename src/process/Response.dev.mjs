@@ -128,13 +128,13 @@ export async function Response($request, $response) {
                                     }
                                     const enviroments = createProviderEnvironment(providerParameters, Settings, requestCache);
 
-                                    let modified = false;
+                                    let patch;
                                     await Promise.all(
                                         dataSets.map(async dataSet => {
                                             if (!["airQuality", "currentWeather", "forecastDaily", "forecastHourly", "forecastNextHour", "weatherAlerts"].includes(dataSet)) return;
                                             const original = body[dataSet];
                                             try {
-                                                body[dataSet] = dataSet === "airQuality" || dataSet === "weatherAlerts" ? cloneWeatherProduct(original) : original;
+                                                body[dataSet] = dataSet === "airQuality" ? cloneWeatherProduct(original) : original;
                                                 switch (dataSet) {
                                                     case "airQuality": {
                                                         if (Settings?.LogLevel === "DEBUG" || Settings?.LogLevel === "ALL") {
@@ -196,14 +196,17 @@ export async function Response($request, $response) {
                                                         break;
                                                 }
                                                 if (weatherProductsEqual(body[dataSet], original)) body[dataSet] = original;
-                                                else modified = true;
+                                                else {
+                                                    patch ??= {};
+                                                    patch[dataSet] = body[dataSet];
+                                                }
                                             } catch (error) {
                                                 body[dataSet] = original;
                                                 requestCache.noteFallback(dataSet, providerErrorCode(error));
                                             }
                                         }),
                                     );
-                                    if (modified) rawBody = WeatherKit2.encode(ByteBuffer, body);
+                                    if (patch) rawBody = WeatherKit2.encode(ByteBuffer, patch);
                                     break;
                                 }
                                 break;
@@ -451,7 +454,8 @@ async function InjectWeatherAlerts(weatherAlerts, Settings, enviroments) {
     }
     newWeatherAlerts = await recoverConfiguredProduct("weatherAlerts", newWeatherAlerts, weatherAlerts, Settings?.WeatherAlerts?.Provider, { QWeather: () => enviroments.qWeather.WeatherAlert(), ColorfulClouds: () => enviroments.colorfulClouds.WeatherAlert() }, Settings, enviroments.requestCache);
     if (providerProductAvailable(newWeatherAlerts)) {
-        weatherAlerts ??= {};
+        // Only copy when a usable provider result will mutate the Apple data.
+        weatherAlerts = cloneWeatherProduct(weatherAlerts) ?? {};
         weatherAlerts.metadata = { ...weatherAlerts?.metadata, ...newWeatherAlerts.metadata };
         weatherAlerts.detailsUrl = newWeatherAlerts.detailsUrl ?? weatherAlerts.detailsUrl;
         weatherAlerts.alerts = WeatherAlerts.mergeAlerts(weatherAlerts?.alerts, activeProviderAlerts(newWeatherAlerts?.alerts));

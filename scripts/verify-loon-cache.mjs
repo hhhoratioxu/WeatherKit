@@ -252,5 +252,33 @@ export default async function verifyLoonCache(root) {
     const mixedSummary = JSON.parse(mixed.messages.find(line => line.startsWith("[WeatherKit]")).slice("[WeatherKit] ".length));
     assert.equal(mixedSummary.fallbacks, 1);
     scenarios.push("one shared Caiyun callback can replace healthy weather while preserving failed Apple alerts");
+    storage.clear();
+    const { futureHourlyFixture, futureHourlyText, readFutureHourly, weatherFixture, weatherNow } = await import("../tests/fixtures/processingMemoryFixture.mjs");
+    const futureRaw = futureHourlyFixture();
+    const partial = await run(
+        responseCode,
+        { url: "https://weatherkit.apple.com/api/v2/weather/zh-Hans-CN/32.39/119.499?country=CN&dataSets=currentWeather,forecastHourly", method: "GET", headers: {} },
+        { status: 200, headers: { "Content-Type": "application/vnd.apple.flatbuffer" }, body: futureRaw },
+        (request, callback) => callback(null, { status: request.url.includes("/weather/now") ? 200 : 503, headers: {} }, request.url.includes("/weather/now") ? JSON.stringify(weatherNow) : "{}"),
+        { DataSets: "currentWeather,forecastHourly", "Weather.Provider": "QWeather" },
+        true,
+    );
+    assert.equal(partial.nativeRequests, 2);
+    assert.equal(WeatherKit2.decode(new ByteBuffer(partial.output.body), ["currentWeather"]).currentWeather.temperature, 23);
+    assert.equal(readFutureHourly(partial.output.body), futureHourlyText);
+    scenarios.push("partial replacement preserves future fields inside an unchanged selected hourly table");
+    storage.clear();
+    const alertsRaw = weatherFixture(0, 48);
+    const failedAlerts = await run(
+        responseCode,
+        { url: "https://weatherkit.apple.com/api/v2/weather/zh-Hans-CN/32.39/119.499?country=CN&dataSets=weatherAlerts", method: "GET", headers: {} },
+        { status: 200, headers: { "Content-Type": "application/vnd.apple.flatbuffer" }, body: alertsRaw },
+        (_, callback) => callback(null, { status: 503, headers: {} }, "{}"),
+        { DataSets: "weatherAlerts", "WeatherAlerts.Provider": "ColorfulClouds" },
+        true,
+    );
+    assert.equal(failedAlerts.nativeRequests, 1);
+    assert.strictEqual(failedAlerts.output.body, alertsRaw);
+    scenarios.push("failed alert replacement retains the complete original binary response");
     return { pass: scenarios.length, fail: 0, scenarios, nativeRewrites, withoutNodeWebCryptoHostTextEncoder: true, providedWebAPIs: ["URL", "URLSearchParams", "TextDecoder"], doneExactlyOnce: true, liveWeatherRequests: false, deviceVPNValidation: false };
 }
