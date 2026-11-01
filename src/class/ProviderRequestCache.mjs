@@ -1,5 +1,6 @@
 // Copyright 2026 hhhoratioxu. SPDX-License-Identifier: Apache-2.0
 import { sha256 } from "@noble/hashes/sha2";
+import serializeProviderCache from "../function/serializeProviderCache.mjs";
 
 // Application bounds, not claims about the host VPN process's memory limits.
 export const REQUEST_CACHE_LIMITS = Object.freeze({ entries: 8, bodyCharacters: 96 * 1024, responseCharacters: 1024 * 1024, storageCharacters: 256 * 1024, identityCharacters: 8192, concurrent: 3, pending: 16, maximumTTLSeconds: 300 });
@@ -278,7 +279,13 @@ export default class ProviderRequestCache {
             if (parsed?.version !== 1 || !Array.isArray(parsed.entries) || parsed.entries.length > 8) return [];
             this.#snapshot = parsed.entries
                 .filter(entry => this.#fresh(entry))
-                .map(({ key, storedAt, expiresAt, status, body, group, lastUsedAt }) => ({ key, storedAt, expiresAt, status, body, group: /^[a-f0-9]{64}$/.test(group) ? group : key, lastUsedAt: Number.isFinite(lastUsedAt) && lastUsedAt >= storedAt && lastUsedAt <= this.#now() ? lastUsedAt : storedAt }));
+                .map(({ key, storedAt, expiresAt, status, body, group, lastUsedAt }) => {
+                    // Rereading storage must merge other executions' writes. When
+                    // the text is identical, reuse the existing immutable body.
+                    const remembered = this.#memory.get(key);
+                    if (remembered?.body === body) body = remembered.body;
+                    return { key, storedAt, expiresAt, status, body, group: /^[a-f0-9]{64}$/.test(group) ? group : key, lastUsedAt: Number.isFinite(lastUsedAt) && lastUsedAt >= storedAt && lastUsedAt <= this.#now() ? lastUsedAt : storedAt };
+                });
             return this.#snapshot;
         } catch {
             return [];
@@ -315,11 +322,7 @@ export default class ProviderRequestCache {
         const merged = new Map(this.#read(true).map(item => [item.key, item]));
         for (const item of this.#memory.values()) if (this.#fresh(item)) merged.set(item.key, item);
         const entries = this.#select(merged.values());
-        let serialized = JSON.stringify({ version: 1, entries });
-        while (entries.length && serialized.length > REQUEST_CACHE_LIMITS.storageCharacters) {
-            entries.pop();
-            serialized = JSON.stringify({ version: 1, entries });
-        }
+        const serialized = serializeProviderCache(entries, REQUEST_CACHE_LIMITS.storageCharacters);
         try {
             if (this.#store.write(serialized) === true) this.#stats.stores++;
         } catch {
