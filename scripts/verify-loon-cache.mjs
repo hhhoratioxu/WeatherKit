@@ -32,6 +32,9 @@ export default async function verifyLoonCache(root) {
             URL,
             URLSearchParams,
             TextDecoder,
+            // Binary fixtures and scripts share the host typed-array realm in Loon.
+            // Preserve that relationship when exercising opaque source slots in a VM.
+            Uint8Array,
             $loon: "simulated Loon 3.5.1",
             $script: { startTime: new Date() },
             $argument: { Storage: "Argument", LogLevel: "OFF", ...argument },
