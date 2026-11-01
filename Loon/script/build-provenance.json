@@ -1,8 +1,8 @@
 {
-  "version": "3.3.2-cache.5",
-  "sourceCommit": "4a586e1373c55c76e2a2fa195eaafa1a8d51c038",
-  "resourceRef": "cache-v5",
-  "node": "v24.19.0",
+  "version": "3.3.2-cache.6",
+  "sourceCommit": "d45110f28290ea4134aad1a2d2621a6f84f69132",
+  "resourceRef": "cache-v6",
+  "node": "v22.23.4",
   "schemaPackage": "1.1.2",
   "bundleChecks": {
     "pass": 16,
@@ -54,5 +54,5 @@
     "liveWeatherRequests": false,
     "deviceVPNValidation": false
   },
-  "lockfileSHA256": "9ac82a43fe08c04ef1ff0819b57ef2f900d4631dc4c83a5305c06681f7676ce3"
+  "lockfileSHA256": "5a7cce2b0493c0b300d583434d059265e7d9b52341b15ce76efa3c21e44ddb9d"
 }

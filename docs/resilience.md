@@ -1,8 +1,14 @@
-# WeatherKit 缓存与弱网处理 v5
+# WeatherKit 缓存与弱网处理 v6
 
-2026-10-19，版本 `3.3.2-cache.5`。Loon 插件正式订阅地址为 `main/Loon/script/WeatherKit.lpx`，运行脚本固定引用 `cache-v5`，旧 `cache-v4`、`cache-v3`、`cache-v2` 与 `cache-v1` 保留用于回退。
+2026-11-01，版本 `3.3.2-cache.6`。Loon 插件正式订阅地址为 `main/Loon/script/WeatherKit.lpx`，运行脚本固定引用 `cache-v6`，旧 `cache-v5`、`cache-v4`、`cache-v3`、`cache-v2` 与 `cache-v1` 保留用于回退。
 
-2026-10-20 规范导入文件后缀：新增 `.lpx` 正式入口，保留内容完全相同的 `WeatherKit.plugin` 兼容地址，并更新生成器与校验。重新核对 [Loon 插件结构](https://nsloon.app/docs/Plugin/) 和 [官方导入链接格式](https://nsloon.app/docs/Scheme/)；此次只修正入口命名与链接，运行脚本字节、运行时语法、API、最低版本及内存优化保持 cache-v5 的实现。主分支校验清单新增 `.lpx`；旧标签和 Release 的归档文件保持原样。
+## v6 减少缓存临时字符串和重复正文
+
+写入前按 JSON 的 UTF-16 转义规则计算能容纳的记录，只序列化一次最终缓存，取代超限后反复生成完整 JSON 的循环。保留的记录及排序与旧算法逐字节一致。写入前重新读取存储时，相同身份且内容相同的正文复用已有不可变字符串。缓存容量、时效、请求数量、消费者隔离与跨执行合并保持既有行为。
+
+较大缓存的分配和保留堆减少，小缓存存在少量长度检查开销。详细方法、42 个独立进程样本及设备验证限制见 [v6 缓存内存测量](cache-memory-v6.md)。
+
+2026-10-20 已规范导入文件后缀：`.lpx` 为正式入口，`WeatherKit.plugin` 保留为内容完全相同的兼容地址。导入格式见 [Loon 插件结构](https://nsloon.app/docs/Plugin/) 和 [官方导入链接格式](https://nsloon.app/docs/Scheme/)。旧标签和 Release 的归档文件保留。
 
 ## v5 减少内存分配
 

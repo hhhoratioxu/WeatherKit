@@ -1,25 +1,22 @@
 {
-  "verifiedDate": "2026-10-20",
-  "version": "3.3.2-cache.5",
-  "sourceCommit": "4a586e1373c55c76e2a2fa195eaafa1a8d51c038",
-  "validationOrigin": "local",
+  "verifiedDate": "2026-11-01",
+  "version": "3.3.2-cache.6",
+  "sourceCommit": "d45110f28290ea4134aad1a2d2621a6f84f69132",
+  "validationOrigin": "GitHub Actions",
   "buildEnvironment": {
-    "platform": "Darwin",
-    "arch": "arm64",
-    "node": "v24.19.0",
+    "platform": "Linux",
+    "node": "v22.23.4",
     "schemaPackage": "1.1.2",
-    "directLockedDependencyVersionsVerified": true,
-    "fullLockfileInstall": false,
-    "dependencyAudit": "docs/local-build-dependencies.json",
-    "transitiveVersionMismatches": 35
+    "fullLockfileInstall": true,
+    "installCommand": "npm ci --ignore-scripts --no-audit --no-fund"
   },
-  "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/39280821737",
-  "ciStatusAtVerification": "queued",
-  "ciConclusionAtVerification": null,
-  "ciHeadSHA": "4a586e1373c55c76e2a2fa195eaafa1a8d51c038",
-  "ciArtifactsUsed": false,
+  "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/41317771863",
+  "ciStatusAtVerification": "completed",
+  "ciConclusionAtVerification": "success",
+  "ciArtifactsUsed": true,
+  "ciArchiveSHA256": "1fbd779f8941da8804a89e6043f7ef713610b9f3c2f1739e11c45c0cdc37be38",
   "regressionTests": {
-    "pass": 212,
+    "pass": 217,
     "fail": 0,
     "skip": 0
   },
@@ -87,127 +84,51 @@
     ],
     "scriptRules": 3
   },
+  "canonicalEntry": "Loon/script/WeatherKit.lpx",
+  "compatibilityEntryIdentical": true,
+  "memoryMeasurements": "docs/cache-memory-v6-measurements.json",
   "liveWeatherRequests": false,
   "deviceVPNValidation": false,
   "artifacts": {
     "LICENSE.txt": {
       "bytes": 12826,
-      "sha256": "821dd061acf5fbff093f61bc797a8ed34c964ecea08ce61ff22527d5aa3414f4"
+      "sha256": "94e64a917115b566ddf6e13a037253578ab19d7f480f1f7244f9542dab808e89"
     },
     "SHA256SUMS.txt": {
       "bytes": 582,
-      "sha256": "8d1b1dc5cb19a30c8c97cc065dd401a14e0e1a6ca78ff717ea1b4c3ca5ab6fa3"
+      "sha256": "61705b16bfcbf61bd21a7bfb3fcecf691c3b0b3ab93d13f80c19cbbc34e0bd02"
+    },
+    "WeatherKit.lpx": {
+      "bytes": 8047,
+      "sha256": "766061eb986aabe98e08db876c7412e6e5019979db3294ca92134c4f9f685206"
     },
     "WeatherKit.plugin": {
       "bytes": 8047,
-      "sha256": "828e9831c52d39fe1846648cc6950315d263a4e666ae16c2ac138ec1fd1a1584"
+      "sha256": "766061eb986aabe98e08db876c7412e6e5019979db3294ca92134c4f9f685206"
     },
     "build-provenance.json": {
       "bytes": 2715,
-      "sha256": "bacd568bae6acdc0519002d9604a6e4b4154698e452de6d81da7e0ef1f92bad4"
+      "sha256": "6ded0f38730bfc4cb4ffa4aec7f2532c91de3ce9ea5080162b913edc498fc5f0"
     },
     "request.bundle.js": {
-      "bytes": 288841,
-      "sha256": "bec7d36cbdf73292c00fc58ab15868090a42ddd112e3d054ec2b1272fc7bd311"
+      "bytes": 289394,
+      "sha256": "74d2a5d3b1b82440a9c4a4c4b877e8f6eb6e94c4845107bf09c8f89506fac6ce"
     },
     "response.bundle.js": {
-      "bytes": 430154,
-      "sha256": "184159572ea392e09a5fd263cdb2af107862566ce093ae937d75d24d03c6b611"
+      "bytes": 430711,
+      "sha256": "cde8d63d6f4d79a7791305b8c6d9706b671b6fbc253cfdf216122d6c50bfe5cc"
     },
     "scale.bundle.js": {
       "bytes": 29703,
       "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f"
-    },
-    "WeatherKit.lpx": {
-      "bytes": 8047,
-      "sha256": "828e9831c52d39fe1846648cc6950315d263a4e666ae16c2ac138ec1fd1a1584"
     }
   },
-  "recordCorrectionDate": "2026-10-20",
-  "ciFinalVerification": {
-    "verifiedDate": "2026-10-20",
-    "status": "completed",
-    "conclusion": "success",
-    "sourceCommit": "4a586e1373c55c76e2a2fa195eaafa1a8d51c038",
-    "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/39280821737",
-    "regressionTests": {
-      "pass": 212,
-      "fail": 0,
-      "skip": 0
-    },
-    "bundledVMSmokeChecks": {
-      "pass": 16,
-      "fail": 0,
-      "scenarios": [
-        "custom scale uses a standalone bundle without storage or provider requests",
-        "unknown scale language falls through with conditional headers intact",
-        "availability preserves Apple and appends plugin requirements",
-        "unhandled content passthrough",
-        "web warning parsing without TextEncoder",
-        "parsed warning cache survives a new Loon execution",
-        "failed warning request passes through with safe diagnostics",
-        "binary weather response retains Apple values and completes after native failures",
-        "existing Apple minute table is preserved without provider work or routine logs",
-        "Apple-only provider preserves original binary weather without a decoder round trip",
-        "oversized binary input retains the original view without decoding or provider work",
-        "partial hourly replacement changes only a matching row and leaves source binary intact",
-        "missing minute data uses one configured backup after primary failure",
-        "HTTP 502 provider body with http failure cannot overwrite Apple weather",
-        "HTTP 200 provider body with invalid failure cannot overwrite Apple weather",
-        "one shared Caiyun callback can replace healthy weather while preserving failed Apple alerts"
-      ],
-      "nativeRewrites": {
-        "pass": 11,
-        "fail": 0,
-        "scenarios": [
-          "native scale URL: EU.EAQI.2604",
-          "native scale URL: US.AQI.12?lang=en-US&v=1#s",
-          "native scale URL: HK.AQHI.8",
-          "native scale URL: CN.AQHI.8",
-          "native scale URL: EU.EAQI",
-          "native scale URL: EU.EAQI.preview",
-          "URL normalization preserves POST and unrelated hosts",
-          "availability and ordinary scales start no JavaScript; custom scales use the small entry",
-          "alert routes accept first or subsequent ids parameters",
-          "native jq keeps Apple ordering and unknown capabilities without duplicates",
-          "native jq preserves unknown shapes and handles an empty capability list"
-        ],
-        "validation": "emitted expressions, JavaScript regex fixtures and system jq; not a Loon parser",
-        "deviceValidation": false
-      },
-      "withoutNodeWebCryptoHostTextEncoder": true,
-      "providedWebAPIs": [
-        "URL",
-        "URLSearchParams",
-        "TextDecoder"
-      ],
-      "doneExactlyOnce": true,
-      "liveWeatherRequests": false,
-      "deviceVPNValidation": false
-    },
-    "ciNode": "v22.23.3",
-    "ciArtifactsDownloadedAndChecked": true,
-    "publishedArtifactsReplaced": false
-  },
-  "entryFilenameCorrection": {
-    "date": "2026-10-20",
-    "canonicalEntry": "Loon/script/WeatherKit.lpx",
-    "compatibilityEntry": "Loon/script/WeatherKit.plugin",
-    "identicalEntryBytes": true,
-    "runtimeScriptsUnchanged": true,
-    "runtimeResourceRef": "cache-v5",
-    "rebuiltRuntimeScripts": false,
-    "archivedTagsAndReleaseAssetsChanged": false,
-    "officialPluginReference": "https://nsloon.app/docs/Plugin/",
-    "officialImportLinkReference": "https://nsloon.app/docs/Scheme/",
-    "validation": {
-      "origin": "local",
-      "bundleScenariosPassed": 16,
-      "nativeRewriteChecksPassed": 11,
-      "sha256ManifestEntriesVerified": 7,
-      "pinnedScriptURLsVerified": 4,
-      "importURLVerified": true,
-      "deviceVPNValidation": false
-    }
+  "downloadedArtifactVerification": {
+    "archiveDigestVerified": true,
+    "sha256ManifestEntriesVerified": 7,
+    "bundleScenariosPassed": 16,
+    "nativeRewriteChecksPassed": 11,
+    "origin": "local Node v24.22.1 running unchanged CI bundles",
+    "deviceVPNValidation": false
   }
 }
