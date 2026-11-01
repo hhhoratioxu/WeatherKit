@@ -1,11 +1,11 @@
 {
-  "version": "3.3.2-cache.6",
-  "sourceCommit": "d45110f28290ea4134aad1a2d2621a6f84f69132",
-  "resourceRef": "cache-v6",
+  "version": "3.3.2-cache.7",
+  "sourceCommit": "c0aa19640e760889de31658df084c176f52d18bd",
+  "resourceRef": "cache-v7",
   "node": "v22.23.4",
   "schemaPackage": "1.1.2",
   "bundleChecks": {
-    "pass": 16,
+    "pass": 18,
     "fail": 0,
     "scenarios": [
       "custom scale uses a standalone bundle without storage or provider requests",
@@ -23,7 +23,9 @@
       "missing minute data uses one configured backup after primary failure",
       "HTTP 502 provider body with http failure cannot overwrite Apple weather",
       "HTTP 200 provider body with invalid failure cannot overwrite Apple weather",
-      "one shared Caiyun callback can replace healthy weather while preserving failed Apple alerts"
+      "one shared Caiyun callback can replace healthy weather while preserving failed Apple alerts",
+      "partial replacement preserves future fields inside an unchanged selected hourly table",
+      "failed alert replacement retains the complete original binary response"
     ],
     "nativeRewrites": {
       "pass": 11,
@@ -54,5 +56,5 @@
     "liveWeatherRequests": false,
     "deviceVPNValidation": false
   },
-  "lockfileSHA256": "5a7cce2b0493c0b300d583434d059265e7d9b52341b15ce76efa3c21e44ddb9d"
+  "lockfileSHA256": "ff1305c78161c4df9792ebca496d14a5d8dc99cd4c22754f617a2d95585696d2"
 }

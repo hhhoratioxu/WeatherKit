@@ -1,7 +1,7 @@
 {
   "verifiedDate": "2026-11-01",
-  "version": "3.3.2-cache.6",
-  "sourceCommit": "d45110f28290ea4134aad1a2d2621a6f84f69132",
+  "version": "3.3.2-cache.7",
+  "sourceCommit": "c0aa19640e760889de31658df084c176f52d18bd",
   "validationOrigin": "GitHub Actions",
   "buildEnvironment": {
     "platform": "Linux",
@@ -10,18 +10,18 @@
     "fullLockfileInstall": true,
     "installCommand": "npm ci --ignore-scripts --no-audit --no-fund"
   },
-  "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/41317771863",
+  "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/41320313790",
   "ciStatusAtVerification": "completed",
   "ciConclusionAtVerification": "success",
   "ciArtifactsUsed": true,
-  "ciArchiveSHA256": "1fbd779f8941da8804a89e6043f7ef713610b9f3c2f1739e11c45c0cdc37be38",
+  "ciArchiveSHA256": "3d607767b2768ee0b1e90b5ec4aff9df185fc3d7a03d6341fd0cefdf9e6dddb0",
   "regressionTests": {
-    "pass": 217,
+    "pass": 224,
     "fail": 0,
     "skip": 0
   },
   "bundledVMSmokeChecks": {
-    "pass": 16,
+    "pass": 18,
     "fail": 0,
     "scenarios": [
       "custom scale uses a standalone bundle without storage or provider requests",
@@ -39,7 +39,9 @@
       "missing minute data uses one configured backup after primary failure",
       "HTTP 502 provider body with http failure cannot overwrite Apple weather",
       "HTTP 200 provider body with invalid failure cannot overwrite Apple weather",
-      "one shared Caiyun callback can replace healthy weather while preserving failed Apple alerts"
+      "one shared Caiyun callback can replace healthy weather while preserving failed Apple alerts",
+      "partial replacement preserves future fields inside an unchanged selected hourly table",
+      "failed alert replacement retains the complete original binary response"
     ],
     "nativeRewrites": {
       "pass": 11,
@@ -86,37 +88,37 @@
   },
   "canonicalEntry": "Loon/script/WeatherKit.lpx",
   "compatibilityEntryIdentical": true,
-  "memoryMeasurements": "docs/cache-memory-v6-measurements.json",
+  "memoryMeasurements": "docs/processing-memory-v7-measurements.json",
   "liveWeatherRequests": false,
   "deviceVPNValidation": false,
   "artifacts": {
     "LICENSE.txt": {
       "bytes": 12826,
-      "sha256": "94e64a917115b566ddf6e13a037253578ab19d7f480f1f7244f9542dab808e89"
+      "sha256": "46516352e53bcbf18d2f35d7b5d37efb30c7c3de2c5262708718189eda108623"
     },
     "SHA256SUMS.txt": {
       "bytes": 582,
-      "sha256": "61705b16bfcbf61bd21a7bfb3fcecf691c3b0b3ab93d13f80c19cbbc34e0bd02"
+      "sha256": "50861d5a21982ebef0627d3bfd9586abcce2325f149c8dd1ee009678720a5395"
     },
     "WeatherKit.lpx": {
       "bytes": 8047,
-      "sha256": "766061eb986aabe98e08db876c7412e6e5019979db3294ca92134c4f9f685206"
+      "sha256": "a45bff5f8f0c0c1fd427e11ea6e19104fb2b857554b8a36f410bd0f6a37a7db1"
     },
     "WeatherKit.plugin": {
       "bytes": 8047,
-      "sha256": "766061eb986aabe98e08db876c7412e6e5019979db3294ca92134c4f9f685206"
+      "sha256": "a45bff5f8f0c0c1fd427e11ea6e19104fb2b857554b8a36f410bd0f6a37a7db1"
     },
     "build-provenance.json": {
-      "bytes": 2715,
-      "sha256": "6ded0f38730bfc4cb4ffa4aec7f2532c91de3ce9ea5080162b913edc498fc5f0"
+      "bytes": 2890,
+      "sha256": "887110635f72b57bd822362a9a840349fc300ce80ed847e25f7cab261f3d3843"
     },
     "request.bundle.js": {
-      "bytes": 289394,
-      "sha256": "74d2a5d3b1b82440a9c4a4c4b877e8f6eb6e94c4845107bf09c8f89506fac6ce"
+      "bytes": 289582,
+      "sha256": "14385baa67953cf9201794430440938e637dbfa466ed98208cd136e5ae39679e"
     },
     "response.bundle.js": {
-      "bytes": 430711,
-      "sha256": "cde8d63d6f4d79a7791305b8c6d9706b671b6fbc253cfdf216122d6c50bfe5cc"
+      "bytes": 430638,
+      "sha256": "c19470927b4b8c08445d35e69b3499efdf3ef3f237c785475c0a09c804afba83"
     },
     "scale.bundle.js": {
       "bytes": 29703,
@@ -126,7 +128,7 @@
   "downloadedArtifactVerification": {
     "archiveDigestVerified": true,
     "sha256ManifestEntriesVerified": 7,
-    "bundleScenariosPassed": 16,
+    "bundleScenariosPassed": 18,
     "nativeRewriteChecksPassed": 11,
     "origin": "local Node v24.22.1 running unchanged CI bundles",
     "deviceVPNValidation": false
