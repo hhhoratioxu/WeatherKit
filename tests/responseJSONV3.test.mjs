@@ -48,6 +48,9 @@ test("native JSON adaptation preserves existing totals and condition-record vect
     assert.equal(product.summary[0].condition, "RAIN");
     assert.equal(adaptV3ClientProduct(product), false);
     validateWeatherJSONV3(product);
+    const emptyConditions = { condition: [], summary: [] };
+    assert.equal(adaptV3ClientProduct(emptyConditions), false);
+    assert.deepEqual(emptyConditions.condition, []);
 });
 
 test("native JSON adaptation never invents a total from missing or invalid precipitation measurements", () => {

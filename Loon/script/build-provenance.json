@@ -1,6 +1,6 @@
 {
   "version": "3.3.2-cache.9-test.2",
-  "sourceCommit": "0370f398933f7a8fe68dff6a2de3c3b4b38272b8",
+  "sourceCommit": "934ed26e69e1b279d60b2a8222d57df4e17b95b1",
   "resourceRef": "mac-v9-validation-2",
   "node": "v24.22.1",
   "schemaPackage": "1.1.2",
@@ -79,5 +79,5 @@
   "lockfileSHA256": "4d77dff589312db892261ff09816446b9bca18fde86f9752309e2efd4d761033",
   "validationOrigin": "local build published to a separate GitHub test branch",
   "fullLockfileInstall": false,
-  "nativeValidation": "pending"
+  "nativeValidation": "pending Mac unlock"
 }

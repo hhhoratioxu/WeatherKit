@@ -37,10 +37,21 @@ InstantCast 和风险模型使用来源提供的当前浓度；本次没有新�
 
 ## 验证与依据
 
-本地源代码 303 项自动回归通过，含全部算法的零浓度、缺项、非有限输入、单位等价、参考数值、边界、WK2 编解码和开发/发布两条 WK3 响应入口。压缩后的 Loon 脚本另检验全部算法、不转换、零额外供应商请求与单次完成，共 33 个 VM 场景；原生表达式、URL 路由和 jq 检查共 15 个场景。这些是桌面测试，不是 Loon 配置解析、全部设备或官方站点逐项对照验收。
+本地源代码 306 项自动回归通过，含全部算法的零浓度、缺项、非有限输入、单位等价、参考数值、边界、WK2 编解码和开发/发布两条 WK3 响应入口。压缩后的 Loon 脚本另检验全部算法、不转换、零额外供应商请求与单次完成，共 34 个 VM 场景；原生表达式、URL 路由和 jq 检查共 15 个场景。这些是桌面测试，不是 Loon 配置解析、全部设备或官方站点逐项对照验收。
 
 2026-11-04/05 重新核对 Loon [Rewrite](https://nsloon.app/docs/Rewrite/rewrite_v2/)、[Script API](https://nsloon.app/docs/Script/script_api/) 和[插件](https://nsloon.app/docs/Plugin/)；使用原生 `request.header.set`、必要 URL Guard 和一个 script Action，全部 20 项参数继续由原生对象传入。最低 3.5.1(983)、正文边界、并发、缓存容量和超时不变。iOS/macOS 主 App 前缀的表达式夹具通过；真实 Mac 请求验证另记，不将合成 User-Agent 当作实际抓包。
 
 参考 [EPA 2026 技术文件](https://document.airnow.gov/technical-assistance-document-for-the-reporting-of-daily-air-quailty.pdf) 的浓度精度与线性插值、[德国 UBA LQI](https://www.umweltbundesamt.de/themen/luft/luftqualitaet/der-luftqualitaetsindex-lqi) 的五项污染物、[香港环保署 AQHI 公式与分级](https://www.aqhi.gov.hk/en/what-is-aqhi/faqs.html)，以及加拿大政府托管的 [AQHI 技术说明](https://www2.gov.bc.ca/assets/gov/environment/air-land-water/air/reports-pub/aqhi-variation-bc.pdf)。对不能复核的研究阈值保留上游值，不宣称所有地区的官方认证。
 
 正式发布使用 GitHub Actions 锁定依赖产物，构建提交、CI 链接和公共文件摘要记录于 [构建验证记录](loon-build-validation.json)。Loon 正式入口仍为 `.lpx`，旧 `.plugin` 与其同字节；运行脚本固定引用 `cache-v9`，不使用局域网地址。
+
+
+## Mac 原生解码发现（2026-11-05）
+
+Mac 为 macOS 27.3 (26C5035r)，Loon for Mac 0.5.0(1011)。00:08 的真实主应用请求确认 User-Agent 为 `WeatherKit_Weather_macOS_Version 27.3`；组件使用 `WeatherKit_WeatherWidget_macOS_`，新版守卫只接管前者。不能据此假设每个 iOS 组件都使用单独的 User-Agent。
+
+第一版 GitHub 候选的两条真实请求在 Loon 中完成，分别耗时 29 ms 和 152 ms；日志可见英国及南京的 EAQI 计算。但系统天气仍未展示空气质量。原生统一日志进一步确认 `CurrentWeather.conditionCode`、小时/分时状态和分钟降水概述都要求 String，原始 v3 JSON 却包含数组；每日预报还缺少旧 JSON 读取器要求的 `precipitationAmount`。系统随后清除当前天气缓存，走 CloudKit 回退，并把空气质量标为不可用。这证明先前“200/JSON、脚本完成、天气可见”只证明运行与有限显示，不能证明系统采用了修改结果。
+
+第二版候选区分 WK3 FlatBuffer 结构与主应用 JSON 读取器：状态取来源给出的首个字符串，降水/降雪取 expected 标量，从完整的按类型降水期望量补出总量；保留原始按类型字段与其他未知产品。转换覆盖未选择替换的已知分时产品，供应商失败也保留可读取的 Apple 数据。没有新增网络往返、后台采样或宿主 API。该兼容转换为新请求的 JSON 传输所必需，已是原生可读 JSON 且未改数据时仍原样返回。
+
+第二版 GitHub 分支为 `mac-v9-validation-2`。代码与产物验证已完成；当时 Mac 自动锁屏，尚未完成第二版的原生复测。正式 main 入口继续保留旧版，等待系统解码和空气质量显示确认。GitHub Actions 同时受到官方通报的服务故障影响，排队状态不记为通过。

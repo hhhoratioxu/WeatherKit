@@ -22,6 +22,7 @@ const percentageFields = new Set(["cloudCover", "cloudCoverLowAltPct", "cloudCov
 const byteFields = new Set(["uvIndex", "maxUvIndex", "uvIndexMax", "uvIndexMin", "categoryIndex"]);
 const timestampFields = new Set(["asOf", "readTime", "reportedTime", "expireTime", "forecastStart", "forecastEnd", "startTime", "endTime", "date", "effectiveTime", "issuedTime", "eventOnsetTime", "eventEndTime", "moonrise", "moonset", "sunrise", "sunset", "sunriseCivil", "sunsetCivil", "sunriseNautical", "sunsetNautical", "sunriseAstronomical", "sunsetAstronomical", "solarNoon", "solarMidnight", "temperatureMaxTime", "temperatureMinTime"]);
 const optionalTimestampFields = new Set(["reportedTime", "endTime", "eventOnsetTime", "eventEndTime", "moonrise", "moonset", "sunrise", "sunset", "sunriseCivil", "sunsetCivil", "sunriseNautical", "sunsetNautical", "sunriseAstronomical", "sunsetAstronomical", "solarNoon", "solarMidnight", "temperatureMaxTime", "temperatureMinTime"]);
+const precipitationByTypeField = /^precipitationAmount(?:(?:Previous|Next)\d+h)?ByType$/;
 const percentRange = [0, 100], byteRange = [0, 255], shortRange = [0, 65535], timeRange = [0, 0xffffffff];
 function integerRange(key) {
     if (percentageFields.has(key)) return percentRange;
@@ -56,7 +57,7 @@ export function adaptV3ClientProduct(product) {
         if (Array.isArray(value)) { for (const item of value) visit(item); return; }
         for (const key of Object.keys(value)) {
             let item = value[key];
-            if (["conditionCode", "precipitationType", "condition"].includes(key) && Array.isArray(item) && item.every(entry => typeof entry === "string")) {
+            if ((key === "conditionCode" || key === "precipitationType" || key === "condition" && item?.length > 0) && Array.isArray(item) && item.every(entry => typeof entry === "string")) {
                 const first = item.find(entry => typeof entry === "string" && entry);
                 if (first === undefined) delete value[key];
                 else value[key] = first;
@@ -65,7 +66,7 @@ export function adaptV3ClientProduct(product) {
             if ((key === "precipitationAmount" || key.startsWith("snowfallAmount")) && object(item) && Number.isFinite(item.expected)) {
                 value[key] = item = item.expected; changed = true;
             }
-            if (/^precipitationAmount(?:(?:Previous|Next)\d+h)?ByType$/.test(key) && Array.isArray(item)) {
+            if (precipitationByTypeField.test(key) && Array.isArray(item)) {
                 const scalarKey = key.slice(0, -"ByType".length);
                 if (value[scalarKey] === undefined && item.every(part => object(part) && Number.isFinite(part.expected) && part.expected >= 0)) {
                     const amount = item.reduce((sum, part) => sum + part.expected, 0);
