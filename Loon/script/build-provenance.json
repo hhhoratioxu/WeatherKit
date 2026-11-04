@@ -1,17 +1,20 @@
 {
-  "version": "3.3.2-cache.7",
-  "sourceCommit": "c0aa19640e760889de31658df084c176f52d18bd",
-  "resourceRef": "cache-v7",
+  "version": "3.3.2-cache.8",
+  "sourceCommit": "2b75e99ec09d4cfc7123f5a7f56532a6725a859c",
+  "resourceRef": "cache-v8",
   "node": "v22.23.4",
   "schemaPackage": "1.1.2",
   "bundleChecks": {
-    "pass": 18,
+    "pass": 21,
     "fail": 0,
     "scenarios": [
       "custom scale uses a standalone bundle without storage or provider requests",
       "unknown scale language falls through with conditional headers intact",
       "availability preserves Apple and appends plugin requirements",
       "unhandled content passthrough",
+      "v3 JSON replaces weather with WK3 types and preserves unknown fields after native callbacks finish",
+      "v3 provider failure preserves exact Apple JSON, whitespace and validators",
+      "WK3 binary stays opaque if JSON negotiation is not honoured",
       "web warning parsing without TextEncoder",
       "parsed warning cache survives a new Loon execution",
       "failed warning request passes through with safe diagnostics",
@@ -28,9 +31,11 @@
       "failed alert replacement retains the complete original binary response"
     ],
     "nativeRewrites": {
-      "pass": 11,
+      "pass": 13,
       "fail": 0,
       "scenarios": [
+        "native v3 JSON negotiation changes only HTTPS Apple weather GET requests",
+        "v3 text and v2 binary weather select exactly one body script each",
         "native scale URL: EU.EAQI.2604",
         "native scale URL: US.AQI.12?lang=en-US&v=1#s",
         "native scale URL: HK.AQHI.8",
@@ -56,5 +61,5 @@
     "liveWeatherRequests": false,
     "deviceVPNValidation": false
   },
-  "lockfileSHA256": "ff1305c78161c4df9792ebca496d14a5d8dc99cd4c22754f617a2d95585696d2"
+  "lockfileSHA256": "37ddaa591dff2536bddab11ece777c47a8b778b91d275042f032d2d078cf5837"
 }

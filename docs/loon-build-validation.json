@@ -1,7 +1,7 @@
 {
-  "verifiedDate": "2026-11-01",
-  "version": "3.3.2-cache.7",
-  "sourceCommit": "c0aa19640e760889de31658df084c176f52d18bd",
+  "verifiedDate": "2026-11-04",
+  "version": "3.3.2-cache.8",
+  "sourceCommit": "2b75e99ec09d4cfc7123f5a7f56532a6725a859c",
   "validationOrigin": "GitHub Actions",
   "buildEnvironment": {
     "platform": "Linux",
@@ -10,24 +10,27 @@
     "fullLockfileInstall": true,
     "installCommand": "npm ci --ignore-scripts --no-audit --no-fund"
   },
-  "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/41320313790",
+  "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/41831571162",
   "ciStatusAtVerification": "completed",
   "ciConclusionAtVerification": "success",
   "ciArtifactsUsed": true,
-  "ciArchiveSHA256": "3d607767b2768ee0b1e90b5ec4aff9df185fc3d7a03d6341fd0cefdf9e6dddb0",
+  "ciArchiveSHA256": "95249839d98acce456a5843e7aecda65d590257f36d0d1a69376085005a017fe",
   "regressionTests": {
-    "pass": 224,
+    "pass": 234,
     "fail": 0,
     "skip": 0
   },
   "bundledVMSmokeChecks": {
-    "pass": 18,
+    "pass": 21,
     "fail": 0,
     "scenarios": [
       "custom scale uses a standalone bundle without storage or provider requests",
       "unknown scale language falls through with conditional headers intact",
       "availability preserves Apple and appends plugin requirements",
       "unhandled content passthrough",
+      "v3 JSON replaces weather with WK3 types and preserves unknown fields after native callbacks finish",
+      "v3 provider failure preserves exact Apple JSON, whitespace and validators",
+      "WK3 binary stays opaque if JSON negotiation is not honoured",
       "web warning parsing without TextEncoder",
       "parsed warning cache survives a new Loon execution",
       "failed warning request passes through with safe diagnostics",
@@ -44,9 +47,11 @@
       "failed alert replacement retains the complete original binary response"
     ],
     "nativeRewrites": {
-      "pass": 11,
+      "pass": 13,
       "fail": 0,
       "scenarios": [
+        "native v3 JSON negotiation changes only HTTPS Apple weather GET requests",
+        "v3 text and v2 binary weather select exactly one body script each",
         "native scale URL: EU.EAQI.2604",
         "native scale URL: US.AQI.12?lang=en-US&v=1#s",
         "native scale URL: HK.AQHI.8",
@@ -72,9 +77,21 @@
     "liveWeatherRequests": false,
     "deviceVPNValidation": false
   },
-  "scriptURLsVerified": 4,
+  "scriptURLsVerified": 5,
   "argumentPropagationVerified": {
     "parameters": [
+      "DataSets",
+      "Weather.Provider",
+      "WeatherAlerts.Provider",
+      "NextHour.Provider",
+      "AirQuality.Current.Pollutants.Provider",
+      "AirQuality.Calculate.Algorithm",
+      "API.ColorfulClouds.Token",
+      "API.QWeather.Host",
+      "API.QWeather.Token",
+      "API.WAQI.Token",
+      "Storage",
+      "LogLevel",
       "RequestCache.TTL",
       "RequestCache.ForecastTTL",
       "RequestCache.MinutelyTTL",
@@ -84,41 +101,48 @@
       "RequestCache.Diagnostics",
       "Region.Fallback"
     ],
-    "scriptRules": 3
+    "scriptRules": 4
   },
   "canonicalEntry": "Loon/script/WeatherKit.lpx",
   "compatibilityEntryIdentical": true,
-  "memoryMeasurements": "docs/processing-memory-v7-measurements.json",
-  "liveWeatherRequests": false,
+  "protocolValidation": "docs/ios273-v3.md",
+  "deviceJSONNegotiation": {
+    "httpStatus": 200,
+    "contentType": "application/json",
+    "userConfirmedWeatherDisplay": true,
+    "temporaryProbeOnly": true
+  },
+  "finalDevicePluginAcceptance": false,
+  "deviceMemoryOrPowerMeasurement": false,
   "deviceVPNValidation": false,
   "artifacts": {
     "LICENSE.txt": {
       "bytes": 12826,
-      "sha256": "46516352e53bcbf18d2f35d7b5d37efb30c7c3de2c5262708718189eda108623"
+      "sha256": "4438535970bdd1636a846c876199e6cce7a35280b3cda1850a1bd46903156577"
     },
     "SHA256SUMS.txt": {
       "bytes": 582,
-      "sha256": "50861d5a21982ebef0627d3bfd9586abcce2325f149c8dd1ee009678720a5395"
+      "sha256": "15cb1a073193fc0f059e5d259dc68161d59383878a6581db18962a32b3705397"
     },
     "WeatherKit.lpx": {
-      "bytes": 8047,
-      "sha256": "a45bff5f8f0c0c1fd427e11ea6e19104fb2b857554b8a36f410bd0f6a37a7db1"
+      "bytes": 8921,
+      "sha256": "2242ede53401b81d77eb51006eed736eae9b5d8d58de398dce9f26ba1b89a336"
     },
     "WeatherKit.plugin": {
-      "bytes": 8047,
-      "sha256": "a45bff5f8f0c0c1fd427e11ea6e19104fb2b857554b8a36f410bd0f6a37a7db1"
+      "bytes": 8921,
+      "sha256": "2242ede53401b81d77eb51006eed736eae9b5d8d58de398dce9f26ba1b89a336"
     },
     "build-provenance.json": {
-      "bytes": 2890,
-      "sha256": "887110635f72b57bd822362a9a840349fc300ce80ed847e25f7cab261f3d3843"
+      "bytes": 3311,
+      "sha256": "78f45a4135844d51e7ef1787399bd5ead60987c028bb2d9079cebd428ae31e35"
     },
     "request.bundle.js": {
       "bytes": 289582,
       "sha256": "14385baa67953cf9201794430440938e637dbfa466ed98208cd136e5ae39679e"
     },
     "response.bundle.js": {
-      "bytes": 430638,
-      "sha256": "c19470927b4b8c08445d35e69b3499efdf3ef3f237c785475c0a09c804afba83"
+      "bytes": 434132,
+      "sha256": "b283887746ef41310f7ca6a444c7599b54586c531ba49a7498f83b14149dbc05"
     },
     "scale.bundle.js": {
       "bytes": 29703,
@@ -128,8 +152,8 @@
   "downloadedArtifactVerification": {
     "archiveDigestVerified": true,
     "sha256ManifestEntriesVerified": 7,
-    "bundleScenariosPassed": 18,
-    "nativeRewriteChecksPassed": 11,
+    "bundleScenariosPassed": 21,
+    "nativeRewriteChecksPassed": 13,
     "origin": "local Node v24.22.1 running unchanged CI bundles",
     "deviceVPNValidation": false
   }
