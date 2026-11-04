@@ -8,7 +8,7 @@
 
 `3.3.2-cache.8` 为 `/api/v3/weather/` 使用 Loon 原生请求头协商 Apple JSON，在文本响应中适配 WK3 的天气状态数组、降水统计对象及数值元数据；复用已有数据源、缓存和失败回退。原 v2 二进制路径继续保留，未知 WK3 二进制原样放行。没有新增后台任务、轮询或请求重发。
 
-手机传输探针已确认实际返回 200/application/json，用户刷新后天气正常。正式替换逻辑另通过离线回放和自动回归；活跃预警、所有地区、设备内存和耗电未全面实测。本次不承诺 iPhone 内存或省电比例。
+手机正式 v8 已确认 iOS 请求命中 v3 脚本并完成实际响应改写，修改后返回 200/application/json，天气页面实况、小时及每日预报能够显示。正式订阅已恢复，临时统计关闭；空气质量各字段、活跃预警、所有地区、设备内存和耗电未全面实测。本次不承诺 iPhone 内存或省电比例。
 
 v7 的按改动编码、延迟预警复制和日志优化继续保留；以下为此前版本的桌面测量。
 
@@ -34,6 +34,6 @@ v7 的按改动编码、延迟预警复制和日志优化继续保留；以下�
 
 版本 `3.3.2-cache.8` 的发布文件直接来自 [GitHub Actions](https://github.com/hhhoratioxu/WeatherKit/actions/runs/41831571162) 的锁定依赖构建：`npm ci --ignore-scripts --no-audit --no-fund`、Node v22.23.4，234 项回归测试、21 个实际压缩脚本场景、13 个原生表达式／路由／jq 检查全部通过。下载后核对了 CI ZIP 摘要、八个发布文件、七条校验清单和固定版本脚本引用，并再次运行编译产物检查。来源提交、环境与 SHA-256 见 [构建验证记录](docs/loon-build-validation.json) 和 `Loon/script/build-provenance.json`。
 
-内存与 CPU 对比来自实际 CI 压缩脚本在独立本地 Node/V8 进程中的模拟运行，详见 [v7 测量记录](docs/processing-memory-v7.md)，不把桌面数值换算为 iPhone 内存或耗电。原生规则检查未调用真实 Loon 配置解析器；手机的 JSON 协商及天气显示已验证；正式插件数据替换、活跃预警、内存及 VPN 连续运行需分别核验。
+内存与 CPU 对比来自实际 CI 压缩脚本在独立本地 Node/V8 进程中的模拟运行，详见 [v7 测量记录](docs/processing-memory-v7.md)，不把桌面数值换算为 iPhone 内存或耗电。原生规则检查未调用真实 Loon 配置解析器；手机正式插件导入、v3 脚本完成、供应商请求及实际响应改写已观察；各功能的完整 UI 验收、活跃预警、内存及 VPN 连续运行仍需分别核验。
 
 仓库的 CI 流程配置为使用 Actions 自带的临时 `GITHUB_TOKEN`，仅声明 `contents: read` 与 `packages: read`；无需为安装插件创建或提交个人 Token。下载依赖时读取上游的原始 `@nsringo/weatherkit@1.1.2`。历史第一版设计与模拟请求数对比见 [请求缓存说明](docs/request-cache.md)。

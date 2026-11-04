@@ -112,7 +112,39 @@
     "userConfirmedWeatherDisplay": true,
     "temporaryProbeOnly": true
   },
-  "finalDevicePluginAcceptance": false,
+  "finalDevicePluginAcceptance": {
+    "date": "2026-11-04",
+    "client": "Loon 3.5.4(1015)",
+    "runtime": "Loon Tunnel",
+    "scriptRef": "cache-v8",
+    "canonicalMainSubscriptionRestored": true,
+    "canonicalBuildDateObserved": "2026-11-04 12:42:46",
+    "iOSWeatherV3RequestMatched": true,
+    "executionStatus": "Completed",
+    "singleObservedDurationMs": 273,
+    "providerRequests": 4,
+    "providerFailures": 0,
+    "coalesced": 1,
+    "persistentHits": 1,
+    "modifiedResponseObserved": true,
+    "modifiedContentType": "application/json",
+    "modifiedCacheControl": "no-store",
+    "modifiedBodyBytes": 320842,
+    "weatherDisplayObserved": true,
+    "temporaryDiagnosticsNowOff": true,
+    "allFeaturesValidated": false,
+    "activeAlertsValidated": false,
+    "allRegionsValidated": false,
+    "notes": [
+      "Native execution and an actually modified response were observed; this is separate from full per-field UI acceptance.",
+      "Existing EAQI logging included an unsupported-CO/category -1 warning; it did not stop the response script.",
+      "No captured URL, coordinates, credentials or raw phone log is published."
+    ],
+    "originalResponseContentLength": 34992,
+    "originalResponseContentEncoding": "gzip",
+    "reportedTotalResponseBodyLength": 313555,
+    "reportedBodyLengthInterpretation": "Loon script log counter; not asserted to be original decoded Apple bytes"
+  },
   "deviceMemoryOrPowerMeasurement": false,
   "deviceVPNValidation": false,
   "artifacts": {
@@ -156,5 +188,20 @@
     "nativeRewriteChecksPassed": 13,
     "origin": "local Node v24.22.1 running unchanged CI bundles",
     "deviceVPNValidation": false
+  },
+  "publicBytesVerification": {
+    "canonicalMain": {
+      "pass": 8,
+      "total": 8
+    },
+    "immutableCacheV8": {
+      "pass": 8,
+      "total": 8
+    },
+    "releaseAssets": {
+      "pass": 8,
+      "total": 8
+    },
+    "checks": "downloaded public bytes equal the unchanged eight CI artifacts"
   }
 }
