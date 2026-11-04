@@ -1,11 +1,11 @@
 {
-  "version": "3.3.2-cache.8",
-  "sourceCommit": "2b75e99ec09d4cfc7123f5a7f56532a6725a859c",
-  "resourceRef": "cache-v8",
-  "node": "v22.23.4",
+  "version": "3.3.2-cache.9-test.1",
+  "sourceCommit": "a85a5fd40883dce4e110ae56b54ee99d45ecb127",
+  "resourceRef": "mac-v9-validation",
+  "node": "v24.22.1",
   "schemaPackage": "1.1.2",
   "bundleChecks": {
-    "pass": 21,
+    "pass": 33,
     "fail": 0,
     "scenarios": [
       "custom scale uses a standalone bundle without storage or provider requests",
@@ -13,6 +13,18 @@
       "availability preserves Apple and appends plugin requirements",
       "unhandled content passthrough",
       "v3 JSON replaces weather with WK3 types and preserves unknown fields after native callbacks finish",
+      "v3 UBA retains all six measurements with no provider request",
+      "v3 EU_EAQI retains all six measurements with no provider request",
+      "v3 WAQI_InstantCast_US retains all six measurements with no provider request",
+      "v3 WAQI_InstantCast_CN retains all six measurements with no provider request",
+      "v3 WAQI_InstantCast_CN_25_DRAFT retains all six measurements with no provider request",
+      "v3 CA_AQHI retains all six measurements with no provider request",
+      "v3 HK_AQHI retains all six measurements with no provider request",
+      "v3 AQHI_Multi_CN retains all six measurements with no provider request",
+      "v3 AQHI_Multi_CN_HK retains all six measurements with no provider request",
+      "v3 CN_DEATH_AQHI retains all six measurements with no provider request",
+      "v3 CN_DEATH_HK_AQHI retains all six measurements with no provider request",
+      "v3 None retains all six measurements with no provider request",
       "v3 provider failure preserves exact Apple JSON, whitespace and validators",
       "WK3 binary stays opaque if JSON negotiation is not honoured",
       "web warning parsing without TextEncoder",
@@ -31,11 +43,13 @@
       "failed alert replacement retains the complete original binary response"
     ],
     "nativeRewrites": {
-      "pass": 13,
+      "pass": 15,
       "fail": 0,
       "scenarios": [
+        "iOS and macOS main Weather app fixtures select the same guarded v3 transport",
         "native v3 JSON negotiation changes only HTTPS Apple weather GET requests",
         "v3 text and v2 binary weather select exactly one body script each",
+        "background, watch, non-JSON and failed v3 responses start no body script",
         "native scale URL: EU.EAQI.2604",
         "native scale URL: US.AQI.12?lang=en-US&v=1#s",
         "native scale URL: HK.AQHI.8",
@@ -61,5 +75,8 @@
     "liveWeatherRequests": false,
     "deviceVPNValidation": false
   },
-  "lockfileSHA256": "37ddaa591dff2536bddab11ece777c47a8b778b91d275042f032d2d078cf5837"
+  "lockfileSHA256": "4d77dff589312db892261ff09816446b9bca18fde86f9752309e2efd4d761033",
+  "validationOrigin": "local build published to a separate GitHub test branch",
+  "fullLockfileInstall": false,
+  "nativeValidation": "pending"
 }
