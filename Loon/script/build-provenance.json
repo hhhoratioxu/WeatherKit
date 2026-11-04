@@ -77,5 +77,14 @@
     "liveWeatherRequests": false,
     "deviceVPNValidation": false
   },
-  "lockfileSHA256": "4d77dff589312db892261ff09816446b9bca18fde86f9752309e2efd4d761033"
+  "lockfileSHA256": "4d77dff589312db892261ff09816446b9bca18fde86f9752309e2efd4d761033",
+  "distribution": {
+    "variant": "test",
+    "runtimeRef": "3c4a31d278e5380bec7a148ed73f1e174c222ffc",
+    "runtimeBundlesUnchangedFromCI": true,
+    "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/41931700904",
+    "archiveSHA256": "4fe0dee681961c9f3bfaefcfb08c708fe9b4525c2a4bad53003fd3d610e7d902",
+    "nativeAcceptance": "pending final CO and algorithm checks",
+    "canonicalMainUpdated": false
+  }
 }

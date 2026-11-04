@@ -55,3 +55,16 @@ Mac 为 macOS 27.3 (26C5035r)，Loon for Mac 0.5.0(1011)。00:08 的真实主应
 第二版候选区分 WK3 FlatBuffer 结构与主应用 JSON 读取器：状态取来源给出的首个字符串，降水/降雪取 expected 标量，从完整的按类型降水期望量补出总量；保留原始按类型字段与其他未知产品。转换覆盖未选择替换的已知分时产品，供应商失败也保留可读取的 Apple 数据。没有新增网络往返、后台采样或宿主 API。该兼容转换为新请求的 JSON 传输所必需，已是原生可读 JSON 且未改数据时仍原样返回。
 
 第二版 GitHub 分支为 `mac-v9-validation-2`。代码与产物验证已完成；当时 Mac 自动锁屏，尚未完成第二版的原生复测。正式 main 入口继续保留旧版，等待系统解码和空气质量显示确认。GitHub Actions 同时受到官方通报的服务故障影响，排队状态不记为通过。
+
+
+CI 随后恢复：源码 ae2ca5e 的 [Actions 41869896115](https://github.com/hhhoratioxu/WeatherKit/actions/runs/41869896115) 已成功完成锁定依赖安装、306 项回归和原生脚本构建。下载的八文件 ZIP 摘要与官方 artifact digest 一致，七条内部校验全部匹配，并重新通过 34 个压缩 VM 场景与 15 个表达式检查。第二版测试分支现使用这份 CI 的三个运行脚本原始字节，只调整导入名称、验证版号与测试分支脚本引用；[具体构建记录](air-quality-v9-build-validation.json) 区分原始 CI 资产和测试入口的处理。Mac 的第二版原生验收仍等待解锁，尚未替换正式 main。
+
+测试导入文件的五条脚本引用现固定到 GitHub 完整提交 `dd6be7bb53db58c3f4643ddb4e2c7632f855c96b`，三个运行脚本与 CI 原始字节一致。更新测试分支文档或入口不会使这次运行混用另一批脚本。
+
+## 2026-11-05 早间原生复测与 CO 修正
+
+06:59 起在 Mac 安装第二版固定 GitHub 入口，杭州新请求于 07:00:45 完成（182 ms）。系统天气显示 EAQI Fair，详情中六项污染物及 iRingo 指数来源可见。这一轮原生统一日志统计为解码错误 0、Invalid weather data 0、CloudKit fallback 0，并确认 11 个 WDS 产品已进入系统缓存（含 currentWeather、forecastHourly、forecastDaily、forecastPeriodic 和 airQuality）。成都的新请求另显示加拿大 AQHI 4。未将这些结果记作 iPhone 设备验收。
+
+逐项读取六项浓度时，发现上一轮通用单位清理漏掉了 Apple 原始 QWeather 的 CO 标签错误：数值按 mg/m³ 给出，却标为 µg/m³，页面因此出现小于 1 µg/m³。修复现显式区分入口：只有原始 Apple QWeather 产品修复该假标；已经归一化的供应商结果按其明确单位保留，不按数值大小猜测，也不额外请求另一来源。补充两条完整响应入口和一条单位回归，完整检查增至 309 项；压缩脚本再增加同场景检查，共 35 个 VM 场景与 15 个表达式检查。
+
+新源码 4d10a76 的 [Actions 41931700904](https://github.com/hhhoratioxu/WeatherKit/actions/runs/41931700904) 已成功完成锁定依赖构建。下载的八文件 ZIP 摘要为 4fe0dee681961c9f3bfaefcfb08c708fe9b4525c2a4bad53003fd3d610e7d902，内部七条校验及真实压缩脚本复查通过。第三版入口使用该 CI 的三个原始运行脚本，并固定引用其完整 GitHub 提交；最终 CO 数值及其他算法的原生检查仍待完成，正式 main 暂未替换。

@@ -1,0 +1,44 @@
+{
+  "verifiedDate": "2026-11-05",
+  "version": "3.3.2-cache.9",
+  "sourceCommit": "4d10a767c66877f39f17ef5687b336ff42ac46a5",
+  "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/41931700904",
+  "ciStatus": "completed",
+  "ciConclusion": "success",
+  "fullLockfileInstall": true,
+  "installCommand": "npm ci --ignore-scripts --no-audit --no-fund",
+  "node": "v22.23.4",
+  "schemaPackage": "1.1.2",
+  "archiveSHA256": "4fe0dee681961c9f3bfaefcfb08c708fe9b4525c2a4bad53003fd3d610e7d902",
+  "regressions": {
+    "pass": 309,
+    "fail": 0
+  },
+  "bundledVM": 35,
+  "nativeExpressionFixtures": 15,
+  "runtimeRef": "3c4a31d278e5380bec7a148ed73f1e174c222ffc",
+  "runtimeBundlesIdenticalToCI": true,
+  "originalCIFileSHA256": {
+    "scale.bundle.js": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f",
+    "WeatherKit.plugin": "987948019519468ee9931be7aadeee12b8eb16641a862c1f50728daf2d6a8090",
+    "build-provenance.json": "97e3f1ff1e007950b4f550246156829614dc7c9e7d9bd051583d70a9c1d1e9b0",
+    "request.bundle.js": "201cda395cfc5c8000c3f59bad213ada075d4c0c1b8277bb3ad88d079bd81041",
+    "WeatherKit.lpx": "987948019519468ee9931be7aadeee12b8eb16641a862c1f50728daf2d6a8090",
+    "LICENSE.txt": "95fce8dce2570ec48a1d6432ffbb406693aa7374adae09f2154269a52d3cb667",
+    "SHA256SUMS.txt": "ec453cff0c042cd22a5961e93c26feecf8967d0e28023a25fb08d7e3923d6db7",
+    "response.bundle.js": "83635e9093296f273f31e88f67aeabe64e5d700cfc1ee49d37383257dcffddbc"
+  },
+  "nativeSecondCandidate": {
+    "EAQIcard": true,
+    "pollutantCount": 6,
+    "storedWDSProductCount": 11,
+    "decoderErrors": 0,
+    "cloudKitFallback": 0,
+    "CA_AQHI": 4,
+    "CORegressionFound": true
+  },
+  "nativeFinalCandidate": "pending final CO and algorithm checks",
+  "canonicalMainUpdated": false,
+  "iPhoneV9Acceptance": false,
+  "measuredDeviceBatterySavings": false
+}
