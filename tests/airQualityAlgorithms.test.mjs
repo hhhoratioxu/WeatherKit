@@ -117,6 +117,21 @@ test("QWeather CO normalization is unit-aware and idempotent", () => {
     assert.equal(input.pollutants[0].amount, 0.7);
 });
 
+test("raw Apple QWeather CO repairs the mg value mislabeled as ug without reprocessing normalized provider data", () => {
+    for (const providerName of ["QWeather", "和风天气"]) {
+        const rawApple = { metadata: { providerName }, pollutants: [pollutant("CO", 0.7), null] };
+        const normalized = AQ.FixPollutantsUnits(rawApple, { appleProduct: true });
+        assert.equal(normalized.pollutants[0].amount, 700);
+        assert.equal(normalized.pollutants[0].units, ug);
+        assert.equal(rawApple.pollutants[0].amount, 0.7);
+        assert.deepEqual(AQ.FixPollutantsUnits(normalized), normalized);
+        const provider = { metadata: { providerName }, pollutants: [pollutant("CO", 700)] };
+        assert.deepEqual(AQ.FixPollutantsUnits(provider), provider);
+    }
+    const other = { metadata: { providerName: "BreezoMeter" }, pollutants: [pollutant("CO", 700)] };
+    assert.strictEqual(AQ.FixPollutantsUnits(other, { appleProduct: true }), other);
+});
+
 test("unit conversion rejects nonfinite values; numeric strings and identity ppb work without artificial STP factors", () => {
     for (const amount of [NaN, Infinity, null, undefined, "", "wrong", -1]) assert.equal(AQ.ConvertUnit(amount, ug, mg), -1);
     assert.equal(AQ.ConvertUnit("700", ug, mg), 0.7);

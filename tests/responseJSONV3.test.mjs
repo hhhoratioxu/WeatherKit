@@ -62,6 +62,18 @@ test("native JSON adaptation never invents a total from missing or invalid preci
 });
 
 for (const [name, processResponse] of [["release", Response], ["development", ResponseDev]]) {
+    test(`${name}: native Apple QWeather CO is correctly displayed in ug after ingress normalization`, async t => {
+        settings({ DataSets: "airQuality", "AirQuality.Calculate.Algorithm": "WAQI_InstantCast_US" });
+        t.mock.method(ColorfulClouds.prototype, "CurrentAirQuality", () => { throw new Error("Complete Apple concentrations require no extra query"); });
+        const product = airQualityProduct(allPollutants());
+        product.metadata.providerName = "QWeather";
+        product.pollutants.find(p => p.pollutantType === "CO").amount = 0.7;
+        const actual = JSON.parse((await processResponse(request("airQuality"), response({ airQuality: product }))).body).airQuality;
+        assert.equal(actual.pollutants.find(p => p.pollutantType === "CO").amount, 700);
+        assert.equal(actual.pollutants.find(p => p.pollutantType === "CO").units, "MICROGRAMS_PER_CUBIC_METER");
+        assert.equal(product.pollutants.find(p => p.pollutantType === "CO").amount, 0.7);
+        assert.equal(actual.index, 99);
+    });
     for (const algorithm of ["UBA", "EU_EAQI", "WAQI_InstantCast_US", "WAQI_InstantCast_CN", "WAQI_InstantCast_CN_25_DRAFT", "CA_AQHI", "HK_AQHI", "AQHI_Multi_CN", "AQHI_Multi_CN_HK", "CN_DEATH_AQHI", "CN_DEATH_HK_AQHI", "None"]) {
         test(`${name}: v3 ${algorithm} selects the requested algorithm on a complete non-CN Apple product`, async t => {
             settings({ DataSets: "airQuality", "AirQuality.Calculate.Algorithm": algorithm });

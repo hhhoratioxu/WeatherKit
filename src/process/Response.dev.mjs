@@ -483,7 +483,7 @@ async function InjectWeatherAlerts(weatherAlerts, Settings, enviroments) {
 async function InjectAirQuality(airQuality, Settings, Caches, enviroments) {
     // Step1. 修复污染物单位
     // Step 1. Fix pollutant units.
-    airQuality = AirQuality.FixPollutantsUnits(airQuality);
+    airQuality = AirQuality.FixPollutantsUnits(airQuality, { appleProduct: true });
 
     // 只补齐缺失/无效的污染物，已有有效 Apple 浓度优先；失败不丢弃原数据。
     const originalPollutants = AirQuality.ValidPollutants(airQuality?.pollutants);

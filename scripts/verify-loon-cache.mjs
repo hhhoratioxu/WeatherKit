@@ -126,6 +126,11 @@ export default async function verifyLoonCache(root) {
     assert.equal(nativeBody.forecastPeriodic.forecasts[0].periods[0].snowfallAmount, 0);
     assert.equal(nativeCompatible.nativeRequests, 0);
     scenarios.push("Apple v3 JSON is adapted to the native Weather reader, including unselected periodic forecasts");
+    const appleCO = { airQuality: { metadata: { temporarilyUnavailable: false, providerName: "QWeather" }, scale: "HJ6332012", index: 42, categoryIndex: 1, primaryPollutant: "PM2_5", previousDayComparison: "SIMILAR", pollutants: [["PM2_5", 35], ["PM10", 60], ["OZONE", 90], ["NO2", 35], ["SO2", 15], ["CO", 0.7]].map(([pollutantType, amount]) => ({ pollutantType, amount, units: "MICROGRAMS_PER_CUBIC_METER" })) } };
+    const appleCOResult = await run(responseCode, { ...v3Request, url: v3Request.url.replace("dataSets=currentWeather", "dataSets=airQuality") }, { status: 200, headers: { "Content-Type": "application/json" }, body: JSON.stringify(appleCO) }, noNetwork, { DataSets: "airQuality", "AirQuality.Calculate.Algorithm": "WAQI_InstantCast_US" });
+    assert.equal(JSON.parse(appleCOResult.output.body).airQuality.pollutants.find(p => p.pollutantType === "CO").amount, 700);
+    assert.equal(appleCOResult.nativeRequests, 0);
+    scenarios.push("native Apple QWeather CO is repaired at ingress with no duplicate provider lookup");
     for (const algorithm of ["UBA", "EU_EAQI", "WAQI_InstantCast_US", "WAQI_InstantCast_CN", "WAQI_InstantCast_CN_25_DRAFT", "CA_AQHI", "HK_AQHI", "AQHI_Multi_CN", "AQHI_Multi_CN_HK", "CN_DEATH_AQHI", "CN_DEATH_HK_AQHI", "None"]) {
         const pollutants = [["PM2_5", 35], ["PM10", 60], ["OZONE", 90], ["NO2", 35], ["SO2", 15], ["CO", 700]].map(([pollutantType, amount]) => ({ pollutantType, amount, units: "MICROGRAMS_PER_CUBIC_METER" }));
         const body = { airQuality: { metadata: { temporarilyUnavailable: false, providerName: "Apple fixture" }, scale: "EPA_NowCast", index: 42, categoryIndex: 1, primaryPollutant: "PM2_5", previousDayComparison: "SIMILAR", pollutants } };

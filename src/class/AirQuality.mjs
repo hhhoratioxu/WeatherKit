@@ -163,20 +163,23 @@ export default class AirQuality {
      *
      * 说明：
      * - 这是空气质量数据修复的统一入口（当前聚焦污染物单位修复）；
-     * - 当前仅处理和风天气（QWeather）CO 单位场景：其 CO 原始单位为 mg/m3，
-     *   需转换为 WeatherKit 使用的 µg/m3；
+     * - QWeather 供应商结果按明确单位处理；
+     * - Apple 原始 QWeather 产品的 CO 数值为 mg/m3，但可能标成 µg/m3。
+     *   只有在原始 Apple 产品入口显式声明 appleProduct 时修复这个标签错误，
+     *   不对已归一化的供应商结果重复换算，也不按浓度大小猜测单位。
      * - 后续同类修复请统一收敛到本方法内，必要时可将本方法升级为 FixAirQuality。
      *
      * @param {any} airQuality - 空气质量数据对象
+     * @param {{appleProduct?: boolean}} options - 仅原始 Apple 产品入口设为 true
      * @returns {any} 单位修复后的空气质量数据对象
      */
-    static FixPollutantsUnits(airQuality) {
+    static FixPollutantsUnits(airQuality, options = {}) {
         Console.info("☑️ FixPollutantsUnits");
         switch (airQuality?.metadata?.providerName) {
             case "和风天气":
             case "QWeather": {
                 const { mgm3, ugm3 } = AirQuality.Config.Units.WeatherKit;
-                airQuality = { ...airQuality, pollutants: airQuality?.pollutants?.map(pollutant => pollutant.pollutantType === "CO" && pollutant.units === mgm3
+                airQuality = { ...airQuality, pollutants: airQuality?.pollutants?.map(pollutant => pollutant?.pollutantType === "CO" && (pollutant.units === mgm3 || options.appleProduct === true && pollutant.units === ugm3)
                     ? { ...pollutant, amount: AirQuality.ConvertUnit(pollutant.amount, mgm3, ugm3), units: ugm3 }
                     : pollutant) };
                 break;
