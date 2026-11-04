@@ -1,0 +1,40 @@
+{
+  "verifiedDate": "2026-11-05",
+  "version": "3.3.2-cache.9",
+  "sourceCommit": "ae2ca5e01ff2336eb359ae6170a6020a953ab8da",
+  "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/41869896115",
+  "ciStatus": "completed",
+  "ciConclusion": "success",
+  "fullLockfileInstall": true,
+  "installCommand": "npm ci --ignore-scripts --no-audit --no-fund",
+  "node": "v22.23.4",
+  "schemaPackage": "1.1.2",
+  "archiveSHA256": "874f9d9748d46bfb3f975a71a4bf67a99e54d777224cbe5e50b16b26560c2caf",
+  "regressions": {
+    "pass": 306,
+    "fail": 0
+  },
+  "bundledVM": 34,
+  "nativeExpressionFixtures": 15,
+  "originalCIFileSHA256": {
+    "scale.bundle.js": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f",
+    "WeatherKit.plugin": "ad4cd785004ba2d3b6db96aee9ca57d40168f4de9ed107c5c26d6830c854b0e7",
+    "build-provenance.json": "9f8befa5d6d3ce4ab6478dd06d72f4cdb06762102c9a106eabc04f2ece093b96",
+    "request.bundle.js": "12a4328a34e2a46f7e7878a3d00dcc3d5fbd62ef21a269f274c1f783522667d2",
+    "WeatherKit.lpx": "ad4cd785004ba2d3b6db96aee9ca57d40168f4de9ed107c5c26d6830c854b0e7",
+    "LICENSE.txt": "95fce8dce2570ec48a1d6432ffbb406693aa7374adae09f2154269a52d3cb667",
+    "SHA256SUMS.txt": "bb46c85a302fa1c90021688ea7256c27d66f9d2d44f2f20c00660b87a8870d98",
+    "response.bundle.js": "553a7f9c2d080158e7542d69899d6de2141e3c92842eb5c5b2a1c955b5035aec"
+  },
+  "testBranch": "mac-v9-validation-2",
+  "testEntryPostProcessing": [
+    "name",
+    "version",
+    "script refs"
+  ],
+  "runtimeBundlesIdenticalToCI": true,
+  "nativeSecondCandidate": "pending Mac unlock",
+  "canonicalMainUpdated": false,
+  "iPhoneV9Acceptance": false,
+  "measuredDeviceBatterySavings": false
+}
