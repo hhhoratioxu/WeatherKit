@@ -1,4 +1,4 @@
-#!name =  WeatherKit · 稳定性与缓存优化
+#!name =  WeatherKit · v3 传输诊断
 #!desc = iOS 18 & macOS 15 & watchOS 11\n1.解锁全部天气功能\n2.修改空气质量数据\n3.修改下一小时降水数据\n4.修改天气数据\n5.修改天气预警数据
 #!openUrl = http://boxjs.com/#/app/iRingo.WeatherKit
 #!author = VirgilClyne[https://github.com/VirgilClyne],WordlessEcho[https://github.com/WordlessEcho],001[https://github.com/001ProMax],hhh2210[https://github.com/hhh2210],hhhoratioxu[https://github.com/hhhoratioxu]
@@ -7,7 +7,7 @@
 #!tag =  iRingo
 #!system = iOS,iPadOS,macOS,watchOS
 #!date = 2026-11-01 15:16:15
-#!version = 3.3.2-cache.7
+#!version = 3.3.2-cache.7-json-probe
 #!system_version = 18
 #!loon_version = 3.5.1(983)
 
@@ -40,6 +40,7 @@ DOMAIN,tether.edge.apple,REJECT-DROP
 AND,((OR,((IP-ASN,714,no-resolve),(IP-ASN,6185,no-resolve))),(PROTOCOL,QUIC)),REJECT-DROP
 
 [Rewrite]
+request if ${request.method} == "GET" && ${url} ~= /^https:\/\/weatherkit\.apple\.com\/api\/v3\/weather\// then request.header.set("Accept", "application/json")
 response if ${url} ~= /^https?:\/\/weatherkit\.apple\.com\/api\/v1\/availability\// then response.json.jq("if type == \"array\" and all(.[]; type == \"string\") then reduce (. + [\"airQuality\",\"currentWeather\",\"forecastDaily\",\"forecastHourly\",\"forecastPeriodic\",\"historicalComparisons\",\"weatherChanges\",\"forecastNextHour\",\"weatherAlerts\",\"weatherAlertNotifications\",\"news\"])[] as $item ([]; if index($item) == null then . + [$item] else . end) else . end")
 request if (${request.method} == "GET" || ${request.method} == "HEAD" || ${request.method} == "OPTIONS") && ${url} ~= /^(https?:\/\/weatherkit\.apple\.com\/api\/v1\/airQualityScale\/[A-Z0-9]+(?:-[A-Z0-9]+)*\/[^\/?#]+)\.\d+(?=[?#]|$)/i as scale then url.replace("${scale.1}")
 
