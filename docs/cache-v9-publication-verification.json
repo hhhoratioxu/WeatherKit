@@ -1,0 +1,220 @@
+{
+  "date": "2026-11-05",
+  "version": "3.3.2-cache.9",
+  "publishedArtifactCommit": "935e4ea5166c0188f6fff611d9281dca44af2bcc",
+  "versionBranch": {
+    "name": "cache-v9",
+    "commit": "935e4ea5166c0188f6fff611d9281dca44af2bcc",
+    "isTag": false
+  },
+  "runtimeCommit": "3c4a31d278e5380bec7a148ed73f1e174c222ffc",
+  "publicBytesVerification": {
+    "main": {
+      "pass": 8,
+      "total": 8,
+      "files": [
+        {
+          "path": "Loon/script/LICENSE.txt",
+          "bytes": 12826,
+          "sha256": "95fce8dce2570ec48a1d6432ffbb406693aa7374adae09f2154269a52d3cb667",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/WeatherKit.lpx",
+          "bytes": 9407,
+          "sha256": "2ea4cbc9529b4f259fa7eda82d90367ecda0d7d535b6f9e08e172c0e81e5c70d",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/WeatherKit.plugin",
+          "bytes": 9407,
+          "sha256": "2ea4cbc9529b4f259fa7eda82d90367ecda0d7d535b6f9e08e172c0e81e5c70d",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/build-provenance.json",
+          "bytes": 7393,
+          "sha256": "0aea679a00039d90232681e8bac5a2f30f0ae5b50434602af6bac62c9cd09640",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/request.bundle.js",
+          "bytes": 291091,
+          "sha256": "201cda395cfc5c8000c3f59bad213ada075d4c0c1b8277bb3ad88d079bd81041",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/response.bundle.js",
+          "bytes": 439821,
+          "sha256": "83635e9093296f273f31e88f67aeabe64e5d700cfc1ee49d37383257dcffddbc",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/scale.bundle.js",
+          "bytes": 29703,
+          "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/SHA256SUMS.txt",
+          "bytes": 582,
+          "sha256": "204aca10467e76156ee22453ebb94ed526aa352775268ac4ba50e3e5846b51c1",
+          "matchesLocal": true
+        }
+      ]
+    },
+    "cache-v9": {
+      "pass": 8,
+      "total": 8,
+      "files": [
+        {
+          "path": "Loon/script/LICENSE.txt",
+          "bytes": 12826,
+          "sha256": "95fce8dce2570ec48a1d6432ffbb406693aa7374adae09f2154269a52d3cb667",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/WeatherKit.lpx",
+          "bytes": 9407,
+          "sha256": "2ea4cbc9529b4f259fa7eda82d90367ecda0d7d535b6f9e08e172c0e81e5c70d",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/WeatherKit.plugin",
+          "bytes": 9407,
+          "sha256": "2ea4cbc9529b4f259fa7eda82d90367ecda0d7d535b6f9e08e172c0e81e5c70d",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/build-provenance.json",
+          "bytes": 7393,
+          "sha256": "0aea679a00039d90232681e8bac5a2f30f0ae5b50434602af6bac62c9cd09640",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/request.bundle.js",
+          "bytes": 291091,
+          "sha256": "201cda395cfc5c8000c3f59bad213ada075d4c0c1b8277bb3ad88d079bd81041",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/response.bundle.js",
+          "bytes": 439821,
+          "sha256": "83635e9093296f273f31e88f67aeabe64e5d700cfc1ee49d37383257dcffddbc",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/scale.bundle.js",
+          "bytes": 29703,
+          "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/SHA256SUMS.txt",
+          "bytes": 582,
+          "sha256": "204aca10467e76156ee22453ebb94ed526aa352775268ac4ba50e3e5846b51c1",
+          "matchesLocal": true
+        }
+      ]
+    },
+    "935e4ea5166c0188f6fff611d9281dca44af2bcc": {
+      "pass": 8,
+      "total": 8,
+      "files": [
+        {
+          "path": "Loon/script/LICENSE.txt",
+          "bytes": 12826,
+          "sha256": "95fce8dce2570ec48a1d6432ffbb406693aa7374adae09f2154269a52d3cb667",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/WeatherKit.lpx",
+          "bytes": 9407,
+          "sha256": "2ea4cbc9529b4f259fa7eda82d90367ecda0d7d535b6f9e08e172c0e81e5c70d",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/WeatherKit.plugin",
+          "bytes": 9407,
+          "sha256": "2ea4cbc9529b4f259fa7eda82d90367ecda0d7d535b6f9e08e172c0e81e5c70d",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/build-provenance.json",
+          "bytes": 7393,
+          "sha256": "0aea679a00039d90232681e8bac5a2f30f0ae5b50434602af6bac62c9cd09640",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/request.bundle.js",
+          "bytes": 291091,
+          "sha256": "201cda395cfc5c8000c3f59bad213ada075d4c0c1b8277bb3ad88d079bd81041",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/response.bundle.js",
+          "bytes": 439821,
+          "sha256": "83635e9093296f273f31e88f67aeabe64e5d700cfc1ee49d37383257dcffddbc",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/scale.bundle.js",
+          "bytes": 29703,
+          "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f",
+          "matchesLocal": true
+        },
+        {
+          "path": "Loon/script/SHA256SUMS.txt",
+          "bytes": 582,
+          "sha256": "204aca10467e76156ee22453ebb94ed526aa352775268ac4ba50e3e5846b51c1",
+          "matchesLocal": true
+        }
+      ]
+    }
+  },
+  "canonicalMacSubscription": {
+    "url": "https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/WeatherKit.lpx",
+    "existingSlotUpdated": true,
+    "pluginCount": 17,
+    "enabledCount": 4,
+    "weatherKitCount": 1,
+    "updatePluginActionCompleted": true,
+    "fivePinnedScriptReferencesObserved": true,
+    "algorithm": "EU_EAQI",
+    "logLevel": "WARN",
+    "diagnostics": false,
+    "freshRequestAfterUpdate": {
+      "publicTestCity": "Hefei",
+      "algorithm": "EU_EAQI",
+      "display": "Fair",
+      "CO_ug_m3": 400,
+      "pollutants": 6,
+      "iRingoAttributionVisible": true
+    },
+    "savedCitiesUnchanged": true,
+    "originalViewRestored": true
+  },
+  "systemLogSummaryIncludingCanonicalRequest": {
+    "start": "2026-11-05 07:30:56",
+    "decoderErrors": 0,
+    "invalidWeatherData": 0,
+    "cloudKitFallback": 0,
+    "storedWDSProducts": [
+      "airQuality",
+      "currentWeather",
+      "dataNotice",
+      "forecastDaily",
+      "forecastHourly",
+      "forecastNextHour",
+      "forecastPeriodic",
+      "historicalComparisons",
+      "news",
+      "weatherAlerts",
+      "weatherChanges"
+    ]
+  },
+  "iPhoneV9Acceptance": false,
+  "deviceMemoryOrBatteryMeasurement": false,
+  "longRunningVPNValidation": false,
+  "upstreamPullRequestSubmitted": false
+}

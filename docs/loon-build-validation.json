@@ -214,5 +214,5 @@
     }
   },
   "previousV8Record": "loon-build-validation-v8.json",
-  "publicBytesVerification": "Recorded separately after the main ref is updated; not inferred from CI or native candidate tests."
+  "publicBytesVerification": "cache-v9-publication-verification.json"
 }

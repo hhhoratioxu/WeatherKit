@@ -86,3 +86,5 @@ CI 随后恢复：源码 ae2ca5e 的 [Actions 41869896115](https://github.com/hh
 七例均可打开六项污染物详情并显示 iRingo 指数来源，覆盖七类不同显示图例。系统统一日志统计为解码错误 0、Invalid weather data 0、CloudKit fallback 0；airQuality、currentWeather、小时／每日／分时等共 11 类 WDS 产品进入缓存。最终候选的原生检查完成后才准备 main 正式入口；默认算法恢复 EU_EAQI，日志 WARN，独立诊断关闭。
 
 这是有限时段的 Mac 原生验收。11 种算法加 None 全部通过压缩脚本检查，其余五个选项未逐项进行 Mac 页面验收；未声称算法输出等于官方日均发布值，也未声称 v9 的 iPhone、手表、全部后台客户端、活跃预警或长时间 VPN 已验收。没有测量设备内存或电量改善比例。
+
+正式文件已发布到 main 和 cache-v9 版本分支（后者不是 tag）。随后在 Mac 的现有插件槽切换为 main，主动更新，再以合肥新请求确认 EAQI Fair、六项污染物及 CO 400 µg/m³；测试城市未保存，原天气视图已恢复。main、版本分支和完整发布提交的八个公共文件分别通过 8/8 字节比对，原始数据和授权信息不进入发布记录。详见 [发布后核验](cache-v9-publication-verification.json)。
