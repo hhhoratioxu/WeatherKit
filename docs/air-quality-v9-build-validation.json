@@ -37,8 +37,123 @@
     "CA_AQHI": 4,
     "CORegressionFound": true
   },
-  "nativeFinalCandidate": "pending final CO and algorithm checks",
-  "canonicalMainUpdated": false,
+  "nativeFinalCandidate": {
+    "date": "2026-11-05",
+    "platform": "macOS 27.3 (26C5035r)",
+    "client": "Loon for Mac 0.5.0(1011)",
+    "entryCommit": "11c2092f3459408c0cc170d3ce3639cf9583df3c",
+    "runtimeCommit": "3c4a31d278e5380bec7a148ed73f1e174c222ffc",
+    "freshPublicCityPreviews": true,
+    "sixPollutantsVisibleInEveryCase": true,
+    "cases": [
+      {
+        "algorithm": "EU_EAQI",
+        "city": "Suzhou",
+        "display": "Moderate",
+        "CO_ug_m3": 800
+      },
+      {
+        "algorithm": "HK_AQHI",
+        "city": "Guangzhou",
+        "index": 3,
+        "display": "Low",
+        "CO_ug_m3": 700
+      },
+      {
+        "algorithm": "CN_DEATH_AQHI",
+        "city": "Wuhan",
+        "index": 2,
+        "display": "Low",
+        "CO_ug_m3": 700
+      },
+      {
+        "algorithm": "WAQI_InstantCast_US",
+        "city": "Shenzhen",
+        "index": 64,
+        "display": "Moderate",
+        "CO_ug_m3": 700
+      },
+      {
+        "algorithm": "CA_AQHI",
+        "city": "Changsha",
+        "index": 2,
+        "display": "Low Health Risk",
+        "CO_ug_m3": 600
+      },
+      {
+        "algorithm": "WAQI_InstantCast_CN",
+        "city": "Fuzhou",
+        "index": 52,
+        "display": "Good",
+        "CO_ug_m3": 600
+      },
+      {
+        "algorithm": "UBA",
+        "city": "Ningbo",
+        "display": "Good",
+        "CO_ug_m3": 800
+      }
+    ],
+    "systemLogSummary": {
+      "start": "2026-11-05 07:30:56",
+      "decoderErrors": 0,
+      "invalidWeatherData": 0,
+      "cloudKitFallback": 0,
+      "storedWDSProducts": [
+        "airQuality",
+        "currentWeather",
+        "dataNotice",
+        "forecastDaily",
+        "forecastHourly",
+        "forecastNextHour",
+        "forecastPeriodic",
+        "historicalComparisons",
+        "news",
+        "weatherAlerts",
+        "weatherChanges"
+      ]
+    },
+    "defaultAlgorithmRestored": "EU_EAQI",
+    "iPhoneV9Acceptance": false,
+    "allAlgorithmsNativeAcceptance": false,
+    "deviceMemoryOrBatteryMeasurement": false,
+    "longRunningVPNValidation": false
+  },
   "iPhoneV9Acceptance": false,
-  "measuredDeviceBatterySavings": false
+  "measuredDeviceBatterySavings": false,
+  "canonicalEntry": "main/Loon/script/WeatherKit.lpx",
+  "distributionFiles": {
+    "LICENSE.txt": {
+      "bytes": 12826,
+      "sha256": "95fce8dce2570ec48a1d6432ffbb406693aa7374adae09f2154269a52d3cb667"
+    },
+    "WeatherKit.lpx": {
+      "bytes": 9407,
+      "sha256": "2ea4cbc9529b4f259fa7eda82d90367ecda0d7d535b6f9e08e172c0e81e5c70d"
+    },
+    "WeatherKit.plugin": {
+      "bytes": 9407,
+      "sha256": "2ea4cbc9529b4f259fa7eda82d90367ecda0d7d535b6f9e08e172c0e81e5c70d"
+    },
+    "build-provenance.json": {
+      "bytes": 7393,
+      "sha256": "0aea679a00039d90232681e8bac5a2f30f0ae5b50434602af6bac62c9cd09640"
+    },
+    "request.bundle.js": {
+      "bytes": 291091,
+      "sha256": "201cda395cfc5c8000c3f59bad213ada075d4c0c1b8277bb3ad88d079bd81041"
+    },
+    "response.bundle.js": {
+      "bytes": 439821,
+      "sha256": "83635e9093296f273f31e88f67aeabe64e5d700cfc1ee49d37383257dcffddbc"
+    },
+    "scale.bundle.js": {
+      "bytes": 29703,
+      "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f"
+    },
+    "SHA256SUMS.txt": {
+      "bytes": 582,
+      "sha256": "204aca10467e76156ee22453ebb94ed526aa352775268ac4ba50e3e5846b51c1"
+    }
+  }
 }

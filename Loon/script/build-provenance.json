@@ -79,12 +79,94 @@
   },
   "lockfileSHA256": "4d77dff589312db892261ff09816446b9bca18fde86f9752309e2efd4d761033",
   "distribution": {
-    "variant": "test",
+    "variant": "release",
     "runtimeRef": "3c4a31d278e5380bec7a148ed73f1e174c222ffc",
     "runtimeBundlesUnchangedFromCI": true,
     "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/41931700904",
     "archiveSHA256": "4fe0dee681961c9f3bfaefcfb08c708fe9b4525c2a4bad53003fd3d610e7d902",
-    "nativeAcceptance": "pending final CO and algorithm checks",
-    "canonicalMainUpdated": false
+    "nativeAcceptance": {
+      "date": "2026-11-05",
+      "platform": "macOS 27.3 (26C5035r)",
+      "client": "Loon for Mac 0.5.0(1011)",
+      "entryCommit": "11c2092f3459408c0cc170d3ce3639cf9583df3c",
+      "runtimeCommit": "3c4a31d278e5380bec7a148ed73f1e174c222ffc",
+      "freshPublicCityPreviews": true,
+      "sixPollutantsVisibleInEveryCase": true,
+      "cases": [
+        {
+          "algorithm": "EU_EAQI",
+          "city": "Suzhou",
+          "display": "Moderate",
+          "CO_ug_m3": 800
+        },
+        {
+          "algorithm": "HK_AQHI",
+          "city": "Guangzhou",
+          "index": 3,
+          "display": "Low",
+          "CO_ug_m3": 700
+        },
+        {
+          "algorithm": "CN_DEATH_AQHI",
+          "city": "Wuhan",
+          "index": 2,
+          "display": "Low",
+          "CO_ug_m3": 700
+        },
+        {
+          "algorithm": "WAQI_InstantCast_US",
+          "city": "Shenzhen",
+          "index": 64,
+          "display": "Moderate",
+          "CO_ug_m3": 700
+        },
+        {
+          "algorithm": "CA_AQHI",
+          "city": "Changsha",
+          "index": 2,
+          "display": "Low Health Risk",
+          "CO_ug_m3": 600
+        },
+        {
+          "algorithm": "WAQI_InstantCast_CN",
+          "city": "Fuzhou",
+          "index": 52,
+          "display": "Good",
+          "CO_ug_m3": 600
+        },
+        {
+          "algorithm": "UBA",
+          "city": "Ningbo",
+          "display": "Good",
+          "CO_ug_m3": 800
+        }
+      ],
+      "systemLogSummary": {
+        "start": "2026-11-05 07:30:56",
+        "decoderErrors": 0,
+        "invalidWeatherData": 0,
+        "cloudKitFallback": 0,
+        "storedWDSProducts": [
+          "airQuality",
+          "currentWeather",
+          "dataNotice",
+          "forecastDaily",
+          "forecastHourly",
+          "forecastNextHour",
+          "forecastPeriodic",
+          "historicalComparisons",
+          "news",
+          "weatherAlerts",
+          "weatherChanges"
+        ]
+      },
+      "defaultAlgorithmRestored": "EU_EAQI",
+      "iPhoneV9Acceptance": false,
+      "allAlgorithmsNativeAcceptance": false,
+      "deviceMemoryOrBatteryMeasurement": false,
+      "longRunningVPNValidation": false
+    },
+    "canonicalEntry": "main/Loon/script/WeatherKit.lpx",
+    "postprocessing": "Import metadata and five script references pinned to the CI-runtime commit; three runtime bundles unchanged."
   }
 }

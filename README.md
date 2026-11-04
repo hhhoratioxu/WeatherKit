@@ -2,7 +2,7 @@
 
 本 Fork 为 Loon 增加数据源失败回退、受限网络预算、网页预警缓存、地区识别修复，以及按数据类型区分的短时缓存。本版修复 iOS 27.3 Beta 转用 WeatherKit v3 后插件未生效的问题，保留此前的缓存及内存优化。保留上游作者、许可证与 Git 历史。
 
-实现、默认值、限制及验证边界见 [稳定性与缓存优化](docs/resilience.md) 和 [iOS 27.3 v3 兼容说明](docs/ios273-v3.md)。Loon 导入文件由 `npm run build:loon-cache` 生成至 `Loon/script/WeatherKit.lpx`，运行脚本固定引用本 Fork 的 `cache-v9`。
+实现、默认值、限制及验证边界见 [稳定性与缓存优化](docs/resilience.md) 和 [iOS 27.3 v3 兼容说明](docs/ios273-v3.md)。Loon 导入文件由 `npm run build:loon-cache` 生成至 `Loon/script/WeatherKit.lpx`，运行脚本固定引用本 Fork 的 CI 产物提交，避免更新期间混用脚本。
 
 ## 本次更新
 
@@ -32,8 +32,10 @@ v7 的按改动编码、延迟预警复制和日志优化继续保留；以下�
 
 ## 构建与验证
 
-版本 `3.3.2-cache.8` 的发布文件直接来自 [GitHub Actions](https://github.com/hhhoratioxu/WeatherKit/actions/runs/41831571162) 的锁定依赖构建：`npm ci --ignore-scripts --no-audit --no-fund`、Node v22.23.4，234 项回归测试、21 个实际压缩脚本场景、13 个原生表达式／路由／jq 检查全部通过。下载后核对了 CI ZIP 摘要、八个发布文件、七条校验清单和固定版本脚本引用，并再次运行编译产物检查。来源提交、环境与 SHA-256 见 [构建验证记录](docs/loon-build-validation.json) 和 `Loon/script/build-provenance.json`。
+版本 `3.3.2-cache.9` 使用 [GitHub Actions](https://github.com/hhhoratioxu/WeatherKit/actions/runs/41931700904) 的锁定依赖构建：Node v22.23.4、`@nsringo/weatherkit@1.1.2`、309 项回归、35 个实际压缩脚本 VM 场景和 15 个表达式／路由／jq 检查全部通过。三个运行脚本与下载的 CI 资产同字节；导入文件只调整发布元数据并将五条运行引用固定至完整提交 `3c4a31d278e5380bec7a148ed73f1e174c222ffc`。八文件及摘要见 [构建记录](docs/loon-build-validation.json)。
 
-内存与 CPU 对比来自实际 CI 压缩脚本在独立本地 Node/V8 进程中的模拟运行，详见 [v7 测量记录](docs/processing-memory-v7.md)，不把桌面数值换算为 iPhone 内存或耗电。原生规则检查未调用真实 Loon 配置解析器；手机正式插件导入、v3 脚本完成、供应商请求及实际响应改写已观察；各功能的完整 UI 验收、活跃预警、内存及 VPN 连续运行仍需分别核验。
+2026-11-05 在 macOS 27.3、Loon for Mac 0.5.0(1011) 上使用最终 GitHub 候选的新城市请求，实际核对欧盟、德国、美标、国标、加拿大、香港和中国风险模型七种选项：指数／分级、六项污染物及 iRingo 来源可见；原始 Apple QWeather CO 的单位修复后显示为 600–800 µg/m³。该轮系统日志为解码错误 0、无效天气 0、CloudKit 回退 0，11 类 WDS 产品进入系统缓存。详细测试条件见 [v9 原生记录](docs/air-quality-v9.md)。其余模型已通过自动计算和压缩输出检查，未记为逐项原生验收。
+
+内存与 CPU 历史对比仍来自独立 Node/V8 桌面模拟。本次未测得 iPhone／Mac 的内存、耗电下降比例，也未完成 v9 的 iPhone、活跃预警、手表和长期 VPN 验收。主 App 的 JSON 兼容与组件原有传输分别处理，不能承诺全部组件已获得自定义数据替换。
 
 仓库的 CI 流程配置为使用 Actions 自带的临时 `GITHUB_TOKEN`，仅声明 `contents: read` 与 `packages: read`；无需为安装插件创建或提交个人 Token。下载依赖时读取上游的原始 `@nsringo/weatherkit@1.1.2`。历史第一版设计与模拟请求数对比见 [请求缓存说明](docs/request-cache.md)。

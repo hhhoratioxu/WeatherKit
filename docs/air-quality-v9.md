@@ -37,16 +37,16 @@ InstantCast 和风险模型使用来源提供的当前浓度；本次没有新�
 
 ## 验证与依据
 
-本地源代码 306 项自动回归通过，含全部算法的零浓度、缺项、非有限输入、单位等价、参考数值、边界、WK2 编解码和开发/发布两条 WK3 响应入口。压缩后的 Loon 脚本另检验全部算法、不转换、零额外供应商请求与单次完成，共 34 个 VM 场景；原生表达式、URL 路由和 jq 检查共 15 个场景。这些是桌面测试，不是 Loon 配置解析、全部设备或官方站点逐项对照验收。
+最终源码在锁定依赖 CI 中 309 项自动回归通过，含全部算法的零浓度、缺项、非有限输入、单位等价、参考数值、边界、WK2 编解码和开发/发布两条 WK3 响应入口。压缩后的 Loon 脚本另检验全部算法、不转换、零额外供应商请求与单次完成，共 35 个 VM 场景；原生表达式、URL 路由和 jq 检查共 15 个场景。这些是桌面测试，不是 Loon 配置解析、全部设备或官方站点逐项对照验收。
 
 2026-11-04/05 重新核对 Loon [Rewrite](https://nsloon.app/docs/Rewrite/rewrite_v2/)、[Script API](https://nsloon.app/docs/Script/script_api/) 和[插件](https://nsloon.app/docs/Plugin/)；使用原生 `request.header.set`、必要 URL Guard 和一个 script Action，全部 20 项参数继续由原生对象传入。最低 3.5.1(983)、正文边界、并发、缓存容量和超时不变。iOS/macOS 主 App 前缀的表达式夹具通过；真实 Mac 请求验证另记，不将合成 User-Agent 当作实际抓包。
 
 参考 [EPA 2026 技术文件](https://document.airnow.gov/technical-assistance-document-for-the-reporting-of-daily-air-quailty.pdf) 的浓度精度与线性插值、[德国 UBA LQI](https://www.umweltbundesamt.de/themen/luft/luftqualitaet/der-luftqualitaetsindex-lqi) 的五项污染物、[香港环保署 AQHI 公式与分级](https://www.aqhi.gov.hk/en/what-is-aqhi/faqs.html)，以及加拿大政府托管的 [AQHI 技术说明](https://www2.gov.bc.ca/assets/gov/environment/air-land-water/air/reports-pub/aqhi-variation-bc.pdf)。对不能复核的研究阈值保留上游值，不宣称所有地区的官方认证。
 
-正式发布使用 GitHub Actions 锁定依赖产物，构建提交、CI 链接和公共文件摘要记录于 [构建验证记录](loon-build-validation.json)。Loon 正式入口仍为 `.lpx`，旧 `.plugin` 与其同字节；运行脚本固定引用 `cache-v9`，不使用局域网地址。
+正式发布使用 GitHub Actions 锁定依赖产物，构建提交、CI 链接和公共文件摘要记录于 [构建验证记录](loon-build-validation.json)。Loon 正式入口仍为 `.lpx`，旧 `.plugin` 与其同字节；运行脚本固定引用 CI 产物的完整提交，不使用局域网地址。
 
 
-## Mac 原生解码发现（2026-11-05）
+## 原生排查历史（以下候选状态以当时为准）
 
 Mac 为 macOS 27.3 (26C5035r)，Loon for Mac 0.5.0(1011)。00:08 的真实主应用请求确认 User-Agent 为 `WeatherKit_Weather_macOS_Version 27.3`；组件使用 `WeatherKit_WeatherWidget_macOS_`，新版守卫只接管前者。不能据此假设每个 iOS 组件都使用单独的 User-Agent。
 
@@ -68,3 +68,21 @@ CI 随后恢复：源码 ae2ca5e 的 [Actions 41869896115](https://github.com/hh
 逐项读取六项浓度时，发现上一轮通用单位清理漏掉了 Apple 原始 QWeather 的 CO 标签错误：数值按 mg/m³ 给出，却标为 µg/m³，页面因此出现小于 1 µg/m³。修复现显式区分入口：只有原始 Apple QWeather 产品修复该假标；已经归一化的供应商结果按其明确单位保留，不按数值大小猜测，也不额外请求另一来源。补充两条完整响应入口和一条单位回归，完整检查增至 309 项；压缩脚本再增加同场景检查，共 35 个 VM 场景与 15 个表达式检查。
 
 新源码 4d10a76 的 [Actions 41931700904](https://github.com/hhhoratioxu/WeatherKit/actions/runs/41931700904) 已成功完成锁定依赖构建。下载的八文件 ZIP 摘要为 4fe0dee681961c9f3bfaefcfb08c708fe9b4525c2a4bad53003fd3d610e7d902，内部七条校验及真实压缩脚本复查通过。第三版入口使用该 CI 的三个原始运行脚本，并固定引用其完整 GitHub 提交；最终 CO 数值及其他算法的原生检查仍待完成，正式 main 暂未替换。
+
+## 最终 GitHub 候选的 Mac 原生验收（2026-11-05）
+
+最终入口 `11c2092f3459408c0cc170d3ce3639cf9583df3c` 的五条脚本引用固定至 `3c4a31d278e5380bec7a148ed73f1e174c222ffc`，三个运行文件与 Actions 41931700904 的原始资产一致。07:30:56 起以新的公开城市预览核对，未新增保存城市：
+
+| 算法 | 公开测试城市 | 实际显示 | CO µg/m³ |
+| --- | --- | --- | --- |
+| EU_EAQI | 苏州 | Moderate | 800 |
+| HK_AQHI | 广州 | 3 / Low | 700 |
+| CN_DEATH_AQHI | 武汉 | 2 / 低 | 700 |
+| WAQI_InstantCast_US | 深圳 | 64 / Moderate | 700 |
+| CA_AQHI | 长沙 | 2 / Low Health Risk | 600 |
+| WAQI_InstantCast_CN | 福州 | 52 / Good | 600 |
+| UBA | 宁波 | Good | 800 |
+
+七例均可打开六项污染物详情并显示 iRingo 指数来源，覆盖七类不同显示图例。系统统一日志统计为解码错误 0、Invalid weather data 0、CloudKit fallback 0；airQuality、currentWeather、小时／每日／分时等共 11 类 WDS 产品进入缓存。最终候选的原生检查完成后才准备 main 正式入口；默认算法恢复 EU_EAQI，日志 WARN，独立诊断关闭。
+
+这是有限时段的 Mac 原生验收。11 种算法加 None 全部通过压缩脚本检查，其余五个选项未逐项进行 Mac 页面验收；未声称算法输出等于官方日均发布值，也未声称 v9 的 iPhone、手表、全部后台客户端、活跃预警或长时间 VPN 已验收。没有测量设备内存或电量改善比例。

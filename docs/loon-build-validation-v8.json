@@ -1,0 +1,207 @@
+{
+  "verifiedDate": "2026-11-04",
+  "version": "3.3.2-cache.8",
+  "sourceCommit": "2b75e99ec09d4cfc7123f5a7f56532a6725a859c",
+  "validationOrigin": "GitHub Actions",
+  "buildEnvironment": {
+    "platform": "Linux",
+    "node": "v22.23.4",
+    "schemaPackage": "1.1.2",
+    "fullLockfileInstall": true,
+    "installCommand": "npm ci --ignore-scripts --no-audit --no-fund"
+  },
+  "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/41831571162",
+  "ciStatusAtVerification": "completed",
+  "ciConclusionAtVerification": "success",
+  "ciArtifactsUsed": true,
+  "ciArchiveSHA256": "95249839d98acce456a5843e7aecda65d590257f36d0d1a69376085005a017fe",
+  "regressionTests": {
+    "pass": 234,
+    "fail": 0,
+    "skip": 0
+  },
+  "bundledVMSmokeChecks": {
+    "pass": 21,
+    "fail": 0,
+    "scenarios": [
+      "custom scale uses a standalone bundle without storage or provider requests",
+      "unknown scale language falls through with conditional headers intact",
+      "availability preserves Apple and appends plugin requirements",
+      "unhandled content passthrough",
+      "v3 JSON replaces weather with WK3 types and preserves unknown fields after native callbacks finish",
+      "v3 provider failure preserves exact Apple JSON, whitespace and validators",
+      "WK3 binary stays opaque if JSON negotiation is not honoured",
+      "web warning parsing without TextEncoder",
+      "parsed warning cache survives a new Loon execution",
+      "failed warning request passes through with safe diagnostics",
+      "binary weather response retains Apple values and completes after native failures",
+      "existing Apple minute table is preserved without provider work or routine logs",
+      "Apple-only provider preserves original binary weather without a decoder round trip",
+      "oversized binary input retains the original view without decoding or provider work",
+      "partial hourly replacement changes only a matching row and leaves source binary intact",
+      "missing minute data uses one configured backup after primary failure",
+      "HTTP 502 provider body with http failure cannot overwrite Apple weather",
+      "HTTP 200 provider body with invalid failure cannot overwrite Apple weather",
+      "one shared Caiyun callback can replace healthy weather while preserving failed Apple alerts",
+      "partial replacement preserves future fields inside an unchanged selected hourly table",
+      "failed alert replacement retains the complete original binary response"
+    ],
+    "nativeRewrites": {
+      "pass": 13,
+      "fail": 0,
+      "scenarios": [
+        "native v3 JSON negotiation changes only HTTPS Apple weather GET requests",
+        "v3 text and v2 binary weather select exactly one body script each",
+        "native scale URL: EU.EAQI.2604",
+        "native scale URL: US.AQI.12?lang=en-US&v=1#s",
+        "native scale URL: HK.AQHI.8",
+        "native scale URL: CN.AQHI.8",
+        "native scale URL: EU.EAQI",
+        "native scale URL: EU.EAQI.preview",
+        "URL normalization preserves POST and unrelated hosts",
+        "availability and ordinary scales start no JavaScript; custom scales use the small entry",
+        "alert routes accept first or subsequent ids parameters",
+        "native jq keeps Apple ordering and unknown capabilities without duplicates",
+        "native jq preserves unknown shapes and handles an empty capability list"
+      ],
+      "validation": "emitted expressions, JavaScript regex fixtures and system jq; not a Loon parser",
+      "deviceValidation": false
+    },
+    "withoutNodeWebCryptoHostTextEncoder": true,
+    "providedWebAPIs": [
+      "URL",
+      "URLSearchParams",
+      "TextDecoder"
+    ],
+    "doneExactlyOnce": true,
+    "liveWeatherRequests": false,
+    "deviceVPNValidation": false
+  },
+  "scriptURLsVerified": 5,
+  "argumentPropagationVerified": {
+    "parameters": [
+      "DataSets",
+      "Weather.Provider",
+      "WeatherAlerts.Provider",
+      "NextHour.Provider",
+      "AirQuality.Current.Pollutants.Provider",
+      "AirQuality.Calculate.Algorithm",
+      "API.ColorfulClouds.Token",
+      "API.QWeather.Host",
+      "API.QWeather.Token",
+      "API.WAQI.Token",
+      "Storage",
+      "LogLevel",
+      "RequestCache.TTL",
+      "RequestCache.ForecastTTL",
+      "RequestCache.MinutelyTTL",
+      "RequestCache.AlertsTTL",
+      "RequestCache.BudgetMs",
+      "RequestCache.CooldownSeconds",
+      "RequestCache.Diagnostics",
+      "Region.Fallback"
+    ],
+    "scriptRules": 4
+  },
+  "canonicalEntry": "Loon/script/WeatherKit.lpx",
+  "compatibilityEntryIdentical": true,
+  "protocolValidation": "docs/ios273-v3.md",
+  "deviceJSONNegotiation": {
+    "httpStatus": 200,
+    "contentType": "application/json",
+    "userConfirmedWeatherDisplay": true,
+    "temporaryProbeOnly": true
+  },
+  "finalDevicePluginAcceptance": {
+    "date": "2026-11-04",
+    "client": "Loon 3.5.4(1015)",
+    "runtime": "Loon Tunnel",
+    "scriptRef": "cache-v8",
+    "canonicalMainSubscriptionRestored": true,
+    "canonicalBuildDateObserved": "2026-11-04 12:42:46",
+    "iOSWeatherV3RequestMatched": true,
+    "executionStatus": "Completed",
+    "singleObservedDurationMs": 273,
+    "providerRequests": 4,
+    "providerFailures": 0,
+    "coalesced": 1,
+    "persistentHits": 1,
+    "modifiedResponseObserved": true,
+    "modifiedContentType": "application/json",
+    "modifiedCacheControl": "no-store",
+    "modifiedBodyBytes": 320842,
+    "weatherDisplayObserved": true,
+    "temporaryDiagnosticsNowOff": true,
+    "allFeaturesValidated": false,
+    "activeAlertsValidated": false,
+    "allRegionsValidated": false,
+    "notes": [
+      "Native execution and an actually modified response were observed; this is separate from full per-field UI acceptance.",
+      "Existing EAQI logging included an unsupported-CO/category -1 warning; it did not stop the response script.",
+      "No captured URL, coordinates, credentials or raw phone log is published."
+    ],
+    "originalResponseContentLength": 34992,
+    "originalResponseContentEncoding": "gzip",
+    "reportedTotalResponseBodyLength": 313555,
+    "reportedBodyLengthInterpretation": "Loon script log counter; not asserted to be original decoded Apple bytes"
+  },
+  "deviceMemoryOrPowerMeasurement": false,
+  "deviceVPNValidation": false,
+  "artifacts": {
+    "LICENSE.txt": {
+      "bytes": 12826,
+      "sha256": "4438535970bdd1636a846c876199e6cce7a35280b3cda1850a1bd46903156577"
+    },
+    "SHA256SUMS.txt": {
+      "bytes": 582,
+      "sha256": "15cb1a073193fc0f059e5d259dc68161d59383878a6581db18962a32b3705397"
+    },
+    "WeatherKit.lpx": {
+      "bytes": 8921,
+      "sha256": "2242ede53401b81d77eb51006eed736eae9b5d8d58de398dce9f26ba1b89a336"
+    },
+    "WeatherKit.plugin": {
+      "bytes": 8921,
+      "sha256": "2242ede53401b81d77eb51006eed736eae9b5d8d58de398dce9f26ba1b89a336"
+    },
+    "build-provenance.json": {
+      "bytes": 3311,
+      "sha256": "78f45a4135844d51e7ef1787399bd5ead60987c028bb2d9079cebd428ae31e35"
+    },
+    "request.bundle.js": {
+      "bytes": 289582,
+      "sha256": "14385baa67953cf9201794430440938e637dbfa466ed98208cd136e5ae39679e"
+    },
+    "response.bundle.js": {
+      "bytes": 434132,
+      "sha256": "b283887746ef41310f7ca6a444c7599b54586c531ba49a7498f83b14149dbc05"
+    },
+    "scale.bundle.js": {
+      "bytes": 29703,
+      "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f"
+    }
+  },
+  "downloadedArtifactVerification": {
+    "archiveDigestVerified": true,
+    "sha256ManifestEntriesVerified": 7,
+    "bundleScenariosPassed": 21,
+    "nativeRewriteChecksPassed": 13,
+    "origin": "local Node v24.22.1 running unchanged CI bundles",
+    "deviceVPNValidation": false
+  },
+  "publicBytesVerification": {
+    "canonicalMain": {
+      "pass": 8,
+      "total": 8
+    },
+    "immutableCacheV8": {
+      "pass": 8,
+      "total": 8
+    },
+    "releaseAssets": {
+      "pass": 8,
+      "total": 8
+    },
+    "checks": "downloaded public bytes equal the unchanged eight CI artifacts"
+  }
+}

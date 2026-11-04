@@ -1,27 +1,23 @@
 {
-  "verifiedDate": "2026-11-04",
-  "version": "3.3.2-cache.8",
-  "sourceCommit": "2b75e99ec09d4cfc7123f5a7f56532a6725a859c",
+  "verifiedDate": "2026-11-05",
+  "version": "3.3.2-cache.9",
+  "sourceCommit": "4d10a767c66877f39f17ef5687b336ff42ac46a5",
   "validationOrigin": "GitHub Actions",
+  "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/41931700904",
+  "ciConclusion": "success",
   "buildEnvironment": {
-    "platform": "Linux",
     "node": "v22.23.4",
     "schemaPackage": "1.1.2",
     "fullLockfileInstall": true,
     "installCommand": "npm ci --ignore-scripts --no-audit --no-fund"
   },
-  "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/41831571162",
-  "ciStatusAtVerification": "completed",
-  "ciConclusionAtVerification": "success",
-  "ciArtifactsUsed": true,
-  "ciArchiveSHA256": "95249839d98acce456a5843e7aecda65d590257f36d0d1a69376085005a017fe",
+  "ciArchiveSHA256": "4fe0dee681961c9f3bfaefcfb08c708fe9b4525c2a4bad53003fd3d610e7d902",
   "regressionTests": {
-    "pass": 234,
-    "fail": 0,
-    "skip": 0
+    "pass": 309,
+    "fail": 0
   },
   "bundledVMSmokeChecks": {
-    "pass": 21,
+    "pass": 35,
     "fail": 0,
     "scenarios": [
       "custom scale uses a standalone bundle without storage or provider requests",
@@ -29,6 +25,20 @@
       "availability preserves Apple and appends plugin requirements",
       "unhandled content passthrough",
       "v3 JSON replaces weather with WK3 types and preserves unknown fields after native callbacks finish",
+      "Apple v3 JSON is adapted to the native Weather reader, including unselected periodic forecasts",
+      "native Apple QWeather CO is repaired at ingress with no duplicate provider lookup",
+      "v3 UBA retains all six measurements with no provider request",
+      "v3 EU_EAQI retains all six measurements with no provider request",
+      "v3 WAQI_InstantCast_US retains all six measurements with no provider request",
+      "v3 WAQI_InstantCast_CN retains all six measurements with no provider request",
+      "v3 WAQI_InstantCast_CN_25_DRAFT retains all six measurements with no provider request",
+      "v3 CA_AQHI retains all six measurements with no provider request",
+      "v3 HK_AQHI retains all six measurements with no provider request",
+      "v3 AQHI_Multi_CN retains all six measurements with no provider request",
+      "v3 AQHI_Multi_CN_HK retains all six measurements with no provider request",
+      "v3 CN_DEATH_AQHI retains all six measurements with no provider request",
+      "v3 CN_DEATH_HK_AQHI retains all six measurements with no provider request",
+      "v3 None retains all six measurements with no provider request",
       "v3 provider failure preserves exact Apple JSON, whitespace and validators",
       "WK3 binary stays opaque if JSON negotiation is not honoured",
       "web warning parsing without TextEncoder",
@@ -47,11 +57,13 @@
       "failed alert replacement retains the complete original binary response"
     ],
     "nativeRewrites": {
-      "pass": 13,
+      "pass": 15,
       "fail": 0,
       "scenarios": [
+        "iOS and macOS main Weather app fixtures select the same guarded v3 transport",
         "native v3 JSON negotiation changes only HTTPS Apple weather GET requests",
         "v3 text and v2 binary weather select exactly one body script each",
+        "background, watch, non-JSON and failed v3 responses start no body script",
         "native scale URL: EU.EAQI.2604",
         "native scale URL: US.AQI.12?lang=en-US&v=1#s",
         "native scale URL: HK.AQHI.8",
@@ -77,131 +89,130 @@
     "liveWeatherRequests": false,
     "deviceVPNValidation": false
   },
+  "runtimeRef": "3c4a31d278e5380bec7a148ed73f1e174c222ffc",
+  "runtimeBundlesIdenticalToCI": true,
   "scriptURLsVerified": 5,
-  "argumentPropagationVerified": {
-    "parameters": [
-      "DataSets",
-      "Weather.Provider",
-      "WeatherAlerts.Provider",
-      "NextHour.Provider",
-      "AirQuality.Current.Pollutants.Provider",
-      "AirQuality.Calculate.Algorithm",
-      "API.ColorfulClouds.Token",
-      "API.QWeather.Host",
-      "API.QWeather.Token",
-      "API.WAQI.Token",
-      "Storage",
-      "LogLevel",
-      "RequestCache.TTL",
-      "RequestCache.ForecastTTL",
-      "RequestCache.MinutelyTTL",
-      "RequestCache.AlertsTTL",
-      "RequestCache.BudgetMs",
-      "RequestCache.CooldownSeconds",
-      "RequestCache.Diagnostics",
-      "Region.Fallback"
-    ],
-    "scriptRules": 4
-  },
   "canonicalEntry": "Loon/script/WeatherKit.lpx",
   "compatibilityEntryIdentical": true,
-  "protocolValidation": "docs/ios273-v3.md",
-  "deviceJSONNegotiation": {
-    "httpStatus": 200,
-    "contentType": "application/json",
-    "userConfirmedWeatherDisplay": true,
-    "temporaryProbeOnly": true
-  },
-  "finalDevicePluginAcceptance": {
-    "date": "2026-11-04",
-    "client": "Loon 3.5.4(1015)",
-    "runtime": "Loon Tunnel",
-    "scriptRef": "cache-v8",
-    "canonicalMainSubscriptionRestored": true,
-    "canonicalBuildDateObserved": "2026-11-04 12:42:46",
-    "iOSWeatherV3RequestMatched": true,
-    "executionStatus": "Completed",
-    "singleObservedDurationMs": 273,
-    "providerRequests": 4,
-    "providerFailures": 0,
-    "coalesced": 1,
-    "persistentHits": 1,
-    "modifiedResponseObserved": true,
-    "modifiedContentType": "application/json",
-    "modifiedCacheControl": "no-store",
-    "modifiedBodyBytes": 320842,
-    "weatherDisplayObserved": true,
-    "temporaryDiagnosticsNowOff": true,
-    "allFeaturesValidated": false,
-    "activeAlertsValidated": false,
-    "allRegionsValidated": false,
-    "notes": [
-      "Native execution and an actually modified response were observed; this is separate from full per-field UI acceptance.",
-      "Existing EAQI logging included an unsupported-CO/category -1 warning; it did not stop the response script.",
-      "No captured URL, coordinates, credentials or raw phone log is published."
+  "nativeMacAcceptance": {
+    "date": "2026-11-05",
+    "platform": "macOS 27.3 (26C5035r)",
+    "client": "Loon for Mac 0.5.0(1011)",
+    "entryCommit": "11c2092f3459408c0cc170d3ce3639cf9583df3c",
+    "runtimeCommit": "3c4a31d278e5380bec7a148ed73f1e174c222ffc",
+    "freshPublicCityPreviews": true,
+    "sixPollutantsVisibleInEveryCase": true,
+    "cases": [
+      {
+        "algorithm": "EU_EAQI",
+        "city": "Suzhou",
+        "display": "Moderate",
+        "CO_ug_m3": 800
+      },
+      {
+        "algorithm": "HK_AQHI",
+        "city": "Guangzhou",
+        "index": 3,
+        "display": "Low",
+        "CO_ug_m3": 700
+      },
+      {
+        "algorithm": "CN_DEATH_AQHI",
+        "city": "Wuhan",
+        "index": 2,
+        "display": "Low",
+        "CO_ug_m3": 700
+      },
+      {
+        "algorithm": "WAQI_InstantCast_US",
+        "city": "Shenzhen",
+        "index": 64,
+        "display": "Moderate",
+        "CO_ug_m3": 700
+      },
+      {
+        "algorithm": "CA_AQHI",
+        "city": "Changsha",
+        "index": 2,
+        "display": "Low Health Risk",
+        "CO_ug_m3": 600
+      },
+      {
+        "algorithm": "WAQI_InstantCast_CN",
+        "city": "Fuzhou",
+        "index": 52,
+        "display": "Good",
+        "CO_ug_m3": 600
+      },
+      {
+        "algorithm": "UBA",
+        "city": "Ningbo",
+        "display": "Good",
+        "CO_ug_m3": 800
+      }
     ],
-    "originalResponseContentLength": 34992,
-    "originalResponseContentEncoding": "gzip",
-    "reportedTotalResponseBodyLength": 313555,
-    "reportedBodyLengthInterpretation": "Loon script log counter; not asserted to be original decoded Apple bytes"
+    "systemLogSummary": {
+      "start": "2026-11-05 07:30:56",
+      "decoderErrors": 0,
+      "invalidWeatherData": 0,
+      "cloudKitFallback": 0,
+      "storedWDSProducts": [
+        "airQuality",
+        "currentWeather",
+        "dataNotice",
+        "forecastDaily",
+        "forecastHourly",
+        "forecastNextHour",
+        "forecastPeriodic",
+        "historicalComparisons",
+        "news",
+        "weatherAlerts",
+        "weatherChanges"
+      ]
+    },
+    "defaultAlgorithmRestored": "EU_EAQI",
+    "iPhoneV9Acceptance": false,
+    "allAlgorithmsNativeAcceptance": false,
+    "deviceMemoryOrBatteryMeasurement": false,
+    "longRunningVPNValidation": false
   },
+  "iPhoneV9Acceptance": false,
   "deviceMemoryOrPowerMeasurement": false,
   "deviceVPNValidation": false,
   "artifacts": {
     "LICENSE.txt": {
       "bytes": 12826,
-      "sha256": "4438535970bdd1636a846c876199e6cce7a35280b3cda1850a1bd46903156577"
-    },
-    "SHA256SUMS.txt": {
-      "bytes": 582,
-      "sha256": "15cb1a073193fc0f059e5d259dc68161d59383878a6581db18962a32b3705397"
+      "sha256": "95fce8dce2570ec48a1d6432ffbb406693aa7374adae09f2154269a52d3cb667"
     },
     "WeatherKit.lpx": {
-      "bytes": 8921,
-      "sha256": "2242ede53401b81d77eb51006eed736eae9b5d8d58de398dce9f26ba1b89a336"
+      "bytes": 9407,
+      "sha256": "2ea4cbc9529b4f259fa7eda82d90367ecda0d7d535b6f9e08e172c0e81e5c70d"
     },
     "WeatherKit.plugin": {
-      "bytes": 8921,
-      "sha256": "2242ede53401b81d77eb51006eed736eae9b5d8d58de398dce9f26ba1b89a336"
+      "bytes": 9407,
+      "sha256": "2ea4cbc9529b4f259fa7eda82d90367ecda0d7d535b6f9e08e172c0e81e5c70d"
     },
     "build-provenance.json": {
-      "bytes": 3311,
-      "sha256": "78f45a4135844d51e7ef1787399bd5ead60987c028bb2d9079cebd428ae31e35"
+      "bytes": 7393,
+      "sha256": "0aea679a00039d90232681e8bac5a2f30f0ae5b50434602af6bac62c9cd09640"
     },
     "request.bundle.js": {
-      "bytes": 289582,
-      "sha256": "14385baa67953cf9201794430440938e637dbfa466ed98208cd136e5ae39679e"
+      "bytes": 291091,
+      "sha256": "201cda395cfc5c8000c3f59bad213ada075d4c0c1b8277bb3ad88d079bd81041"
     },
     "response.bundle.js": {
-      "bytes": 434132,
-      "sha256": "b283887746ef41310f7ca6a444c7599b54586c531ba49a7498f83b14149dbc05"
+      "bytes": 439821,
+      "sha256": "83635e9093296f273f31e88f67aeabe64e5d700cfc1ee49d37383257dcffddbc"
     },
     "scale.bundle.js": {
       "bytes": 29703,
       "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f"
+    },
+    "SHA256SUMS.txt": {
+      "bytes": 582,
+      "sha256": "204aca10467e76156ee22453ebb94ed526aa352775268ac4ba50e3e5846b51c1"
     }
   },
-  "downloadedArtifactVerification": {
-    "archiveDigestVerified": true,
-    "sha256ManifestEntriesVerified": 7,
-    "bundleScenariosPassed": 21,
-    "nativeRewriteChecksPassed": 13,
-    "origin": "local Node v24.22.1 running unchanged CI bundles",
-    "deviceVPNValidation": false
-  },
-  "publicBytesVerification": {
-    "canonicalMain": {
-      "pass": 8,
-      "total": 8
-    },
-    "immutableCacheV8": {
-      "pass": 8,
-      "total": 8
-    },
-    "releaseAssets": {
-      "pass": 8,
-      "total": 8
-    },
-    "checks": "downloaded public bytes equal the unchanged eight CI artifacts"
-  }
+  "previousV8Record": "loon-build-validation-v8.json",
+  "publicBytesVerification": "Recorded separately after the main ref is updated; not inferred from CI or native candidate tests."
 }
