@@ -8,7 +8,7 @@ import verifyLoonCache from "./verify-loon-cache.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const pkg = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
-const resourceRef = process.env.WEATHERKIT_RESOURCE_REF || "cache-v7";
+const resourceRef = process.env.WEATHERKIT_RESOURCE_REF || "cache-v8";
 if (!/^[A-Za-z0-9._/-]+$/.test(resourceRef)) throw new Error("Invalid resource ref");
 const schemaPackage = JSON.parse(await readFile(path.join(root, "node_modules/@nsringo/weatherkit/package.json"), "utf8"));
 if (schemaPackage.version !== "1.1.2") throw new Error("Expected the upstream WeatherKit 1.1.2 schema package");
@@ -19,7 +19,7 @@ await mkdir(output, { recursive: true });
 const runtimeBase = `https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/${resourceRef}/Loon/script`;
 let plugin = await readFile(path.join(root, "dist/iRingo.WeatherKit.lpx"), "utf8");
 const upstreamBase = `https://github.com/NSRingo/WeatherKit/releases/download/v${pkg.version}`;
-if (plugin.split(`${upstreamBase}/`).length !== 5) throw new Error("Unexpected generated Loon script count");
+if (plugin.split(`${upstreamBase}/`).length !== 6) throw new Error("Unexpected generated Loon script count");
 plugin = plugin.replaceAll(`${upstreamBase}/`, `${runtimeBase}/`);
 plugin = plugin.replace(/^#!name = .+$/m, "#!name =  WeatherKit · 稳定性与缓存优化");
 plugin = plugin.replace(/^#!homepage = .+$/m, "#!homepage = https://github.com/hhhoratioxu/WeatherKit");

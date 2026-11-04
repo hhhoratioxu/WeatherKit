@@ -7,6 +7,12 @@ export function readLoonRules(plugin) {
     const lines = plugin.split("\n");
     const availability = lines.find(line => line.startsWith("response if ") && line.includes("response.json.jq("));
     const scale = lines.find(line => line.startsWith("request if ") && line.includes("url.replace("));
+    const jsonTransport = lines.find(line => line.startsWith("request if ") && line.includes('request.header.set("Accept", "application/json")'));
+    assert.ok(jsonTransport, "v3 must negotiate Apple's JSON representation without a request script");
+    assert.ok(jsonTransport.startsWith('request if ${request.method} == "GET" && '));
+    const transportGuard = jsonTransport.match(/\$\{url\} ~= \/((?:\\.|[^/])*)\/ then /);
+    assert.ok(transportGuard);
+    const transportRegex = new RegExp(transportGuard[1]);
     assert.ok(availability && scale, "Both native Rewrite actions must be present");
     const jq = JSON.parse(availability.slice(availability.indexOf("response.json.jq(") + "response.json.jq(".length, -1));
     const expression = scale.match(/\$\{url\} ~= \/((?:\\.|[^/])*)\/([i]*) as scale then url\.replace\("\$\{scale\.1\}"\)$/);
@@ -22,6 +28,7 @@ export function readLoonRules(plugin) {
     return {
         jq,
         scripts,
+        negotiatesJSON(url, method = "GET") { return method === "GET" && transportRegex.test(url); },
         normalizeScale(url, method = "GET") {
             return ["GET", "HEAD", "OPTIONS"].includes(method) ? url.replace(regex, (_match, prefix) => prefix) : url;
         },
@@ -37,7 +44,18 @@ export function readLoonRules(plugin) {
 export default function verifyLoonRewrites(plugin) {
     const rules = readLoonRules(plugin),
         scenarios = [];
-    assert.equal(rules.scripts.length, 4);
+    assert.equal(rules.scripts.length, 5);
+    const v3URL = "https://weatherkit.apple.com/api/v3/weather/en-GB/53.38/-1.47?dataSets=airQuality";
+    assert.ok(rules.negotiatesJSON(v3URL));
+    for (const [url, method] of [[v3URL, "POST"], [v3URL.replace("https:", "http:"), "GET"], [v3URL.replace("weatherkit.apple.com", "example.com"), "GET"], [v3URL.replace("/v3/", "/v2/"), "GET"]]) assert.equal(rules.negotiatesJSON(url, method), false);
+    scenarios.push("native v3 JSON negotiation changes only HTTPS Apple weather GET requests");
+    const [v3] = rules.matchingScripts(v3URL, "http-response");
+    assert.ok(v3?.line.includes("requires-body=1,"));
+    assert.ok(v3.line.includes("argument="));
+    assert.doesNotMatch(v3.line, /binary-body-mode=1/);
+    assert.equal(rules.matchingScripts(v3URL, "http-response").length, 1);
+    assert.match(rules.matchingScripts(v3URL.replace("/v3/", "/v2/"), "http-response")[0].line, /binary-body-mode=1/);
+    scenarios.push("v3 text and v2 binary weather select exactly one body script each");
     const base = "https://weatherkit.apple.com/api/v1/airQualityScale/zh-Hans-CN/";
     for (const [suffix, expected] of [
         ["EU.EAQI.2604", "EU.EAQI"],

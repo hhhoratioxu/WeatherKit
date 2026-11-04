@@ -1,4 +1,5 @@
 // Modified by hhhoratioxu, 2026-10-19: share one bounded provider cache per response.
+import ResponseJSONV3 from "./ResponseJSONV3.mjs";
 import { Console, Storage } from "@nsnanocat/util";
 import * as flatbuffers from "flatbuffers";
 import AirQuality from "../class/AirQuality.mjs";
@@ -23,8 +24,13 @@ export async function Response($request, $response) {
     const url = new URL($request.url);
 
     // 解析格式
-    const FORMAT = ($response.headers?.["Content-Type"] ?? $response.headers?.["content-type"])?.split(";")?.[0];
+    const FORMAT = ($response.headers?.["Content-Type"] ?? $response.headers?.["content-type"])?.split(";")?.[0]?.trim()?.toLowerCase();
     if (FORMAT === "application/json" || FORMAT === "text/json") {
+        if (url.hostname === "weatherkit.apple.com" && url.pathname.startsWith("/api/v3/weather/")) return ResponseJSONV3($request, $response, {
+            airQuality: InjectAirQuality, currentWeather: InjectCurrentWeather,
+            forecastDaily: InjectForecastDaily, forecastHourly: InjectForecastHourly,
+            forecastNextHour: InjectForecastNextHour, weatherAlerts: InjectWeatherAlerts,
+        });
         if (url.hostname === "weatherkit.apple.com" && url.pathname.startsWith("/api/v1/availability/")) $response.body = JSON.stringify(mergeWeatherKitAvailability(JSON.parse($response.body), database.WeatherKit.Configs.Availability.v2));
         return $response;
     }
