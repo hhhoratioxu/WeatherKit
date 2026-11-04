@@ -1,11 +1,11 @@
 {
-  "version": "3.3.2-cache.9-test.1",
-  "sourceCommit": "a85a5fd40883dce4e110ae56b54ee99d45ecb127",
-  "resourceRef": "mac-v9-validation",
+  "version": "3.3.2-cache.9-test.2",
+  "sourceCommit": "0370f398933f7a8fe68dff6a2de3c3b4b38272b8",
+  "resourceRef": "mac-v9-validation-2",
   "node": "v24.22.1",
   "schemaPackage": "1.1.2",
   "bundleChecks": {
-    "pass": 33,
+    "pass": 34,
     "fail": 0,
     "scenarios": [
       "custom scale uses a standalone bundle without storage or provider requests",
@@ -13,6 +13,7 @@
       "availability preserves Apple and appends plugin requirements",
       "unhandled content passthrough",
       "v3 JSON replaces weather with WK3 types and preserves unknown fields after native callbacks finish",
+      "Apple v3 JSON is adapted to the native Weather reader, including unselected periodic forecasts",
       "v3 UBA retains all six measurements with no provider request",
       "v3 EU_EAQI retains all six measurements with no provider request",
       "v3 WAQI_InstantCast_US retains all six measurements with no provider request",

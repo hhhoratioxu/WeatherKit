@@ -101,7 +101,7 @@ export default async function verifyLoonCache(root) {
     assert.equal(plain.output.body, "original");
     scenarios.push("unhandled content passthrough");
     const v3Request = { url: "https://weatherkit.apple.com/api/v3/weather/zh-Hans-CN/31.2/121.5?country=CN&dataSets=currentWeather", method: "GET", headers: {} };
-    const v3Original = `  ${JSON.stringify({ currentWeather: { metadata: { latitude: 31.2, longitude: 121.5, sourceType: "MODELED", temporarilyUnavailable: false }, temperature: 18, conditionCode: ["CLOUDY"], futureField: [1, 2] }, unknownProduct: { retain: true } })}\n`;
+    const v3Original = `  ${JSON.stringify({ currentWeather: { metadata: { latitude: 31.2, longitude: 121.5, sourceType: "MODELED", temporarilyUnavailable: false }, temperature: 18, conditionCode: "CLOUDY", futureField: [1, 2] }, unknownProduct: { retain: true } })}\n`;
     const v3Response = { status: 200, headers: { "Content-Type": "application/json", ETag: "fixture", "Content-Length": "1" }, body: v3Original };
     const v3Replaced = await run(responseCode, v3Request, v3Response, (_, callback) => {
         setImmediate(() => callback(null, { status: 200, headers: {} }, JSON.stringify({ code: "200", updateTime: "2026-11-04T00:00:00Z", now: { temp: "23", icon: "100", text: "晴", feelsLike: "24", cloud: "20", humidity: "50", precip: "0", pressure: "1000", dew: "10", vis: "10", wind360: "90", windSpeed: "2" } })));
@@ -109,7 +109,7 @@ export default async function verifyLoonCache(root) {
     const v3Body = JSON.parse(v3Replaced.output.body);
     assert.equal(v3Replaced.nativeRequests, 1);
     assert.equal(v3Body.currentWeather.temperature, 23);
-    assert.ok(Array.isArray(v3Body.currentWeather.conditionCode));
+    assert.equal(v3Body.currentWeather.conditionCode, "CLEAR");
     assert.equal(typeof v3Body.currentWeather.metadata.latitude, "number");
     assert.deepEqual(v3Body.currentWeather.futureField, [1, 2]);
     assert.deepEqual(v3Body.unknownProduct, { retain: true });
@@ -117,6 +117,15 @@ export default async function verifyLoonCache(root) {
     assert.equal(v3Replaced.output.headers.ETag, undefined);
     assert.equal(v3Response.body, v3Original);
     scenarios.push("v3 JSON replaces weather with WK3 types and preserves unknown fields after native callbacks finish");
+    const nativeJSON = { currentWeather: { metadata: { temporarilyUnavailable: false }, temperature: 18, conditionCode: ["CLOUDY"] }, forecastDaily: { metadata: { temporarilyUnavailable: false }, days: [{ conditionCode: ["RAIN"], precipitationAmountByType: [{ expected: 3, minimum: 1, maximum: 4, precipitationType: ["RAIN"] }] }] }, forecastPeriodic: { metadata: {}, forecasts: [{ periods: [{ conditionCode: ["CLEAR"], snowfallAmount: { expected: 0, minimum: 0, maximum: 0 }, precipitationAmountByType: [] }] }] } };
+    const nativeCompatible = await run(responseCode, v3Request, { status: 200, headers: { "Content-Type": "application/json" }, body: JSON.stringify(nativeJSON) }, noNetwork, { DataSets: "currentWeather", "Weather.Provider": "WeatherKit" });
+    const nativeBody = JSON.parse(nativeCompatible.output.body);
+    assert.equal(nativeBody.currentWeather.conditionCode, "CLOUDY");
+    assert.equal(nativeBody.forecastDaily.days[0].precipitationAmount, 3);
+    assert.equal(nativeBody.forecastPeriodic.forecasts[0].periods[0].conditionCode, "CLEAR");
+    assert.equal(nativeBody.forecastPeriodic.forecasts[0].periods[0].snowfallAmount, 0);
+    assert.equal(nativeCompatible.nativeRequests, 0);
+    scenarios.push("Apple v3 JSON is adapted to the native Weather reader, including unselected periodic forecasts");
     for (const algorithm of ["UBA", "EU_EAQI", "WAQI_InstantCast_US", "WAQI_InstantCast_CN", "WAQI_InstantCast_CN_25_DRAFT", "CA_AQHI", "HK_AQHI", "AQHI_Multi_CN", "AQHI_Multi_CN_HK", "CN_DEATH_AQHI", "CN_DEATH_HK_AQHI", "None"]) {
         const pollutants = [["PM2_5", 35], ["PM10", 60], ["OZONE", 90], ["NO2", 35], ["SO2", 15], ["CO", 700]].map(([pollutantType, amount]) => ({ pollutantType, amount, units: "MICROGRAMS_PER_CUBIC_METER" }));
         const body = { airQuality: { metadata: { temporarilyUnavailable: false, providerName: "Apple fixture" }, scale: "EPA_NowCast", index: 42, categoryIndex: 1, primaryPollutant: "PM2_5", previousDayComparison: "SIMILAR", pollutants } };

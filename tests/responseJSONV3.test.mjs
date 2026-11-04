@@ -5,17 +5,58 @@ import test from "node:test";
 globalThis.$loon = "simulated Loon";
 globalThis.$persistentStore = { read: () => null, write: () => true };
 globalThis.$argument = { Storage: "Argument", LogLevel: "OFF" };
-const [{ Response }, { Response: ResponseDev }, { default: QWeather }, { default: ColorfulClouds }, { default: ResponseJSONV3, adaptV3ProviderProduct, validateWeatherJSONV3 }] = await Promise.all([
+const [{ Response }, { Response: ResponseDev }, { default: QWeather }, { default: ColorfulClouds }, { default: ResponseJSONV3, adaptV3ProviderProduct, validateWeatherJSONV3, adaptV3ClientProduct }] = await Promise.all([
     import("../src/process/Response.mjs"), import("../src/process/Response.dev.mjs"), import("../src/class/QWeather.mjs"), import("../src/class/ColorfulClouds.mjs"), import("../src/process/ResponseJSONV3.mjs"),
 ]);
 const { qs } = await import("@nsnanocat/util/polyfill/qs.mjs");
 const metadata = () => ({ latitude: 31.2, longitude: 121.5, temporarilyUnavailable: false, sourceType: "MODELED", futureMetadata: true });
-const current = () => ({ metadata: metadata(), temperature: 18, conditionCode: ["CLOUDY"], futureCurrent: { retain: true } });
+const current = () => ({ metadata: metadata(), temperature: 18, conditionCode: "CLOUDY", futureCurrent: { retain: true } });
 const request = (products = "currentWeather") => globalThis.$request = { url: `https://weatherkit.apple.com/api/v3/weather/zh-Hans-CN/31.2/121.5?country=CN&dataSets=${products}`, method: "GET" };
 const response = body => ({ status: 200, headers: { "Content-Type": "application/json; charset=utf-8", ETag: "apple", "cOnTeNt-LeNgTh": "1", "cache-control": "max-age=60", "X-Apple": "retain" }, body: typeof body === "string" ? body : JSON.stringify(body) });
 const settings = overrides => globalThis.$argument = qs.parse({ Storage: "Argument", LogLevel: "OFF", DataSets: "currentWeather,forecastHourly,forecastDaily,forecastNextHour,weatherAlerts", "Weather.Provider": "QWeather", "WeatherAlerts.Provider": "WeatherKit", ...overrides });
 const allPollutants = () => [["PM2_5", 35], ["PM10", 60], ["OZONE", 90], ["NO2", 35], ["SO2", 15], ["CO", 700]].map(([pollutantType, amount]) => ({ pollutantType, amount, units: "MICROGRAMS_PER_CUBIC_METER" }));
 const airQualityProduct = pollutants => ({ metadata: { ...metadata(), providerName: "Apple fixture" }, scale: "EPA_NowCast", index: 42, categoryIndex: 1, primaryPollutant: "PM2_5", previousDayComparison: "SIMILAR", pollutants });
+
+test("native Weather JSON uses string conditions and scalar amounts, including unselected periodic forecasts", async () => {
+    settings({ DataSets: "currentWeather", "Weather.Provider": "WeatherKit" });
+    const body = {
+        currentWeather: { ...current(), conditionCode: ["CLOUDY", "BREEZY"], snowfallAmountPrevious1h: { expected: 2, minimum: 1, maximum: 3 } },
+        forecastDaily: { metadata: metadata(), days: [{ conditionCode: ["RAIN"], precipitationType: ["RAIN"], precipitationAmountByType: [{ expected: 3, minimum: 1, maximum: 4, precipitationType: ["RAIN"] }, { expected: 1, minimum: 0, maximum: 2, precipitationType: ["SNOW"] }] }] },
+        forecastPeriodic: { metadata: metadata(), forecasts: [{ periods: [{ conditionCode: ["RAIN"], precipitationAmountByType: [] }] }] },
+        futureProduct: { conditionCode: ["DO_NOT_CHANGE"], opaque: true },
+    };
+    const original = structuredClone(body);
+    const result = await ResponseJSONV3(request("currentWeather"), response(body), {});
+    const actual = JSON.parse(result.body);
+    assert.equal(actual.currentWeather.conditionCode, "CLOUDY");
+    assert.equal(actual.currentWeather.snowfallAmountPrevious1h, 2);
+    assert.equal(actual.forecastDaily.days[0].precipitationAmount, 4);
+    assert.equal(actual.forecastDaily.days[0].precipitationType, "RAIN");
+    assert.equal(actual.forecastDaily.days[0].precipitationAmountByType[0].minimum, 1);
+    assert.equal(actual.forecastPeriodic.forecasts[0].periods[0].conditionCode, "RAIN");
+    assert.equal(actual.forecastPeriodic.forecasts[0].periods[0].precipitationAmount, 0);
+    assert.deepEqual(actual.futureProduct, body.futureProduct);
+    assert.deepEqual(body, original);
+    assert.equal(result.headers["Cache-Control"], "no-store");
+});
+
+test("native JSON adaptation preserves existing totals and condition-record vectors and is idempotent", () => {
+    const product = { precipitationAmount: 9, precipitationAmountByType: [{ expected: 4 }], condition: [{ beginCondition: "CLEAR", endCondition: "RAIN" }], summary: [{ condition: ["RAIN"] }] };
+    assert.equal(adaptV3ClientProduct(product), true);
+    assert.equal(product.precipitationAmount, 9);
+    assert.deepEqual(product.condition, [{ beginCondition: "CLEAR", endCondition: "RAIN" }]);
+    assert.equal(product.summary[0].condition, "RAIN");
+    assert.equal(adaptV3ClientProduct(product), false);
+    validateWeatherJSONV3(product);
+});
+
+test("native JSON adaptation never invents a total from missing or invalid precipitation measurements", () => {
+    for (const amounts of [[{}], [{ expected: NaN }], [{ expected: -1 }]]) {
+        const product = { precipitationAmountByType: amounts };
+        adaptV3ClientProduct(product);
+        assert.equal(product.precipitationAmount, undefined);
+    }
+});
 
 for (const [name, processResponse] of [["release", Response], ["development", ResponseDev]]) {
     for (const algorithm of ["UBA", "EU_EAQI", "WAQI_InstantCast_US", "WAQI_InstantCast_CN", "WAQI_InstantCast_CN_25_DRAFT", "CA_AQHI", "HK_AQHI", "AQHI_Multi_CN", "AQHI_Multi_CN_HK", "CN_DEATH_AQHI", "CN_DEATH_HK_AQHI", "None"]) {
@@ -72,14 +113,14 @@ for (const [name, processResponse] of [["release", Response], ["development", Re
         const result = await processResponse(request("currentWeather,forecastHourly"), response(body));
         const updated = JSON.parse(result.body);
         assert.equal(updated.currentWeather.temperature, 23);
-        assert.deepEqual(updated.currentWeather.conditionCode, ["CLEAR"]);
+        assert.equal(updated.currentWeather.conditionCode, "CLEAR");
         assert.equal(updated.currentWeather.metadata.latitude, 31.2);
         assert.equal(updated.currentWeather.windGust, undefined);
         assert.deepEqual(updated.currentWeather.futureCurrent, { retain: true });
         assert.equal(updated.currentWeather.metadata.futureMetadata, true);
-        assert.deepEqual(updated.forecastHourly.hours[0].precipitationAmount, { expected: 0.4, minimum: 0.4, maximum: 0.4 });
-        assert.deepEqual(updated.forecastHourly.hours[0].conditionCode, ["RAIN"]);
-        assert.deepEqual(updated.forecastHourly.hours[1], body.forecastHourly.hours[1]);
+        assert.equal(updated.forecastHourly.hours[0].precipitationAmount, 0.4);
+        assert.equal(updated.forecastHourly.hours[0].conditionCode, "RAIN");
+        assert.deepEqual(updated.forecastHourly.hours[1], { ...body.forecastHourly.hours[1], conditionCode: "CLOUDY", precipitationAmount: 0.1 });
         assert.deepEqual(updated.futureProduct, body.futureProduct);
         assert.equal(JSON.stringify(body), original);
         assert.deepEqual(result.headers, { "Content-Type": "application/json; charset=utf-8", "X-Apple": "retain", "Cache-Control": "no-store" });
@@ -102,9 +143,9 @@ for (const [name, processResponse] of [["release", Response], ["development", Re
 
 test("JSON provider adapter covers daily periods and minute summary without changing supported condition records", () => {
     const value = adaptV3ProviderProduct({ metadata: { latitude: "31.2", longitude: "invalid" }, days: [{ conditionCode: "RAIN", precipitationType: "RAIN", snowfallAmount: 2, daytimeForecast: { conditionCode: "CLOUDY" } }], summary: [{ condition: "CLEAR" }], condition: [{ beginCondition: "CLEAR", endCondition: "RAIN", parameters: [] }] });
-    assert.deepEqual(value.days[0].daytimeForecast.conditionCode, ["CLOUDY"]);
-    assert.deepEqual(value.days[0].snowfallAmount, { expected: 2, minimum: 2, maximum: 2 });
-    assert.deepEqual(value.summary[0].condition, ["CLEAR"]);
+    assert.equal(value.days[0].daytimeForecast.conditionCode, "CLOUDY");
+    assert.equal(value.days[0].snowfallAmount, 2);
+    assert.equal(value.summary[0].condition, "CLEAR");
     assert.equal(value.condition[0].beginCondition, "CLEAR");
     assert.equal(value.metadata.longitude, undefined);
 });
