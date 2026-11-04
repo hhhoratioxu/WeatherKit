@@ -58,3 +58,5 @@ Mac 为 macOS 27.3 (26C5035r)，Loon for Mac 0.5.0(1011)。00:08 的真实主应
 
 
 CI 随后恢复：源码 ae2ca5e 的 [Actions 41869896115](https://github.com/hhhoratioxu/WeatherKit/actions/runs/41869896115) 已成功完成锁定依赖安装、306 项回归和原生脚本构建。下载的八文件 ZIP 摘要与官方 artifact digest 一致，七条内部校验全部匹配，并重新通过 34 个压缩 VM 场景与 15 个表达式检查。第二版测试分支现使用这份 CI 的三个运行脚本原始字节，只调整导入名称、验证版号与测试分支脚本引用；[具体构建记录](air-quality-v9-build-validation.json) 区分原始 CI 资产和测试入口的处理。Mac 的第二版原生验收仍等待解锁，尚未替换正式 main。
+
+测试导入文件的五条脚本引用现固定到 GitHub 完整提交 `dd6be7bb53db58c3f4643ddb4e2c7632f855c96b`，三个运行脚本与 CI 原始字节一致。更新测试分支文档或入口不会使这次运行混用另一批脚本。

@@ -36,5 +36,16 @@
   "nativeSecondCandidate": "pending Mac unlock",
   "canonicalMainUpdated": false,
   "iPhoneV9Acceptance": false,
-  "measuredDeviceBatterySavings": false
+  "measuredDeviceBatterySavings": false,
+  "runtimeRef": "dd6be7bb53db58c3f4643ddb4e2c7632f855c96b",
+  "testFileSHA256": {
+    "scale.bundle.js": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f",
+    "WeatherKit.plugin": "6d4970885f33385c45906b847af7910f1f830ca4e14cd94acc339c2e481da54d",
+    "build-provenance.json": "38d6e6f26c2a649f1213efaae75df3d560f5ce4ada708059e2742d0b6ffe3321",
+    "request.bundle.js": "12a4328a34e2a46f7e7878a3d00dcc3d5fbd62ef21a269f274c1f783522667d2",
+    "WeatherKit.lpx": "6d4970885f33385c45906b847af7910f1f830ca4e14cd94acc339c2e481da54d",
+    "LICENSE.txt": "95fce8dce2570ec48a1d6432ffbb406693aa7374adae09f2154269a52d3cb667",
+    "SHA256SUMS.txt": "7ad86d0900ebbc5eae2a931e6b56325fdb430c5d7bfd3bc3284fdcfaca95643d",
+    "response.bundle.js": "553a7f9c2d080158e7542d69899d6de2141e3c92842eb5c5b2a1c955b5035aec"
+  }
 }
