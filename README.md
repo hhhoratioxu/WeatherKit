@@ -2,13 +2,13 @@
 
 本 Fork 为 Loon 增加数据源失败回退、受限网络预算、网页预警缓存、地区识别修复，以及按数据类型区分的短时缓存。本版修复 iOS 27.3 Beta 转用 WeatherKit v3 后插件未生效的问题，保留此前的缓存及内存优化。保留上游作者、许可证与 Git 历史。
 
-实现、默认值、限制及验证边界见 [稳定性与缓存优化](docs/resilience.md) 和 [iOS 27.3 v3 兼容说明](docs/ios273-v3.md)。Loon 导入文件由 `npm run build:loon-cache` 生成至 `Loon/script/WeatherKit.lpx`，运行脚本固定引用本 Fork 的 `cache-v8`。
+实现、默认值、限制及验证边界见 [稳定性与缓存优化](docs/resilience.md) 和 [iOS 27.3 v3 兼容说明](docs/ios273-v3.md)。Loon 导入文件由 `npm run build:loon-cache` 生成至 `Loon/script/WeatherKit.lpx`，运行脚本固定引用本 Fork 的 `cache-v9`。
 
 ## 本次更新
 
-`3.3.2-cache.8` 为 `/api/v3/weather/` 使用 Loon 原生请求头协商 Apple JSON，在文本响应中适配 WK3 的天气状态数组、降水统计对象及数值元数据；复用已有数据源、缓存和失败回退。原 v2 二进制路径继续保留，未知 WK3 二进制原样放行。没有新增后台任务、轮询或请求重发。
+`3.3.2-cache.9` 合并此前的 WK3 字段类型与产品级失败回退修复，并修正 11 种内置空气质量算法的输入、单位、分级边界和无效值处理。选中的算法也适用于完整的非国标 Apple 数据；只补齐缺失污染物，已有有效浓度优先，完整六项浓度不额外查询数据源。具体覆盖、标准限制与验证范围见 [v9 算法修复记录](docs/air-quality-v9.md)。
 
-手机正式 v8 已确认 iOS 请求命中 v3 脚本并完成实际响应改写，修改后返回 200/application/json，天气页面实况、小时及每日预报能够显示。正式订阅已恢复，临时统计关闭；空气质量各字段、活跃预警、所有地区、设备内存和耗电未全面实测。本次不承诺 iPhone 内存或省电比例。
+v3 继续使用 Loon 原生请求头协商 Apple JSON；主天气 App 的 iOS/macOS User-Agent 前缀列入允许范围，未知及后台客户端保留原传输。原 v2 二进制路径保留，未知 WK3 二进制原样放行。没有新增后台任务、轮询或请求重发。Mac 与 iPhone 的原生验证分别记录，自动测试不代表所有城市、预警、组件或设备内存已经实测通过。
 
 v7 的按改动编码、延迟预警复制和日志优化继续保留；以下为此前版本的桌面测量。
 
@@ -20,7 +20,7 @@ v7 的按改动编码、延迟预警复制和日志优化继续保留；以下�
 
 ## 安装与更新
 
-[一键导入 Loon](https://www.nsloon.com/openloon/import?plugin=https%3A%2F%2Fraw.githubusercontent.com%2Fhhhoratioxu%2FWeatherKit%2Fmain%2FLoon%2Fscript%2FWeatherKit.lpx) · [插件订阅直链（.lpx）](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/WeatherKit.lpx) · [固定版本 cache-v8](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/cache-v8/Loon/script/WeatherKit.lpx) · [旧版 cache-v7](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v7) · [旧版 cache-v6](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v6) · [旧版 cache-v5](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v5) · [旧版 cache-v4](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v4) · [旧版 cache-v3](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v3) · [旧版 cache-v2](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v2) · [旧版 cache-v1](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v1)
+[一键导入 Loon](https://www.nsloon.com/openloon/import?plugin=https%3A%2F%2Fraw.githubusercontent.com%2Fhhhoratioxu%2FWeatherKit%2Fmain%2FLoon%2Fscript%2FWeatherKit.lpx) · [插件订阅直链（.lpx）](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/WeatherKit.lpx) · [固定版本 cache-v9](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/cache-v9/Loon/script/WeatherKit.lpx) · [旧版 cache-v8](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/cache-v8/Loon/script/WeatherKit.lpx) · [旧版 cache-v7](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v7) · [旧版 cache-v6](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v6) · [旧版 cache-v5](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v5) · [旧版 cache-v4](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v4) · [旧版 cache-v3](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v3) · [旧版 cache-v2](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v2) · [旧版 cache-v1](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v1)
 
 2026-10-20 将正式入口后缀规范为 `.lpx`；旧 `WeatherKit.plugin` 地址继续作为内容完全相同的兼容入口保留。构建会同时生成两个文件并校验内容一致。已安装旧入口可继续更新；切换到新入口时先停用旧入口，避免同时启用两份 WeatherKit。
 

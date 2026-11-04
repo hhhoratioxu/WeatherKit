@@ -117,6 +117,19 @@ export default async function verifyLoonCache(root) {
     assert.equal(v3Replaced.output.headers.ETag, undefined);
     assert.equal(v3Response.body, v3Original);
     scenarios.push("v3 JSON replaces weather with WK3 types and preserves unknown fields after native callbacks finish");
+    for (const algorithm of ["UBA", "EU_EAQI", "WAQI_InstantCast_US", "WAQI_InstantCast_CN", "WAQI_InstantCast_CN_25_DRAFT", "CA_AQHI", "HK_AQHI", "AQHI_Multi_CN", "AQHI_Multi_CN_HK", "CN_DEATH_AQHI", "CN_DEATH_HK_AQHI", "None"]) {
+        const pollutants = [["PM2_5", 35], ["PM10", 60], ["OZONE", 90], ["NO2", 35], ["SO2", 15], ["CO", 700]].map(([pollutantType, amount]) => ({ pollutantType, amount, units: "MICROGRAMS_PER_CUBIC_METER" }));
+        const body = { airQuality: { metadata: { temporarilyUnavailable: false, providerName: "Apple fixture" }, scale: "EPA_NowCast", index: 42, categoryIndex: 1, primaryPollutant: "PM2_5", previousDayComparison: "SIMILAR", pollutants } };
+        const computed = await run(responseCode, { ...v3Request, url: v3Request.url.replace("dataSets=currentWeather", "dataSets=airQuality") }, { status: 200, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }, noNetwork, { DataSets: "airQuality", "AirQuality.Calculate.Algorithm": algorithm });
+        const actual = JSON.parse(computed.output.body).airQuality;
+        assert.equal(computed.nativeRequests, 0);
+        assert.equal(actual.pollutants.length, 6);
+        assert.ok(Number.isInteger(actual.index) && actual.index >= 0);
+        assert.ok(Number.isInteger(actual.categoryIndex) && actual.categoryIndex >= 1);
+        if (algorithm === "None") assert.equal(actual.index, 42);
+        else assert.match(actual.metadata.providerName, /iRingo/);
+        scenarios.push(`v3 ${algorithm} retains all six measurements with no provider request`);
+    }
     storage.clear();
     const v3Failed = await run(responseCode, v3Request, v3Response, (_, callback) => setImmediate(() => callback("timeout", {}, "")), { DataSets: "currentWeather", "Weather.Provider": "QWeather" }, true);
     assert.equal(v3Failed.output.body, v3Original);

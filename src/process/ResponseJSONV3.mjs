@@ -15,6 +15,19 @@ export const MAX_WEATHER_JSON_CHARACTERS = 1024 * 1024;
 const productNames = ["airQuality", "currentWeather", "forecastDaily", "forecastHourly", "forecastNextHour", "weatherAlerts"];
 const providerMethods = new Set(["WeatherNow", "CurrentWeather", "Hourly", "ForecastHourly", "Daily", "Minutely", "WeatherAlert", "WeatherAlertWeb"]);
 const object = value => value !== null && typeof value === "object" && !Array.isArray(value);
+// WK3 scalar types were checked against WeatherData 1508 on macOS 27.3.
+// FlatBuffer writers silently coerced these before v3; JSON clients need integers.
+const percentageFields = new Set(["cloudCover", "cloudCoverLowAltPct", "cloudCoverMidAltPct", "cloudCoverHighAltPct", "humidity", "humidityMax", "humidityMin", "precipitationChance"]);
+const byteFields = new Set(["uvIndex", "maxUvIndex", "uvIndexMax", "uvIndexMin", "categoryIndex"]);
+const timestampFields = new Set(["asOf", "readTime", "reportedTime", "expireTime", "forecastStart", "forecastEnd", "startTime", "endTime", "date", "effectiveTime", "issuedTime", "eventOnsetTime", "eventEndTime", "moonrise", "moonset", "sunrise", "sunset", "sunriseCivil", "sunsetCivil", "sunriseNautical", "sunsetNautical", "sunriseAstronomical", "sunsetAstronomical", "solarNoon", "solarMidnight", "temperatureMaxTime", "temperatureMinTime"]);
+const optionalTimestampFields = new Set(["reportedTime", "endTime", "eventOnsetTime", "eventEndTime", "moonrise", "moonset", "sunrise", "sunset", "sunriseCivil", "sunsetCivil", "sunriseNautical", "sunsetNautical", "sunriseAstronomical", "sunsetAstronomical", "solarNoon", "solarMidnight", "temperatureMaxTime", "temperatureMinTime"]);
+const percentRange = [0, 100], byteRange = [0, 255], shortRange = [0, 65535], timeRange = [0, 0xffffffff];
+function integerRange(key) {
+    if (percentageFields.has(key)) return percentRange;
+    if (byteFields.has(key)) return byteRange;
+    if (key === "index" || key === "windDirection") return shortRange;
+    if (timestampFields.has(key)) return timeRange;
+}
 
 // Share the existing per-product vector budget. Reject before starting provider work.
 export function boundedWeatherJSON(value) {
@@ -44,9 +57,17 @@ export function adaptV3ProviderProduct(product) {
         }
         for (const key of Object.keys(value)) {
             let item = value[key];
+            if (item == null) { delete value[key]; continue; }
             if (typeof item === "number" && !Number.isFinite(item)) {
                 delete value[key];
                 continue;
+            }
+            // WK2 used zero as "no end"; WK3's optional timestamps must be absent.
+            if (item === 0 && optionalTimestampFields.has(key)) { delete value[key]; continue; }
+            const range = integerRange(key);
+            if (range && typeof item === "number") {
+                if (item < range[0] || item > range[1]) { delete value[key]; continue; }
+                value[key] = item = timestampFields.has(key) ? Math.trunc(item) : Math.round(item);
             }
             if ((key === "conditionCode" || key === "precipitationType" || key === "condition") && typeof item === "string") value[key] = item = [item];
             if ((key === "precipitationAmount" || key === "snowfallAmount") && typeof item === "number") {
@@ -60,6 +81,48 @@ export function adaptV3ProviderProduct(product) {
                     else delete item[coordinate];
                 }
             }
+            visit(item);
+        }
+    }
+    visit(product);
+    return product;
+}
+
+// Do not serialize a partly valid provider product into an otherwise valid Apple response.
+// Unknown fields are left alone. Known scalar arrays and statistics must remain JSON-safe.
+export function validateWeatherJSONV3(product, name) {
+    if (!object(product)) throw new TypeError("Missing weather JSON product");
+    boundedWeatherJSON(product);
+    if (name === "airQuality" && product?.metadata?.temporarilyUnavailable !== true && (!Number.isInteger(product?.index) || product.index < 0 || product.index > 65535 || !Number.isInteger(product?.categoryIndex) || product.categoryIndex < 1 || product.categoryIndex > 255)) throw new TypeError("Invalid WK3 air quality index");
+    function visit(value) {
+        const kind = typeof value;
+        if (kind === "bigint" || kind === "symbol" || kind === "function") throw new TypeError("Unsupported weather JSON value");
+        if (kind === "string") {
+            // JSON.stringify escapes lone surrogates, but Apple's JSON reader rejects them.
+            for (let i = 0; i < value.length; i++) {
+                const code = value.charCodeAt(i);
+                if (code >= 0xd800 && code <= 0xdbff) {
+                    const next = value.charCodeAt(++i);
+                    if (!(next >= 0xdc00 && next <= 0xdfff)) throw new TypeError("Invalid weather JSON string");
+                } else if (code >= 0xdc00 && code <= 0xdfff) throw new TypeError("Invalid weather JSON string");
+            }
+            return;
+        }
+        if (!value || typeof value !== "object") return;
+        if (Array.isArray(value)) {
+            for (const item of value) {
+                if (item == null) throw new TypeError("Missing weather JSON array item");
+                if (typeof item === "number" && (!Number.isFinite(item) || !Number.isFinite(Math.fround(item)))) throw new TypeError("Invalid weather JSON array number");
+                visit(item);
+            }
+            return;
+        }
+        for (const key of Object.keys(value)) {
+            const item = value[key], range = integerRange(key);
+            if (range && item !== null && (typeof item !== "number" || !Number.isInteger(item) || item < range[0] || item > range[1])) throw new TypeError("Invalid WK3 integer field");
+            if (typeof item === "number" && (!Number.isFinite(item) || !Number.isFinite(Math.fround(item)))) throw new TypeError("Invalid weather JSON number");
+            if ((key === "conditionCode" || key === "precipitationType") && (!Array.isArray(item) || !item.every(entry => typeof entry === "string"))) throw new TypeError("Invalid WK3 enum vector");
+            if ((key === "precipitationAmount" || key === "snowfallAmount") && (!object(item) || !["expected", "minimum", "maximum"].every(name => typeof item[name] === "number" && Number.isFinite(item[name])))) throw new TypeError("Invalid WK3 precipitation range");
             visit(item);
         }
     }
@@ -118,17 +181,19 @@ export default async function ResponseJSONV3(request, response, injectors) {
     try {
         await Promise.all(eligible.map(async name => {
             const original = body[name];
+            let validating = false;
             try {
                 const input = name === "airQuality" ? cloneWeatherProduct(original) : original;
                 const value = name === "airQuality" ? await injectors[name](input, Settings, Caches, environment) : await injectors[name](input, Settings, environment);
                 if (!weatherProductsEqual(value, original)) {
+                    validating = true;
                     // AQI and warning injectors can also add numeric metadata fields.
-                    body[name] = adaptV3ProviderProduct(value);
+                    body[name] = validateWeatherJSONV3(adaptV3ProviderProduct(value), name);
                     modified = true;
                 }
             } catch (error) {
                 body[name] = original;
-                cache.noteFallback(name, providerErrorCode(error));
+                cache.noteFallback(name, validating ? "invalid" : providerErrorCode(error));
             }
         }));
         if (!modified) return response;
@@ -139,6 +204,7 @@ export default async function ResponseJSONV3(request, response, injectors) {
         for (const name of Object.keys(headers)) if (["etag", "last-modified", "content-md5", "digest", "content-length"].includes(name.toLowerCase())) delete headers[name];
         for (const name of Object.keys(headers)) if (name.toLowerCase() === "cache-control") delete headers[name];
         headers["Cache-Control"] = "no-store";
-        return { ...response, headers, body: encoded };
+        const { bodyBytes: _originalBytes, ...result } = response;
+        return { ...result, headers, body: encoded };
     } finally { cache.report("response-v3-json"); }
 }
