@@ -15,3 +15,9 @@
 v3.3.3 的完整构建记录另存为 [历史验证](loon-build-validation-v3.3.3.json)，原 tag 和附件保留。本轮没有重新进行独立设备验证；cache-v9 的 Mac 观察和 iPhone 用户反馈不能替代 v3.3.4 的设备复测。设备耗电、内存比例与长期 VPN 稳定性未测量。
 
 上游 PR #107 在本次核对期间保持草稿，尚未合入原版；Fork 发布与原版维护者审核分开记录。
+
+## 发布完成
+
+Fork [v3.3.4](https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.4) 已发布为 Latest，tag 固定为 4b39eddecc27032268bad0c9e22fcb95050bc5c0。Release 更新说明与 CHANGELOG 统一换行后完全一致；九个原始 CI 文件在 Release、tag、main 分别通过 9/9 公共字节检查，共 27 项，三条订阅入口同字节。运行文件引用 v3.3.4 tag，旧订阅地址继续可用，旧版本 tag 与附件保留。
+
+完整记录见[发布字节验证](v3.3.4-publication-verification.json)与[构建验证](loon-build-validation.json)。原版草稿分支也通过独立的锁定构建，详情见[同步记录](upstream-sync.md)。

@@ -229,5 +229,8 @@
       "bytes": 29703,
       "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f"
     }
-  }
+  },
+  "publicBytesVerification": "v3.3.4-publication-verification.json",
+  "releaseCommit": "4b39eddecc27032268bad0c9e22fcb95050bc5c0",
+  "upstreamSyncVerification": "upstream-sync-validation.json"
 }

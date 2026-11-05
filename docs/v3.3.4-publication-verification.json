@@ -1,0 +1,155 @@
+{
+  "verifiedDate": "2026-11-05",
+  "releaseURL": "https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.4",
+  "releaseCommit": "4b39eddecc27032268bad0c9e22fcb95050bc5c0",
+  "releaseVisibleInBrowser": true,
+  "latestVisibleInBrowser": true,
+  "releaseBodyReview": "REST body equals CHANGELOG after newline normalization",
+  "rawReleaseAPIAvailable": true,
+  "groups": {
+    "release": {
+      "LICENSE.txt": {
+        "bytes": 12847,
+        "sha256": "bf92e803fbe23f6d85a77cac78ed56c1c7ccbb611eb2f0c9145eee9839f483c7",
+        "identicalToCI": true
+      },
+      "SHA256SUMS.txt": {
+        "bytes": 670,
+        "sha256": "94cf2af108d8015fa89f4e6242c911daeba9b206d75798d1031aea277874a4c1",
+        "identicalToCI": true
+      },
+      "WeatherKit.lpx": {
+        "bytes": 9594,
+        "sha256": "0feb1dfd32c8e5a8abc44ffe7342f1f436e33da6cac22b567cc2273fac808243",
+        "identicalToCI": true
+      },
+      "WeatherKit.plugin": {
+        "bytes": 9594,
+        "sha256": "0feb1dfd32c8e5a8abc44ffe7342f1f436e33da6cac22b567cc2273fac808243",
+        "identicalToCI": true
+      },
+      "build-provenance.json": {
+        "bytes": 4945,
+        "sha256": "3362d27ca5bad4f6d1c3d32a327126c20eb2ac5f00501f229e86d970714d1915",
+        "identicalToCI": true
+      },
+      "iRingo.WeatherKit.lpx": {
+        "bytes": 9594,
+        "sha256": "0feb1dfd32c8e5a8abc44ffe7342f1f436e33da6cac22b567cc2273fac808243",
+        "identicalToCI": true
+      },
+      "request.bundle.js": {
+        "bytes": 291387,
+        "sha256": "d8e75cb50be818668e26fa7c08b66c471d5fac2b8d63db73a1e5eb6eed333bfd",
+        "identicalToCI": true
+      },
+      "response.bundle.js": {
+        "bytes": 440294,
+        "sha256": "36ad530a21d6c08078f1f3e1ef7337ce67656bbcc19870c229bcc300237ee800",
+        "identicalToCI": true
+      },
+      "scale.bundle.js": {
+        "bytes": 29703,
+        "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f",
+        "identicalToCI": true
+      }
+    },
+    "tag": {
+      "LICENSE.txt": {
+        "bytes": 12847,
+        "sha256": "bf92e803fbe23f6d85a77cac78ed56c1c7ccbb611eb2f0c9145eee9839f483c7",
+        "identicalToCI": true
+      },
+      "SHA256SUMS.txt": {
+        "bytes": 670,
+        "sha256": "94cf2af108d8015fa89f4e6242c911daeba9b206d75798d1031aea277874a4c1",
+        "identicalToCI": true
+      },
+      "WeatherKit.lpx": {
+        "bytes": 9594,
+        "sha256": "0feb1dfd32c8e5a8abc44ffe7342f1f436e33da6cac22b567cc2273fac808243",
+        "identicalToCI": true
+      },
+      "WeatherKit.plugin": {
+        "bytes": 9594,
+        "sha256": "0feb1dfd32c8e5a8abc44ffe7342f1f436e33da6cac22b567cc2273fac808243",
+        "identicalToCI": true
+      },
+      "build-provenance.json": {
+        "bytes": 4945,
+        "sha256": "3362d27ca5bad4f6d1c3d32a327126c20eb2ac5f00501f229e86d970714d1915",
+        "identicalToCI": true
+      },
+      "iRingo.WeatherKit.lpx": {
+        "bytes": 9594,
+        "sha256": "0feb1dfd32c8e5a8abc44ffe7342f1f436e33da6cac22b567cc2273fac808243",
+        "identicalToCI": true
+      },
+      "request.bundle.js": {
+        "bytes": 291387,
+        "sha256": "d8e75cb50be818668e26fa7c08b66c471d5fac2b8d63db73a1e5eb6eed333bfd",
+        "identicalToCI": true
+      },
+      "response.bundle.js": {
+        "bytes": 440294,
+        "sha256": "36ad530a21d6c08078f1f3e1ef7337ce67656bbcc19870c229bcc300237ee800",
+        "identicalToCI": true
+      },
+      "scale.bundle.js": {
+        "bytes": 29703,
+        "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f",
+        "identicalToCI": true
+      }
+    },
+    "main": {
+      "LICENSE.txt": {
+        "bytes": 12847,
+        "sha256": "bf92e803fbe23f6d85a77cac78ed56c1c7ccbb611eb2f0c9145eee9839f483c7",
+        "identicalToCI": true
+      },
+      "SHA256SUMS.txt": {
+        "bytes": 670,
+        "sha256": "94cf2af108d8015fa89f4e6242c911daeba9b206d75798d1031aea277874a4c1",
+        "identicalToCI": true
+      },
+      "WeatherKit.lpx": {
+        "bytes": 9594,
+        "sha256": "0feb1dfd32c8e5a8abc44ffe7342f1f436e33da6cac22b567cc2273fac808243",
+        "identicalToCI": true
+      },
+      "WeatherKit.plugin": {
+        "bytes": 9594,
+        "sha256": "0feb1dfd32c8e5a8abc44ffe7342f1f436e33da6cac22b567cc2273fac808243",
+        "identicalToCI": true
+      },
+      "build-provenance.json": {
+        "bytes": 4945,
+        "sha256": "3362d27ca5bad4f6d1c3d32a327126c20eb2ac5f00501f229e86d970714d1915",
+        "identicalToCI": true
+      },
+      "iRingo.WeatherKit.lpx": {
+        "bytes": 9594,
+        "sha256": "0feb1dfd32c8e5a8abc44ffe7342f1f436e33da6cac22b567cc2273fac808243",
+        "identicalToCI": true
+      },
+      "request.bundle.js": {
+        "bytes": 291387,
+        "sha256": "d8e75cb50be818668e26fa7c08b66c471d5fac2b8d63db73a1e5eb6eed333bfd",
+        "identicalToCI": true
+      },
+      "response.bundle.js": {
+        "bytes": 440294,
+        "sha256": "36ad530a21d6c08078f1f3e1ef7337ce67656bbcc19870c229bcc300237ee800",
+        "identicalToCI": true
+      },
+      "scale.bundle.js": {
+        "bytes": 29703,
+        "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f",
+        "identicalToCI": true
+      }
+    }
+  },
+  "releaseID": 434797927,
+  "releaseBodyMatchesChangelog": true,
+  "publicFilesVerified": 27
+}
