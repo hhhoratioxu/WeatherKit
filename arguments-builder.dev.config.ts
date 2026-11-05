@@ -9,7 +9,7 @@ export default defineConfig({
             template: "./template/surge.dev.handlebars",
         },
         loon: {
-            path: "./dist/iRingo.WeatherKit.dev.plugin",
+            path: "./dist/iRingo.WeatherKit.dev.lpx",
             template: "./template/loon.dev.handlebars",
         },
         customItems: [

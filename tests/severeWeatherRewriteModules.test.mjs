@@ -208,7 +208,7 @@ test("Dev builds use dev templates, bundles, and output names", async () => {
         ...devTemplates.map(filename => readFile(new URL(`../template/${filename}`, import.meta.url), "utf8")),
     ]);
 
-    for (const output of ["sgmodule", "plugin", "snippet", "stoverride", "boxjs.json"]) {
+    for (const output of ["sgmodule", "lpx", "snippet", "stoverride", "boxjs.json"]) {
         assert.ok(config.includes(`iRingo.WeatherKit.dev.${output}`), output);
     }
     for (const template of devTemplates) {
@@ -222,7 +222,7 @@ test("Dev builds use dev templates, bundles, and output names", async () => {
     assert.doesNotMatch(rollup, /\.\/dist\/(?:request|response)\.bundle\.js/);
     assert.match(sgmoduleTools, /\.\/dist\/response\.dev\.bundle\.js/);
 
-    for (const output of ["request.dev.bundle.js", "response.dev.bundle.js", "iRingo.WeatherKit.dev.sgmodule", "iRingo.WeatherKit.dev.plugin", "iRingo.WeatherKit.dev.snippet", "iRingo.WeatherKit.dev.stoverride"]) {
+    for (const output of ["request.dev.bundle.js", "response.dev.bundle.js", "iRingo.WeatherKit.dev.sgmodule", "iRingo.WeatherKit.dev.lpx", "iRingo.WeatherKit.dev.snippet", "iRingo.WeatherKit.dev.stoverride"]) {
         assert.ok(deployWorkflow.includes(`dist/${output}`), output);
     }
     for (const [index, template] of templates.entries()) {

@@ -1,43 +1,27 @@
 #  iRingo: 🌤 WeatherKit
 
-本 Fork 为 Loon 增加数据源失败回退、受限网络预算、网页预警缓存、地区识别修复，以及按数据类型区分的短时缓存。本版修复 iOS 27.3 Beta 转用 WeatherKit v3 后插件未生效的问题，保留此前的缓存及内存优化。保留上游作者、许可证与 Git 历史。
+本仓库是 [NSRingo/WeatherKit](https://github.com/NSRingo/WeatherKit) 的 Fork，保留原作者、Apache-2.0 许可证与 Git 历史。当前按上游命名与更新说明格式整理 Loon 发行 `v3.3.3`；插件名称、功能描述和原版一致，下载资源来自本 Fork。
 
-实现、默认值、限制及验证边界见 [稳定性与缓存优化](docs/resilience.md) 和 [iOS 27.3 v3 兼容说明](docs/ios273-v3.md)。Loon 导入文件由 `npm run build:loon-cache` 生成至 `Loon/script/WeatherKit.lpx`，运行脚本固定引用本 Fork 的 CI 产物提交，避免更新期间混用脚本。
-
-## 本次更新
-
-`3.3.2-cache.9` 合并此前的 WK3 字段类型与产品级失败回退修复，并修正 11 种内置空气质量算法的输入、单位、分级边界和无效值处理。选中的算法也适用于完整的非国标 Apple 数据；只补齐缺失污染物，已有有效浓度优先，完整六项浓度不额外查询数据源。具体覆盖、标准限制与验证范围见 [v9 算法修复记录](docs/air-quality-v9.md)。
-
-本版已发布为 [cache-v9 正式 Release](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v9)，包含与正式订阅一致的八个附件、固定标签和详细更新说明。用户已反馈 iPhone 使用成功；发布附件已下载逐字节核对。
-
-v3 继续使用 Loon 原生请求头协商 Apple JSON，并将状态数组、降水统计和每日总量适配给主应用实际的 JSON 读取器；主天气 App 的 iOS/macOS User-Agent 前缀列入允许范围，其余标识保留原传输。原 v2 二进制路径保留，未知 WK3 二进制原样放行。没有新增后台任务、轮询或请求重发。Mac 与 iPhone 的原生验证分别记录，自动测试不代表所有城市、预警、组件或设备内存已经实测通过。
-
-v7 的按改动编码、延迟预警复制和日志优化继续保留；以下为此前版本的桌面测量。
-
-[v7 测量方法与 84 个原始样本](docs/processing-memory-v7.md)：实际 CI 压缩脚本的桌面模拟中，混合天气场景完成后保留堆约降 15%、CPU 时间约降 29%；预警来源失败场景等待时保留堆约降 14%。只更新实况的对照场景基本持平。保留原始表也会使部分输出二进制略大；这些结果不代表 iPhone 内存或省电比例。
-
-此前缓存只做一次最终序列化、相同正文字符串复用、小时／每日预报按需复制、供应商 JSON 每消费者一次解析的改动继续保留。历史证据见 [v6 缓存内存](docs/cache-memory-v6.md)、[v5 内存分配](docs/memory-work.md) 和 [v4 处理开销](docs/power-work.md)。
-
-沿用 4 MiB 天气正文处理边界、每产品累计 8192 项向量解码预算。正常预报内容、默认新鲜度、缓存容量、网络预算及并发不变，来源失败仍保留 Apple 数据。这些是脚本处理边界，不能限制宿主已经接收的网络缓冲。
+[更新说明](CHANGELOG.md) · [v3.3.3 发布记录](docs/release-v3.3.3.md) · [上游使用指南](https://NSRingo.github.io/guide/Weather/weather-kit)
 
 ## 安装与更新
 
-[一键导入 Loon](https://www.nsloon.com/openloon/import?plugin=https%3A%2F%2Fraw.githubusercontent.com%2Fhhhoratioxu%2FWeatherKit%2Fmain%2FLoon%2Fscript%2FWeatherKit.lpx) · [插件订阅直链（.lpx）](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/WeatherKit.lpx) · [固定版本 cache-v9](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/cache-v9/Loon/script/WeatherKit.lpx) · [旧版 cache-v8](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/cache-v8/Loon/script/WeatherKit.lpx) · [旧版 cache-v7](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v7) · [旧版 cache-v6](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v6) · [旧版 cache-v5](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v5) · [旧版 cache-v4](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v4) · [旧版 cache-v3](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v3) · [旧版 cache-v2](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v2) · [旧版 cache-v1](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v1)
+[一键导入 Loon](https://www.nsloon.com/openloon/import?plugin=https%3A%2F%2Fraw.githubusercontent.com%2Fhhhoratioxu%2FWeatherKit%2Fmain%2FLoon%2Fscript%2FiRingo.WeatherKit.lpx) · [插件订阅直链](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/iRingo.WeatherKit.lpx) · [正式 Release](https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.3)
 
-2026-10-20 将正式入口后缀规范为 `.lpx`；旧 `WeatherKit.plugin` 地址继续作为内容完全相同的兼容入口保留。构建会同时生成两个文件并校验内容一致。已安装旧入口可继续更新；切换到新入口时先停用旧入口，避免同时启用两份 WeatherKit。
+正式文件为 `Loon/script/iRingo.WeatherKit.lpx`。已订阅 `WeatherKit.lpx` 或 `WeatherKit.plugin` 的用户可继续更新，三个入口内容相同；只启用一份 WeatherKit。最低 Loon 版本为 `3.5.1(983)`，沿用既有 MitM 配置。默认算法 EU_EAQI、日志 WARN、独立诊断关闭。
 
-使用 Loon `3.5.1(983)` 或以上，在「配置 → 插件」中添加插件直链并启用；已订阅该地址的用户更新插件后重载配置即可。若已安装其他 WeatherKit 脚本版，请先停用旧版，避免同一接口重复处理。沿用已有的 Loon MitM 证书；首次使用需按 [Loon 官方 MitM 文档](https://nsloon.app/docs/MitM/) 配置证书。系统版本沿用上游的 iOS/iPadOS 18、macOS 15 及以上要求。
+## 功能与边界
 
-默认实况与空气质量缓存 60 秒、小时及每日预报 180 秒、分钟降水与预警 15 秒。网络发起预算 8000 毫秒、最多三个活跃请求；失败冷却 30 秒，诊断关闭，缺失 country 时采用 Auto 保守判断。`RequestCache.TTL=0` 禁用所有已完成响应缓存，仍合并本次执行的相同在途请求。
+保留原版的天气、空气质量、下一小时降水和预警设置。本 Fork 修复主天气 App 的 WeatherKit v3 JSON 兼容、11 种算法的输入与单位及 CO 标签问题，并保留缺项补充、逐产品失败回退、缓存和请求合并。完整六项污染物不额外请求供应商。
 
-供应商失败时保留 Apple 原始数据；当原数据也缺失或不可用时，只有你已配置另一来源的专用凭据，才尝试一次备用查询。普通安装无需新增个人 Token；可选诊断仅输出一条不含令牌、URL 或原始坐标的汇总，独立于上游高级调试日志。
+默认实况／空气质量缓存 60 秒、小时／每日预报 180 秒、分钟降水／预警 15 秒；网络发起预算 8000 毫秒、最多三个活跃请求。保留正文、向量、缓存容量与异步完成边界；没有新增后台轮询。设置与限制见[稳定性与缓存](docs/resilience.md)、[v3 兼容说明](docs/ios273-v3.md)和[空气质量修复](docs/air-quality-v9.md)。InstantCast 和研究模型的当前浓度换算不等于官方日均发布值。
+
+本次发行范围为 Loon。其他客户端保留上游源码与模板，不将 Loon 原生规则直接移植过去。
 
 ## 构建与验证
 
-版本 `3.3.2-cache.9` 使用 [GitHub Actions](https://github.com/hhhoratioxu/WeatherKit/actions/runs/41931700904) 的锁定依赖构建：Node v22.23.4、`@nsringo/weatherkit@1.1.2`、309 项回归、35 个实际压缩脚本 VM 场景和 15 个表达式／路由／jq 检查全部通过。三个运行脚本与下载的 CI 资产同字节；导入文件只调整发布元数据并将五条运行引用固定至完整提交 `3c4a31d278e5380bec7a148ed73f1e174c222ffc`。八文件及摘要见 [构建记录](docs/loon-build-validation.json)。
+使用锁定依赖的 GitHub Actions 构建，产物包含正式名称、兼容入口、三个运行脚本、许可证、构建来源和 SHA-256 清单。当前构建记录见[验证文件](docs/loon-build-validation.json)。
 
-2026-11-05 在 macOS 27.3、Loon for Mac 0.5.0(1011) 上使用最终 GitHub 候选的新城市请求，实际核对欧盟、德国、美标、国标、加拿大、香港和中国风险模型七种选项：指数／分级、六项污染物及 iRingo 来源可见；原始 Apple QWeather CO 的单位修复后显示为 600–800 µg/m³。该轮系统日志为解码错误 0、无效天气 0、CloudKit 回退 0，11 类 WDS 产品进入系统缓存。详细测试条件见 [v9 原生记录](docs/air-quality-v9.md)。其余模型已通过自动计算和压缩输出检查，未记为逐项原生验收。
+此前 cache-v9 完成 309 项回归、35 个实际压缩脚本场景和 15 个表达式／路由／jq 检查，Mac 原生核对七种算法及六项污染物；2026-11-05 用户确认 iPhone 使用成功。这些历史证据按当时版本保留，v3.3.3 的 CI 与公共文件核验另行记录。设备耗电或内存下降比例未测量；桌面模拟不能作为设备 VPN 稳定性证明。
 
-2026-11-05，用户确认当前版本在 iPhone 使用成功，记录为[用户设备反馈](docs/iphone-v9-user-confirmation.json)。Mac 的七种算法原生复测与此次 iPhone 使用反馈分别记录；iPhone 全部算法、活跃预警、手表和长期 VPN 尚未逐项验收。内存与 CPU 历史对比仍来自独立 Node/V8 桌面模拟，本次未测量设备内存或耗电下降比例。主 App 的 JSON 兼容与组件原有传输分别处理。
-
-仓库的 CI 流程配置为使用 Actions 自带的临时 `GITHUB_TOKEN`，仅声明 `contents: read` 与 `packages: read`；无需为安装插件创建或提交个人 Token。下载依赖时读取上游的原始 `@nsringo/weatherkit@1.1.2`。历史第一版设计与模拟请求数对比见 [请求缓存说明](docs/request-cache.md)。
+历史 [cache-v9](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v9) 及更早发布保留。此前内存工作见 [v7](docs/processing-memory-v7.md)、[v6](docs/cache-memory-v6.md)、[v5](docs/memory-work.md)；其中比例仅为 Node/V8 桌面测量。

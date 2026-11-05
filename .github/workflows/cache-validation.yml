@@ -1,9 +1,9 @@
-name: Cache optimization validation
+name: WeatherKit Loon validation
 
 on:
   workflow_dispatch:
   push:
-    branches: [feature/request-cache]
+    branches: [feature/request-cache, 'release/**']
     paths:
       - src/**
       - tests/**
@@ -48,6 +48,6 @@ jobs:
         run: npm run build:loon-cache
       - uses: actions/upload-artifact@v4
         with:
-          name: weatherkit-loon-cache
+          name: weatherkit-loon
           path: Loon/script/
           if-no-files-found: error
