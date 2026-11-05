@@ -1,4 +1,4 @@
-WeatherKit 3.3.3
+WeatherKit 3.3.4
 Upstream: NSRingo/WeatherKit, Apache-2.0
 Fork distribution: hhhoratioxu/WeatherKit
 Modifications: hhhoratioxu, 2026-10-19 onward

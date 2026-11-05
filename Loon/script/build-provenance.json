@@ -1,11 +1,11 @@
 {
-  "version": "3.3.3",
-  "sourceCommit": "4bfe3a7248b25c3185c9d6b7d7c95988dad10493",
-  "resourceRef": "v3.3.3",
+  "version": "3.3.4",
+  "sourceCommit": "dabcbf8b0778a417cf70f5c85dc70fd33433aefc",
+  "resourceRef": "v3.3.4",
   "node": "v22.23.4",
   "schemaPackage": "1.1.2",
   "bundleChecks": {
-    "pass": 35,
+    "pass": 38,
     "fail": 0,
     "scenarios": [
       "custom scale uses a standalone bundle without storage or provider requests",
@@ -27,6 +27,8 @@
       "v3 CN_DEATH_AQHI retains all six measurements with no provider request",
       "v3 CN_DEATH_HK_AQHI retains all six measurements with no provider request",
       "v3 None retains all six measurements with no provider request",
+      "the original nonmatching target list preserves Apple AQI despite a selected algorithm",
+      "the original disabled comparison-replacement switch keeps an existing Apple trend",
       "v3 provider failure preserves exact Apple JSON, whitespace and validators",
       "WK3 binary stays opaque if JSON negotiation is not honoured",
       "web warning parsing without TextEncoder",
@@ -37,6 +39,7 @@
       "Apple-only provider preserves original binary weather without a decoder round trip",
       "oversized binary input retains the original view without decoding or provider work",
       "partial hourly replacement changes only a matching row and leaves source binary intact",
+      "a dedicated token alone never switches away from the explicitly selected provider",
       "missing minute data uses one configured backup after primary failure",
       "HTTP 502 provider body with http failure cannot overwrite Apple weather",
       "HTTP 200 provider body with invalid failure cannot overwrite Apple weather",
@@ -67,6 +70,7 @@
       "validation": "emitted expressions, JavaScript regex fixtures and system jq; not a Loon parser",
       "deviceValidation": false
     },
+    "upstreamArgumentDefaultsVerified": 12,
     "withoutNodeWebCryptoHostTextEncoder": true,
     "providedWebAPIs": [
       "URL",
@@ -77,5 +81,5 @@
     "liveWeatherRequests": false,
     "deviceVPNValidation": false
   },
-  "lockfileSHA256": "f8b9cc2a8692b1029684bd9a3da9097b4157abb1893acdd83b4041daf7966af4"
+  "lockfileSHA256": "8d4047a0464268c5504fcacb0c65bae652934e138eda14f91549b5ad4952f254"
 }
