@@ -2,7 +2,7 @@
 
 本仓库是 [NSRingo/WeatherKit](https://github.com/NSRingo/WeatherKit) 的 Fork，保留原作者、Apache-2.0 许可证与 Git 历史。当前按上游命名与更新说明格式整理 Loon 发行 `v3.3.3`；插件名称、功能描述和原版一致，下载资源来自本 Fork。
 
-[更新说明](CHANGELOG.md) · [v3.3.3 发布记录](docs/release-v3.3.3.md) · [上游使用指南](https://NSRingo.github.io/guide/Weather/weather-kit)
+[更新说明](CHANGELOG.md) · [v3.3.3 发布记录](docs/release-v3.3.3.md) · [上游使用指南](https://NSRingo.github.io/guide/Weather/weather-kit) · [原版合并请求 #107](https://github.com/NSRingo/WeatherKit/pull/107)
 
 ## 安装与更新
 
