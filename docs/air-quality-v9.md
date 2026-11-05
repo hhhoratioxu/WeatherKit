@@ -88,3 +88,9 @@ CI 随后恢复：源码 ae2ca5e 的 [Actions 41869896115](https://github.com/hh
 这是有限时段的 Mac 原生验收。11 种算法加 None 全部通过压缩脚本检查，其余五个选项未逐项进行 Mac 页面验收；未声称算法输出等于官方日均发布值，也未声称 v9 的 iPhone、手表、全部后台客户端、活跃预警或长时间 VPN 已验收。没有测量设备内存或电量改善比例。
 
 正式文件已发布到 main 和 cache-v9 版本分支（后者不是 tag）。随后在 Mac 的现有插件槽切换为 main，主动更新，再以合肥新请求确认 EAQI Fair、六项污染物及 CO 400 µg/m³；测试城市未保存，原天气视图已恢复。main、版本分支和完整发布提交的八个公共文件分别通过 8/8 字节比对，原始数据和授权信息不进入发布记录。详见 [发布后核验](cache-v9-publication-verification.json)。
+
+## iPhone 成功反馈与正式 Release（2026-11-05）
+
+用户在收到正式 GitHub 订阅后确认 iPhone 使用成功。该结果记录为用户设备反馈，本轮没有重新读取手机安装版本或逐项操作 11 种算法，不把这条反馈扩展为全功能、长期 VPN 或耗电测量结论。此前 Mac 验收对象里的 iPhone=false 表示当时 Mac 复测的范围；最新 iPhone 状态见[独立反馈记录](iphone-v9-user-confirmation.json)。
+
+已创建 [cache-v9 正式 Release](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v9)，页面为 Latest，非草稿、非预发布。新增 tag 与既有同名版本分支均指向 935e4ea5166c0188f6fff611d9281dca44af2bcc；运行脚本仍固定引用完整 CI 产物提交，避免同名引用歧义影响运行版本。八个附件均从公开 Release 地址重新下载，与 main 的正式文件逐字节一致，摘要记录在[发布核验](cache-v9-publication-verification.json)。当前主分支包含全部运行修复、更新说明及最新设备反馈。

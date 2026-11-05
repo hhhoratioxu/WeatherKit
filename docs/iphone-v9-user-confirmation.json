@@ -1,0 +1,14 @@
+{
+  "reportedDate": "2026-11-05",
+  "timezone": "Asia/Taipei",
+  "versionDiscussed": "3.3.2-cache.9",
+  "status": "user-reported-success",
+  "source": "User confirmation after receiving the canonical GitHub subscription",
+  "reportedResult": "iPhone 使用成功",
+  "installedBuildIndependentlyInspected": false,
+  "allAlgorithmsIndividuallyVerifiedOnIPhone": false,
+  "activeAlertsOrWatchVerified": false,
+  "longRunningVPNValidation": false,
+  "deviceMemoryOrBatteryMeasurement": false,
+  "releaseURL": "https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v9"
+}
