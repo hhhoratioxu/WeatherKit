@@ -1,9 +1,9 @@
 {
   "verifiedDate": "2026-11-05",
-  "version": "3.3.2-cache.9",
-  "sourceCommit": "4d10a767c66877f39f17ef5687b336ff42ac46a5",
-  "validationOrigin": "GitHub Actions",
-  "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/41931700904",
+  "version": "3.3.3",
+  "releaseTag": "v3.3.3",
+  "sourceCommit": "4bfe3a7248b25c3185c9d6b7d7c95988dad10493",
+  "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/41941086743",
   "ciConclusion": "success",
   "buildEnvironment": {
     "node": "v22.23.4",
@@ -11,10 +11,11 @@
     "fullLockfileInstall": true,
     "installCommand": "npm ci --ignore-scripts --no-audit --no-fund"
   },
-  "ciArchiveSHA256": "4fe0dee681961c9f3bfaefcfb08c708fe9b4525c2a4bad53003fd3d610e7d902",
+  "ciArchiveSHA256": "f4c200338e2e02972145a25f843ad8f8b9d55426575e4cba9a060377db313f1e",
   "regressionTests": {
     "pass": 309,
-    "fail": 0
+    "fail": 0,
+    "skip": 0
   },
   "bundledVMSmokeChecks": {
     "pass": 35,
@@ -89,125 +90,52 @@
     "liveWeatherRequests": false,
     "deviceVPNValidation": false
   },
-  "runtimeRef": "3c4a31d278e5380bec7a148ed73f1e174c222ffc",
-  "runtimeBundlesIdenticalToCI": true,
+  "canonicalEntry": "Loon/script/iRingo.WeatherKit.lpx",
+  "compatibilityEntries": [
+    "Loon/script/WeatherKit.lpx",
+    "Loon/script/WeatherKit.plugin"
+  ],
+  "compatibilityEntriesIdentical": true,
   "scriptURLsVerified": 5,
-  "canonicalEntry": "Loon/script/WeatherKit.lpx",
-  "compatibilityEntryIdentical": true,
-  "nativeMacAcceptance": {
-    "date": "2026-11-05",
-    "platform": "macOS 27.3 (26C5035r)",
-    "client": "Loon for Mac 0.5.0(1011)",
-    "entryCommit": "11c2092f3459408c0cc170d3ce3639cf9583df3c",
-    "runtimeCommit": "3c4a31d278e5380bec7a148ed73f1e174c222ffc",
-    "freshPublicCityPreviews": true,
-    "sixPollutantsVisibleInEveryCase": true,
-    "cases": [
-      {
-        "algorithm": "EU_EAQI",
-        "city": "Suzhou",
-        "display": "Moderate",
-        "CO_ug_m3": 800
-      },
-      {
-        "algorithm": "HK_AQHI",
-        "city": "Guangzhou",
-        "index": 3,
-        "display": "Low",
-        "CO_ug_m3": 700
-      },
-      {
-        "algorithm": "CN_DEATH_AQHI",
-        "city": "Wuhan",
-        "index": 2,
-        "display": "Low",
-        "CO_ug_m3": 700
-      },
-      {
-        "algorithm": "WAQI_InstantCast_US",
-        "city": "Shenzhen",
-        "index": 64,
-        "display": "Moderate",
-        "CO_ug_m3": 700
-      },
-      {
-        "algorithm": "CA_AQHI",
-        "city": "Changsha",
-        "index": 2,
-        "display": "Low Health Risk",
-        "CO_ug_m3": 600
-      },
-      {
-        "algorithm": "WAQI_InstantCast_CN",
-        "city": "Fuzhou",
-        "index": 52,
-        "display": "Good",
-        "CO_ug_m3": 600
-      },
-      {
-        "algorithm": "UBA",
-        "city": "Ningbo",
-        "display": "Good",
-        "CO_ug_m3": 800
-      }
-    ],
-    "systemLogSummary": {
-      "start": "2026-11-05 07:30:56",
-      "decoderErrors": 0,
-      "invalidWeatherData": 0,
-      "cloudKitFallback": 0,
-      "storedWDSProducts": [
-        "airQuality",
-        "currentWeather",
-        "dataNotice",
-        "forecastDaily",
-        "forecastHourly",
-        "forecastNextHour",
-        "forecastPeriodic",
-        "historicalComparisons",
-        "news",
-        "weatherAlerts",
-        "weatherChanges"
-      ]
-    },
-    "defaultAlgorithmRestored": "EU_EAQI",
-    "iPhoneV9Acceptance": false,
-    "allAlgorithmsNativeAcceptance": false,
-    "deviceMemoryOrBatteryMeasurement": false,
-    "longRunningVPNValidation": false
+  "scriptResourceRef": "v3.3.3",
+  "allNineFilesUnchangedFromCI": true,
+  "runtimeLogicIdenticalToCacheV9ExcludingVersionBanner": {
+    "request.bundle.js": true,
+    "response.bundle.js": true,
+    "scale.bundle.js": true
   },
-  "iPhoneV9Acceptance": {
-    "reportedDate": "2026-11-05",
-    "timezone": "Asia/Taipei",
-    "versionDiscussed": "3.3.2-cache.9",
-    "status": "user-reported-success",
-    "source": "User confirmation after receiving the canonical GitHub subscription",
-    "reportedResult": "iPhone 使用成功",
-    "installedBuildIndependentlyInspected": false,
-    "allAlgorithmsIndividuallyVerifiedOnIPhone": false,
-    "activeAlertsOrWatchVerified": false,
-    "longRunningVPNValidation": false,
-    "deviceMemoryOrBatteryMeasurement": false,
-    "releaseURL": "https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v9"
+  "previousNativeEvidence": {
+    "version": "3.3.2-cache.9",
+    "buildRecord": "loon-build-validation-v9.json",
+    "iPhoneUserConfirmation": "iphone-v9-user-confirmation.json"
   },
+  "v333DirectDeviceRetest": false,
   "deviceMemoryOrPowerMeasurement": false,
-  "deviceVPNValidation": false,
+  "longRunningVPNValidation": false,
   "artifacts": {
     "LICENSE.txt": {
-      "bytes": 12826,
-      "sha256": "95fce8dce2570ec48a1d6432ffbb406693aa7374adae09f2154269a52d3cb667"
+      "bytes": 12847,
+      "sha256": "888d8421905d43ac95a19f064a7a68da43064c44495372a3cd171726210c94cc"
+    },
+    "SHA256SUMS.txt": {
+      "bytes": 670,
+      "sha256": "81f1bb554fb8df189465d4cb312b48eda91e3305bc4d78df90d2fb70dbd0a079"
     },
     "WeatherKit.lpx": {
-      "bytes": 9407,
-      "sha256": "2ea4cbc9529b4f259fa7eda82d90367ecda0d7d535b6f9e08e172c0e81e5c70d"
+      "bytes": 9227,
+      "sha256": "5a3622297ebb752791cd14cb938437a33bf98ec1323c11668f62567939d6818c"
     },
     "WeatherKit.plugin": {
-      "bytes": 9407,
-      "sha256": "2ea4cbc9529b4f259fa7eda82d90367ecda0d7d535b6f9e08e172c0e81e5c70d"
+      "bytes": 9227,
+      "sha256": "5a3622297ebb752791cd14cb938437a33bf98ec1323c11668f62567939d6818c"
     },
     "build-provenance.json": {
-      "bytes": 7393,
-      "sha256": "0aea679a00039d90232681e8bac5a2f30f0ae5b50434602af6bac62c9cd09640"
+      "bytes": 4624,
+      "sha256": "9c8feb9bad7c97be6513cb33b5f704e311dd4af6b310022d13c72ec0de9ec332"
+    },
+    "iRingo.WeatherKit.lpx": {
+      "bytes": 9227,
+      "sha256": "5a3622297ebb752791cd14cb938437a33bf98ec1323c11668f62567939d6818c"
     },
     "request.bundle.js": {
       "bytes": 291091,
@@ -220,75 +148,7 @@
     "scale.bundle.js": {
       "bytes": 29703,
       "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f"
-    },
-    "SHA256SUMS.txt": {
-      "bytes": 582,
-      "sha256": "204aca10467e76156ee22453ebb94ed526aa352775268ac4ba50e3e5846b51c1"
     }
   },
-  "previousV8Record": "loon-build-validation-v8.json",
-  "publicBytesVerification": "cache-v9-publication-verification.json",
-  "formalRelease": {
-    "url": "https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v9",
-    "tag": "cache-v9",
-    "tagCommit": "935e4ea5166c0188f6fff611d9281dca44af2bcc",
-    "draft": false,
-    "prerelease": false,
-    "latestObserved": true,
-    "releaseAssetsVerification": {
-      "releaseURL": "https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v9",
-      "pass": 8,
-      "total": 8,
-      "assets": [
-        {
-          "name": "LICENSE.txt",
-          "bytes": 12826,
-          "sha256": "95fce8dce2570ec48a1d6432ffbb406693aa7374adae09f2154269a52d3cb667",
-          "matchesCanonicalArtifact": true
-        },
-        {
-          "name": "SHA256SUMS.txt",
-          "bytes": 582,
-          "sha256": "204aca10467e76156ee22453ebb94ed526aa352775268ac4ba50e3e5846b51c1",
-          "matchesCanonicalArtifact": true
-        },
-        {
-          "name": "WeatherKit.lpx",
-          "bytes": 9407,
-          "sha256": "2ea4cbc9529b4f259fa7eda82d90367ecda0d7d535b6f9e08e172c0e81e5c70d",
-          "matchesCanonicalArtifact": true
-        },
-        {
-          "name": "WeatherKit.plugin",
-          "bytes": 9407,
-          "sha256": "2ea4cbc9529b4f259fa7eda82d90367ecda0d7d535b6f9e08e172c0e81e5c70d",
-          "matchesCanonicalArtifact": true
-        },
-        {
-          "name": "build-provenance.json",
-          "bytes": 7393,
-          "sha256": "0aea679a00039d90232681e8bac5a2f30f0ae5b50434602af6bac62c9cd09640",
-          "matchesCanonicalArtifact": true
-        },
-        {
-          "name": "request.bundle.js",
-          "bytes": 291091,
-          "sha256": "201cda395cfc5c8000c3f59bad213ada075d4c0c1b8277bb3ad88d079bd81041",
-          "matchesCanonicalArtifact": true
-        },
-        {
-          "name": "response.bundle.js",
-          "bytes": 439821,
-          "sha256": "83635e9093296f273f31e88f67aeabe64e5d700cfc1ee49d37383257dcffddbc",
-          "matchesCanonicalArtifact": true
-        },
-        {
-          "name": "scale.bundle.js",
-          "bytes": 29703,
-          "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f",
-          "matchesCanonicalArtifact": true
-        }
-      ]
-    }
-  }
+  "publicBytesVerification": "Recorded after the release and main ref are published; not inferred from CI."
 }
