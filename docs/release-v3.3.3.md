@@ -18,4 +18,10 @@
 
 源码 4bfe3a7248b25c3185c9d6b7d7c95988dad10493 的 [Actions 41941086743](https://github.com/hhhoratioxu/WeatherKit/actions/runs/41941086743) 已通过：Node v22.23.4、完整 npm ci、309 项回归、35 个实际压缩脚本场景及 15 个表达式／路由／jq 检查。九文件 ZIP SHA-256 为 f4c200338e2e02972145a25f843ad8f8b9d55426575e4cba9a060377db313f1e，八条内部摘要均匹配。
 
-三个入口与 CI 同字节，名称、描述和主页使用上游 package 元数据；五条脚本引用固定到 v3.3.3。三个运行脚本与已原生验证的 cache-v9 去掉首行版本注释后逐字节一致，没有变更执行逻辑。CI 的九个文件不做发布后加工。此前 Mac 原生验收和 iPhone 用户反馈保留在 [v9 构建记录](loon-build-validation-v9.json)，不标成 v3.3.3 重新进行的设备测试。
+三个入口与 CI 同字节，名称、描述和主页使用上游 package 元数据；五条脚本引用固定到 v3.3.3。完整文件进一步核对确认：三个运行脚本与已原生验证的 cache-v9 整份文件逐字节一致，没有变更执行逻辑。CI 的九个文件不做发布后加工。此前 Mac 原生验收和 iPhone 用户反馈保留在 [v9 构建记录](loon-build-validation-v9.json)，不标成 v3.3.3 重新进行的设备测试。
+
+## 发布完成
+
+[v3.3.3](https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.3) 已发布为 Latest，固定 tag 为 d75d8ea5c60a544678f4a6dc72f7be403d035f28。Release 更新说明与 CHANGELOG 在统一换行后相同；Release 附件、固定 tag、main 的九个文件分别通过 9/9 字节校验，共 27 个公共文件。三个入口同字节，原订阅继续工作。[完整发布核验](v3.3.3-publication-verification.json)同时记录运行脚本与旧版的完整字节一致性。
+
+未对旧 cache-v9 标签或资产作改写。新版本的设备报告沿用执行代码相同的旧版证据，并明确区分版本与本轮的构建／公开文件核验。

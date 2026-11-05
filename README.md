@@ -20,7 +20,7 @@
 
 ## 构建与验证
 
-使用锁定依赖的 GitHub Actions 构建，产物包含正式名称、兼容入口、三个运行脚本、许可证、构建来源和 SHA-256 清单。本版 [GitHub Actions](https://github.com/hhhoratioxu/WeatherKit/actions/runs/41941086743) 已通过 309 项回归、35 个真实压缩脚本场景和 15 个表达式／路由／jq 检查。九个发布文件与下载的 CI 资产同字节，三个运行脚本与 cache-v9 只差版本注释。当前构建记录见[验证文件](docs/loon-build-validation.json)。
+使用锁定依赖的 GitHub Actions 构建，产物包含正式名称、兼容入口、三个运行脚本、许可证、构建来源和 SHA-256 清单。本版 [GitHub Actions](https://github.com/hhhoratioxu/WeatherKit/actions/runs/41941086743) 已通过 309 项回归、35 个真实压缩脚本场景和 15 个表达式／路由／jq 检查。九个发布文件与下载的 CI 资产同字节，三个运行脚本与 cache-v9 整份文件逐字节一致。当前构建记录见[验证文件](docs/loon-build-validation.json)。
 
 此前 cache-v9 完成 309 项回归、35 个实际压缩脚本场景和 15 个表达式／路由／jq 检查，Mac 原生核对七种算法及六项污染物；2026-11-05 用户确认 iPhone 使用成功。这些历史证据按当时版本保留，v3.3.3 的 CI 与公共文件核验另行记录。设备耗电或内存下降比例未测量；桌面模拟不能作为设备 VPN 稳定性证明。
 

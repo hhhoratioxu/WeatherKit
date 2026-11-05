@@ -1,0 +1,198 @@
+{
+  "date": "2026-11-05",
+  "version": "3.3.3",
+  "releaseId": 434622281,
+  "releaseURL": "https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.3",
+  "tag": "v3.3.3",
+  "tagCommit": "d75d8ea5c60a544678f4a6dc72f7be403d035f28",
+  "draft": false,
+  "prerelease": false,
+  "releaseBodyMatchesChangelogAfterNewlineNormalization": true,
+  "publicBytes": {
+    "releaseAssets": {
+      "pass": 9,
+      "total": 9,
+      "files": [
+        {
+          "name": "LICENSE.txt",
+          "bytes": 12847,
+          "sha256": "888d8421905d43ac95a19f064a7a68da43064c44495372a3cd171726210c94cc",
+          "matchesCI": true
+        },
+        {
+          "name": "SHA256SUMS.txt",
+          "bytes": 670,
+          "sha256": "81f1bb554fb8df189465d4cb312b48eda91e3305bc4d78df90d2fb70dbd0a079",
+          "matchesCI": true
+        },
+        {
+          "name": "WeatherKit.lpx",
+          "bytes": 9227,
+          "sha256": "5a3622297ebb752791cd14cb938437a33bf98ec1323c11668f62567939d6818c",
+          "matchesCI": true
+        },
+        {
+          "name": "WeatherKit.plugin",
+          "bytes": 9227,
+          "sha256": "5a3622297ebb752791cd14cb938437a33bf98ec1323c11668f62567939d6818c",
+          "matchesCI": true
+        },
+        {
+          "name": "build-provenance.json",
+          "bytes": 4624,
+          "sha256": "9c8feb9bad7c97be6513cb33b5f704e311dd4af6b310022d13c72ec0de9ec332",
+          "matchesCI": true
+        },
+        {
+          "name": "iRingo.WeatherKit.lpx",
+          "bytes": 9227,
+          "sha256": "5a3622297ebb752791cd14cb938437a33bf98ec1323c11668f62567939d6818c",
+          "matchesCI": true
+        },
+        {
+          "name": "request.bundle.js",
+          "bytes": 291091,
+          "sha256": "201cda395cfc5c8000c3f59bad213ada075d4c0c1b8277bb3ad88d079bd81041",
+          "matchesCI": true
+        },
+        {
+          "name": "response.bundle.js",
+          "bytes": 439821,
+          "sha256": "83635e9093296f273f31e88f67aeabe64e5d700cfc1ee49d37383257dcffddbc",
+          "matchesCI": true
+        },
+        {
+          "name": "scale.bundle.js",
+          "bytes": 29703,
+          "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f",
+          "matchesCI": true
+        }
+      ]
+    },
+    "versionTag": {
+      "pass": 9,
+      "total": 9,
+      "files": [
+        {
+          "name": "LICENSE.txt",
+          "bytes": 12847,
+          "sha256": "888d8421905d43ac95a19f064a7a68da43064c44495372a3cd171726210c94cc",
+          "matchesCI": true
+        },
+        {
+          "name": "SHA256SUMS.txt",
+          "bytes": 670,
+          "sha256": "81f1bb554fb8df189465d4cb312b48eda91e3305bc4d78df90d2fb70dbd0a079",
+          "matchesCI": true
+        },
+        {
+          "name": "WeatherKit.lpx",
+          "bytes": 9227,
+          "sha256": "5a3622297ebb752791cd14cb938437a33bf98ec1323c11668f62567939d6818c",
+          "matchesCI": true
+        },
+        {
+          "name": "WeatherKit.plugin",
+          "bytes": 9227,
+          "sha256": "5a3622297ebb752791cd14cb938437a33bf98ec1323c11668f62567939d6818c",
+          "matchesCI": true
+        },
+        {
+          "name": "build-provenance.json",
+          "bytes": 4624,
+          "sha256": "9c8feb9bad7c97be6513cb33b5f704e311dd4af6b310022d13c72ec0de9ec332",
+          "matchesCI": true
+        },
+        {
+          "name": "iRingo.WeatherKit.lpx",
+          "bytes": 9227,
+          "sha256": "5a3622297ebb752791cd14cb938437a33bf98ec1323c11668f62567939d6818c",
+          "matchesCI": true
+        },
+        {
+          "name": "request.bundle.js",
+          "bytes": 291091,
+          "sha256": "201cda395cfc5c8000c3f59bad213ada075d4c0c1b8277bb3ad88d079bd81041",
+          "matchesCI": true
+        },
+        {
+          "name": "response.bundle.js",
+          "bytes": 439821,
+          "sha256": "83635e9093296f273f31e88f67aeabe64e5d700cfc1ee49d37383257dcffddbc",
+          "matchesCI": true
+        },
+        {
+          "name": "scale.bundle.js",
+          "bytes": 29703,
+          "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f",
+          "matchesCI": true
+        }
+      ]
+    },
+    "canonicalMain": {
+      "pass": 9,
+      "total": 9,
+      "files": [
+        {
+          "name": "LICENSE.txt",
+          "bytes": 12847,
+          "sha256": "888d8421905d43ac95a19f064a7a68da43064c44495372a3cd171726210c94cc",
+          "matchesCI": true
+        },
+        {
+          "name": "SHA256SUMS.txt",
+          "bytes": 670,
+          "sha256": "81f1bb554fb8df189465d4cb312b48eda91e3305bc4d78df90d2fb70dbd0a079",
+          "matchesCI": true
+        },
+        {
+          "name": "WeatherKit.lpx",
+          "bytes": 9227,
+          "sha256": "5a3622297ebb752791cd14cb938437a33bf98ec1323c11668f62567939d6818c",
+          "matchesCI": true
+        },
+        {
+          "name": "WeatherKit.plugin",
+          "bytes": 9227,
+          "sha256": "5a3622297ebb752791cd14cb938437a33bf98ec1323c11668f62567939d6818c",
+          "matchesCI": true
+        },
+        {
+          "name": "build-provenance.json",
+          "bytes": 4624,
+          "sha256": "9c8feb9bad7c97be6513cb33b5f704e311dd4af6b310022d13c72ec0de9ec332",
+          "matchesCI": true
+        },
+        {
+          "name": "iRingo.WeatherKit.lpx",
+          "bytes": 9227,
+          "sha256": "5a3622297ebb752791cd14cb938437a33bf98ec1323c11668f62567939d6818c",
+          "matchesCI": true
+        },
+        {
+          "name": "request.bundle.js",
+          "bytes": 291091,
+          "sha256": "201cda395cfc5c8000c3f59bad213ada075d4c0c1b8277bb3ad88d079bd81041",
+          "matchesCI": true
+        },
+        {
+          "name": "response.bundle.js",
+          "bytes": 439821,
+          "sha256": "83635e9093296f273f31e88f67aeabe64e5d700cfc1ee49d37383257dcffddbc",
+          "matchesCI": true
+        },
+        {
+          "name": "scale.bundle.js",
+          "bytes": 29703,
+          "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f",
+          "matchesCI": true
+        }
+      ]
+    }
+  },
+  "runtimeBundlesFullByteIdentityWithCacheV9": {
+    "request.bundle.js": true,
+    "response.bundle.js": true,
+    "scale.bundle.js": true
+  }
+}

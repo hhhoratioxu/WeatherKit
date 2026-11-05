@@ -99,11 +99,6 @@
   "scriptURLsVerified": 5,
   "scriptResourceRef": "v3.3.3",
   "allNineFilesUnchangedFromCI": true,
-  "runtimeLogicIdenticalToCacheV9ExcludingVersionBanner": {
-    "request.bundle.js": true,
-    "response.bundle.js": true,
-    "scale.bundle.js": true
-  },
   "previousNativeEvidence": {
     "version": "3.3.2-cache.9",
     "buildRecord": "loon-build-validation-v9.json",
@@ -150,5 +145,10 @@
       "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f"
     }
   },
-  "publicBytesVerification": "Recorded after the release and main ref are published; not inferred from CI."
+  "publicBytesVerification": "v3.3.3-publication-verification.json",
+  "runtimeBundlesFullByteIdentityWithCacheV9": {
+    "request.bundle.js": true,
+    "response.bundle.js": true,
+    "scale.bundle.js": true
+  }
 }
