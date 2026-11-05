@@ -1,17 +1,17 @@
 # cache-v9 空气质量与 WK3 稳定性修复
 
-用户要求全部内置算法可切换、尽量保留六项污染物，并从 GitHub 拉取。本版在用户 Fork 发布；没有向原作者提交本版全部改动的 PR。
+用户要求全部内置算法可切换、尽量保留六项污染物，并从 GitHub 拉取。本文件保留 cache-v9 当时的修复及设备记录；后续 v3.3.4 按[原版含义核对](upstream-intent-audit.md)恢复目标标准与昨日对比的控制，以下两处行为已修正。原版 PR #107 目前为草稿，不能将本 Fork 发布理解为原版已更新。
 
 ## 修复内容
 
 - 清理非有限、负数、空值、无效单位和重复污染物；有效的零浓度保留。供应商数值字符串只接受完整可转换的非空数值。
 - Apple 已有部分污染物时也补齐缺项；已有有效值优先。补充失败保留原有指数和天气。完整的六项浓度不会发起补充查询；补充沿用既有缓存、请求合并、预算、并发和冷却。
-- 下拉选择的算法对非国标 Apple 数据也生效。高级配置显式清空 `AirQuality.Current.Index.Replace` 仍表示停用指数替换，`None` 保留原指数。
+- v9 曾把选择算法扩大为对非国标数据也强制生效；v3.3.4 恢复先匹配 `AirQuality.Current.Index.Replace` 再转换，默认 HJ6332012，其他标准需明确加入目标。空列表停用指数替换，`None` 保留原指数。
 - 加拿大 AQHI 的 NO2/O3 使用 ppb，PM2.5 使用 µg/m³，修正质量/摩尔浓度转换和最近整数取整。QWeather CO 按实际单位转换，防止已归一化的 µg/m³ 再乘 1000；转换可重复执行而不会继续改变浓度。
 - 美标 InstantCast 的颗粒物、NO2/SO2/CO 在插值前按浓度精度截断，CO 低端断点改为 0.1 ppm 的整数倍；保留 WAQI 自定义臭氧分段及其 0.1 ppb 精度，未改称官方 EPA NowCast。
 - 修正浮点误差导致恰好 50 的国标分级错误、2025 草案零浓度分级、超量程插值多加一次区间上限，以及常数分段计算。风险模型缺少必要气体或全部适用颗粒物时不再虚构健康值。
 - 标准没有定义的污染物不写 `index=-1`，但有效物理浓度继续保留。主要污染物改为单次遍历，不再排序、复制多层候选数组或为正常的同级污染物逐条报警。
-- 更换计算算法后不沿用另一算法的昨日趋势。只有配置同算法历史计算且取得有效历史数据时才重算，否则保留未知状态。
+- v9 曾在计算时清空已有昨日趋势并限制为同算法历史；v3.3.4 恢复原版 `Comparison.ReplaceWhenCurrentChange` 开关和独立昨日来源，默认保留已有 Apple 对比。
 - 合并本次 iOS 27.3 候选的云量百分比、整数范围、可选时间、无效 Unicode/数值、正文与头部一致性和逐产品回退修复。异步 HTTP 回调完成后只调用一次 `$done`。
 
 ## 算法与指标覆盖
@@ -43,7 +43,7 @@ InstantCast 和风险模型使用来源提供的当前浓度；本次没有新�
 
 参考 [EPA 2026 技术文件](https://document.airnow.gov/technical-assistance-document-for-the-reporting-of-daily-air-quailty.pdf) 的浓度精度与线性插值、[德国 UBA LQI](https://www.umweltbundesamt.de/themen/luft/luftqualitaet/der-luftqualitaetsindex-lqi) 的五项污染物、[香港环保署 AQHI 公式与分级](https://www.aqhi.gov.hk/en/what-is-aqhi/faqs.html)，以及加拿大政府托管的 [AQHI 技术说明](https://www2.gov.bc.ca/assets/gov/environment/air-land-water/air/reports-pub/aqhi-variation-bc.pdf)。对不能复核的研究阈值保留上游值，不宣称所有地区的官方认证。
 
-正式发布使用 GitHub Actions 锁定依赖产物，构建提交、CI 链接和公共文件摘要记录于 [构建验证记录](loon-build-validation.json)。Loon 正式入口仍为 `.lpx`，旧 `.plugin` 与其同字节；运行脚本固定引用 CI 产物的完整提交，不使用局域网地址。
+v9 发布使用 GitHub Actions 锁定依赖产物，当时的证据见 [v9 构建记录](loon-build-validation-v9.json)。后续版本可固定引用其不可变发布 tag；均不使用局域网地址。Loon 正式入口仍为 `.lpx`，旧 `.plugin` 为同字节兼容入口。
 
 
 ## 原生排查历史（以下候选状态以当时为准）

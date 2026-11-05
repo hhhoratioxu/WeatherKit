@@ -1,12 +1,12 @@
 {
   "verifiedDate": "2026-11-05",
-  "forkRelease": "v3.3.3",
+  "forkRelease": "v3.3.4-in-progress",
   "upstreamRepository": "NSRingo/WeatherKit",
   "pullRequestURL": "https://github.com/NSRingo/WeatherKit/pull/107",
   "stateAtVerification": "open",
-  "draft": false,
+  "draft": true,
   "mergedAtVerification": false,
-  "mergeableAtVerification": true,
+  "mergeableAtVerification": null,
   "base": "main",
   "baseSHA": "c40e8f8a13c8304a7ef500cb74acc5948af14b3f",
   "headBranch": "sync/loon-v3-and-air-quality",
@@ -26,5 +26,8 @@
   "upstreamReleaseURLsPreserved": true,
   "upstreamVersionPolicyPreserved": true,
   "rawDeviceCapturePublished": false,
-  "deviceMemoryOrPowerMeasurement": false
+  "deviceMemoryOrPowerMeasurement": false,
+  "reviewStatus": "draft-original-semantics-audit",
+  "previousSnapshot": "upstream-sync-validation-v3.3.3.json",
+  "historicalCIOnly": true
 }

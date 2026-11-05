@@ -29,8 +29,10 @@ for (const key of ["RequestCache.TTL", "RequestCache.ForecastTTL", "RequestCache
     if (!line) throw new Error(`Missing Loon cache input: ${key}`);
     plugin = plugin.replace(line, line.replace(/(input,"[^"]*",)/, "$1type=string,"));
 }
-plugin = plugin.replace("RequestCache.Diagnostics = switch,false,", "RequestCache.Diagnostics = switch,false,type=boolean,");
-if (!plugin.includes("RequestCache.Diagnostics = switch,false,type=boolean,")) throw new Error("Missing typed diagnostic switch");
+for (const key of ["RequestCache.Diagnostics", "ProviderFallback.Enabled"]) {
+    plugin = plugin.replace(`${key} = switch,false,`, `${key} = switch,false,type=boolean,`);
+    if (!plugin.includes(`${key} = switch,false,type=boolean,`)) throw new Error(`Missing typed switch: ${key}`);
+}
 const regionLine = plugin.split("\n").find(line => line.startsWith("Region.Fallback = select,"));
 if (!regionLine) throw new Error("Missing Loon region selector");
 plugin = plugin.replace(regionLine, regionLine.replace(",tag=", ",type=string,tag="));
