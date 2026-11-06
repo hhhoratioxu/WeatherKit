@@ -1,11 +1,11 @@
 {
-  "version": "3.3.4",
-  "sourceCommit": "dabcbf8b0778a417cf70f5c85dc70fd33433aefc",
-  "resourceRef": "v3.3.4",
+  "version": "3.3.5",
+  "sourceCommit": "aaa2ebfe8a05fab80fc11741adbd30196e54552e",
+  "resourceRef": "v3.3.5",
   "node": "v22.23.4",
   "schemaPackage": "1.1.2",
   "bundleChecks": {
-    "pass": 38,
+    "pass": 40,
     "fail": 0,
     "scenarios": [
       "custom scale uses a standalone bundle without storage or provider requests",
@@ -14,6 +14,8 @@
       "unhandled content passthrough",
       "v3 JSON replaces weather with WK3 types and preserves unknown fields after native callbacks finish",
       "Apple v3 JSON is adapted to the native Weather reader, including unselected periodic forecasts",
+      "unselected Apple warning UUID bytes become native strings without changing warning content or unknown products",
+      "failed warning supplementation preserves a readable original Apple warning identifier",
       "native Apple QWeather CO is repaired at ingress with no duplicate provider lookup",
       "v3 UBA retains all six measurements with no provider request",
       "v3 EU_EAQI retains all six measurements with no provider request",
@@ -81,5 +83,5 @@
     "liveWeatherRequests": false,
     "deviceVPNValidation": false
   },
-  "lockfileSHA256": "8d4047a0464268c5504fcacb0c65bae652934e138eda14f91549b5ad4952f254"
+  "lockfileSHA256": "689e9d774bf21d1d52e4d7ea2a2db63fd2e5f015b3872dac381295d17a575f6c"
 }
