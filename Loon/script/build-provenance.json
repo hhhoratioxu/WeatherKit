@@ -1,8 +1,8 @@
 {
   "version": "3.3.5",
-  "sourceCommit": "aaa2ebfe8a05fab80fc11741adbd30196e54552e",
+  "sourceCommit": "c91bb422d9a104cbeaacf602a6f0778f6683cf87",
   "resourceRef": "v3.3.5",
-  "node": "v22.23.4",
+  "node": "v24.22.1",
   "schemaPackage": "1.1.2",
   "bundleChecks": {
     "pass": 40,
@@ -83,5 +83,13 @@
     "liveWeatherRequests": false,
     "deviceVPNValidation": false
   },
-  "lockfileSHA256": "689e9d774bf21d1d52e4d7ea2a2db63fd2e5f015b3872dac381295d17a575f6c"
+  "lockfileSHA256": "689e9d774bf21d1d52e4d7ea2a2db63fd2e5f015b3872dac381295d17a575f6c",
+  "buildOrigin": "local-workspace",
+  "sourceFilesMatchPublishedCommit": true,
+  "fullLockfileInstallRepeated": false,
+  "regressionTests": {
+    "pass": 345,
+    "fail": 0,
+    "skip": 0
+  }
 }

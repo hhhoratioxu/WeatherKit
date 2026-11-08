@@ -1,0 +1,201 @@
+{
+  "status": "recorded-native-observations",
+  "observedCases": [
+    {
+      "city": "Binhai",
+      "algorithm": "EU_EAQI",
+      "category": "不佳",
+      "scale": "歐盟（eaqi）",
+      "index": null,
+      "pollutantCount": 6,
+      "CO_ug_m3": 400,
+      "observedUTC": "2026-11-06T14:36:38.009Z"
+    },
+    {
+      "city": "Wuxi",
+      "algorithm": "UBA",
+      "category": "普通",
+      "scale": "德國（lqi）",
+      "index": null,
+      "pollutantCount": 6,
+      "CO_ug_m3": 400,
+      "observedUTC": "2026-11-06T14:42:43.880Z"
+    },
+    {
+      "city": "Ningbo",
+      "algorithm": "WAQI_InstantCast_US",
+      "category": "對敏感族群不健康",
+      "scale": "美國（aqi）",
+      "index": 107,
+      "pollutantCount": 6,
+      "CO_ug_m3": 1100,
+      "observedUTC": "2026-11-06T14:43:38.477Z"
+    },
+    {
+      "city": "Guiyang",
+      "algorithm": "WAQI_InstantCast_CN",
+      "category": "優",
+      "scale": "中國（aqi）",
+      "index": 39,
+      "pollutantCount": 6,
+      "CO_ug_m3": 200,
+      "observedUTC": "2026-11-06T14:44:15.318Z"
+    },
+    {
+      "city": "Xianyang",
+      "algorithm": "WAQI_InstantCast_CN_25_DRAFT",
+      "category": "輕度汙染",
+      "scale": "中國（aqi）",
+      "index": 107,
+      "pollutantCount": 6,
+      "CO_ug_m3": 1200,
+      "observedUTC": "2026-11-06T14:44:55.781Z"
+    },
+    {
+      "city": "Mianyang",
+      "algorithm": "CA_AQHI",
+      "category": "中度健康危害風險",
+      "scale": "加拿大aqhi",
+      "index": 5,
+      "pollutantCount": 6,
+      "CO_ug_m3": 700,
+      "observedUTC": "2026-11-06T14:45:36.280Z"
+    },
+    {
+      "city": "Foshan",
+      "algorithm": "HK_AQHI",
+      "category": "中",
+      "scale": "香港 aqhi",
+      "index": 4,
+      "pollutantCount": 6,
+      "CO_ug_m3": 1000,
+      "observedUTC": "2026-11-06T14:46:44.981Z"
+    },
+    {
+      "city": "Zhuzhou",
+      "algorithm": "AQHI_Multi_CN",
+      "category": "低健康危害風險",
+      "scale": "加拿大aqhi",
+      "index": 2,
+      "pollutantCount": 6,
+      "CO_ug_m3": 500,
+      "observedUTC": "2026-11-06T14:47:31.884Z"
+    },
+    {
+      "city": "Huanggang",
+      "algorithm": "AQHI_Multi_CN_HK",
+      "category": "低健康危害風險",
+      "scale": "加拿大aqhi",
+      "index": 3,
+      "pollutantCount": 6,
+      "CO_ug_m3": 400,
+      "observedUTC": "2026-11-06T14:48:21.314Z"
+    },
+    {
+      "city": "Luoyang",
+      "algorithm": "CN_DEATH_AQHI",
+      "category": "低",
+      "scale": "中国 aqhi",
+      "index": 3,
+      "pollutantCount": 6,
+      "CO_ug_m3": 400,
+      "observedUTC": "2026-11-06T14:49:06.657Z"
+    },
+    {
+      "city": "Wuhu",
+      "algorithm": "CN_DEATH_HK_AQHI",
+      "category": "低",
+      "scale": "中国 aqhi",
+      "index": 3,
+      "pollutantCount": 6,
+      "CO_ug_m3": 800,
+      "pollutants_ug_m3": {
+        "PM10": 45,
+        "PM2.5": 23,
+        "CO": 800,
+        "NO2": 30,
+        "SO2": 11,
+        "O3": 25
+      },
+      "source": "和风天气; index iRingo China CDC Death Risk + HK AQHI; comparison Caiyun US scale"
+    },
+    {
+      "city": "Yantai",
+      "algorithm": "None",
+      "category": "優",
+      "scale": "中國aqi",
+      "index": 17,
+      "pollutantCount": 6,
+      "CO_ug_m3": 400,
+      "pollutants_ug_m3": {
+        "PM10": 17,
+        "PM2.5": 3,
+        "CO": 400,
+        "NO2": 16,
+        "SO2": 3,
+        "O3": 41
+      },
+      "source": "和风天气; original AQI retained; comparison Caiyun US scale; no iRingo index attribution"
+    }
+  ],
+  "warningDetails": {
+    "city": "Binhai",
+    "nativeBannerVisible": true,
+    "nativeSafariDetailCount": 4,
+    "bodyIssuerAndSourceLinksVisible": true
+  },
+  "controls": [
+    {
+      "case": "nonmatching default index target",
+      "city": "Manchester GB",
+      "selectedAlgorithm": "CA_AQHI",
+      "observedScale": "UK DAQI",
+      "observedIndex": 3,
+      "source": "BreezoMeter",
+      "CO": {
+        "value": 282,
+        "unit": "ppb"
+      },
+      "existingTrendRetained": true,
+      "providerRequests": 0,
+      "localIndexConversionApplied": false
+    },
+    {
+      "case": "all replacement datasets disabled",
+      "city": "Laoshan Qingdao",
+      "AppleCurrentWeatherVisible": true,
+      "hourlyAndTenDayVisible": true,
+      "AppleWarningCount": 2,
+      "AppleWarnings": [
+        "Marine strong wind",
+        "Cold wave"
+      ],
+      "originalAQI": 22,
+      "thirdPartySupplementation": false
+    }
+  ],
+  "dateRange": [
+    "2026-11-06",
+    "2026-11-07"
+  ],
+  "nativeOS": "macOS 27.3 (26C5035r)",
+  "nativeClient": "Loon for Mac 0.5.0 (1011)",
+  "testedArtifactCommit": "782f703494478fbe14578ccfe0d593b914e60948",
+  "publicationSourceCommit": "c91bb422d9a104cbeaacf602a6f0778f6683cf87",
+  "publishedRuntimeSeparatelyRetested": false,
+  "nativeSurgeValidation": false,
+  "allWeatherKitSourceCombinationRetestedOnThisCandidate": false,
+  "systemLogSnapshot": {
+    "decoderErrors": 0,
+    "invalidWeather": 0,
+    "CloudKitFallback": 0,
+    "logLines": 129411
+  },
+  "lastRecordedNativeScriptSnapshot": {
+    "scripts": 72,
+    "finished": 72,
+    "exceptions": 0
+  },
+  "dedicatedQWeatherCredentialsConfigured": false,
+  "deviceBatteryOrMemoryMeasurement": false
+}

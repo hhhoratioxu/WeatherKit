@@ -1,24 +1,17 @@
 {
-  "verifiedDate": "2026-11-05",
-  "version": "3.3.4",
-  "releaseTag": "v3.3.4",
-  "sourceCommit": "dabcbf8b0778a417cf70f5c85dc70fd33433aefc",
-  "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/41970394845",
-  "ciConclusion": "success",
-  "buildEnvironment": {
-    "node": "v22.23.4",
-    "schemaPackage": "1.1.2",
-    "fullLockfileInstall": true,
-    "installCommand": "npm ci --ignore-scripts --no-audit --no-fund"
-  },
-  "ciArchiveSHA256": "02945d007fe1d97fa9a9635f6892ed701f3e530863af794d625de9b3b4e1050f",
+  "verifiedDate": "2026-11-08",
+  "version": "3.3.5",
+  "sourceCommit": "c91bb422d9a104cbeaacf602a6f0778f6683cf87",
+  "buildOrigin": "local-workspace",
+  "node": "v24.22.1",
+  "fullLockfileInstallRepeated": false,
   "regressionTests": {
-    "pass": 325,
+    "pass": 345,
     "fail": 0,
     "skip": 0
   },
-  "bundledVMSmokeChecks": {
-    "pass": 38,
+  "loonBundledScenarios": {
+    "pass": 40,
     "fail": 0,
     "scenarios": [
       "custom scale uses a standalone bundle without storage or provider requests",
@@ -27,6 +20,8 @@
       "unhandled content passthrough",
       "v3 JSON replaces weather with WK3 types and preserves unknown fields after native callbacks finish",
       "Apple v3 JSON is adapted to the native Weather reader, including unselected periodic forecasts",
+      "unselected Apple warning UUID bytes become native strings without changing warning content or unknown products",
+      "failed warning supplementation preserves a readable original Apple warning identifier",
       "native Apple QWeather CO is repaired at ingress with no duplicate provider lookup",
       "v3 UBA retains all six measurements with no provider request",
       "v3 EU_EAQI retains all six measurements with no provider request",
@@ -94,143 +89,50 @@
     "liveWeatherRequests": false,
     "deviceVPNValidation": false
   },
-  "downloadedBundlesReexecuted": {
-    "pass": 38,
+  "surgeBundledScenarios": {
+    "pass": 29,
     "fail": 0,
     "scenarios": [
-      "custom scale uses a standalone bundle without storage or provider requests",
-      "unknown scale language falls through with conditional headers intact",
-      "availability preserves Apple and appends plugin requirements",
-      "unhandled content passthrough",
-      "v3 JSON replaces weather with WK3 types and preserves unknown fields after native callbacks finish",
-      "Apple v3 JSON is adapted to the native Weather reader, including unselected periodic forecasts",
-      "native Apple QWeather CO is repaired at ingress with no duplicate provider lookup",
-      "v3 UBA retains all six measurements with no provider request",
-      "v3 EU_EAQI retains all six measurements with no provider request",
-      "v3 WAQI_InstantCast_US retains all six measurements with no provider request",
-      "v3 WAQI_InstantCast_CN retains all six measurements with no provider request",
-      "v3 WAQI_InstantCast_CN_25_DRAFT retains all six measurements with no provider request",
-      "v3 CA_AQHI retains all six measurements with no provider request",
-      "v3 HK_AQHI retains all six measurements with no provider request",
-      "v3 AQHI_Multi_CN retains all six measurements with no provider request",
-      "v3 AQHI_Multi_CN_HK retains all six measurements with no provider request",
-      "v3 CN_DEATH_AQHI retains all six measurements with no provider request",
-      "v3 CN_DEATH_HK_AQHI retains all six measurements with no provider request",
-      "v3 None retains all six measurements with no provider request",
-      "the original nonmatching target list preserves Apple AQI despite a selected algorithm",
-      "the original disabled comparison-replacement switch keeps an existing Apple trend",
-      "v3 provider failure preserves exact Apple JSON, whitespace and validators",
-      "WK3 binary stays opaque if JSON negotiation is not honoured",
-      "web warning parsing without TextEncoder",
-      "parsed warning cache survives a new Loon execution",
-      "failed warning request passes through with safe diagnostics",
-      "binary weather response retains Apple values and completes after native failures",
-      "existing Apple minute table is preserved without provider work or routine logs",
-      "Apple-only provider preserves original binary weather without a decoder round trip",
-      "oversized binary input retains the original view without decoding or provider work",
-      "partial hourly replacement changes only a matching row and leaves source binary intact",
-      "a dedicated token alone never switches away from the explicitly selected provider",
-      "missing minute data uses one configured backup after primary failure",
-      "HTTP 502 provider body with http failure cannot overwrite Apple weather",
-      "HTTP 200 provider body with invalid failure cannot overwrite Apple weather",
-      "one shared Caiyun callback can replace healthy weather while preserving failed Apple alerts",
-      "partial replacement preserves future fields inside an unchanged selected hourly table",
-      "failed alert replacement retains the complete original binary response"
+      "seven native script declarations, disjoint routes and all twenty-one parameter bindings",
+      "original twelve argument defaults and identifier-only Surge parameter names",
+      "iOS main Weather app negotiates JSON without body, WebAPI or network access",
+      "macOS main Weather app negotiates JSON without body, WebAPI or network access",
+      "other methods, hosts, background clients and missing agents preserve original transport",
+      "small JSC availability preserves unknown capabilities, ordering and unknown shapes",
+      "small JSC scale entry normalizes versions, supplies HK/CN legends and preserves POST",
+      "UBA: six physical concentrations, original trend and no extra provider query",
+      "EU_EAQI: six physical concentrations, original trend and no extra provider query",
+      "WAQI_InstantCast_US: six physical concentrations, original trend and no extra provider query",
+      "WAQI_InstantCast_CN: six physical concentrations, original trend and no extra provider query",
+      "WAQI_InstantCast_CN_25_DRAFT: six physical concentrations, original trend and no extra provider query",
+      "CA_AQHI: six physical concentrations, original trend and no extra provider query",
+      "HK_AQHI: six physical concentrations, original trend and no extra provider query",
+      "AQHI_Multi_CN: six physical concentrations, original trend and no extra provider query",
+      "AQHI_Multi_CN_HK: six physical concentrations, original trend and no extra provider query",
+      "CN_DEATH_AQHI: six physical concentrations, original trend and no extra provider query",
+      "CN_DEATH_HK_AQHI: six physical concentrations, original trend and no extra provider query",
+      "None: six physical concentrations, original trend and no extra provider query",
+      "Apple QWeather CO is repaired once at ingress even with local index conversion disabled",
+      "nonmatching target keeps Apple index and validators",
+      "retained Apple warning UUID stays readable: processing disabled",
+      "retained Apple warning UUID stays readable: weatherAlerts",
+      "provider failure completes after native callback, preserves bytes and emits redacted diagnostics",
+      "healthy weather replacement and native response framing use Surge body and headers",
+      "background, failed, malformed and opaque WK3 responses use untouched passthrough",
+      "warning details accept ids first and reuse bounded native Surge persistent cache",
+      "failed warning detail request preserves the Apple response path",
+      "WK2 binary passthrough retains the native typed array without reencoding"
     ],
-    "nativeRewrites": {
-      "pass": 15,
-      "fail": 0,
-      "scenarios": [
-        "iOS and macOS main Weather app fixtures select the same guarded v3 transport",
-        "native v3 JSON negotiation changes only HTTPS Apple weather GET requests",
-        "v3 text and v2 binary weather select exactly one body script each",
-        "background, watch, non-JSON and failed v3 responses start no body script",
-        "native scale URL: EU.EAQI.2604",
-        "native scale URL: US.AQI.12?lang=en-US&v=1#s",
-        "native scale URL: HK.AQHI.8",
-        "native scale URL: CN.AQHI.8",
-        "native scale URL: EU.EAQI",
-        "native scale URL: EU.EAQI.preview",
-        "URL normalization preserves POST and unrelated hosts",
-        "availability and ordinary scales start no JavaScript; custom scales use the small entry",
-        "alert routes accept first or subsequent ids parameters",
-        "native jq keeps Apple ordering and unknown capabilities without duplicates",
-        "native jq preserves unknown shapes and handles an empty capability list"
-      ],
-      "validation": "emitted expressions, JavaScript regex fixtures and system jq; not a Loon parser",
-      "deviceValidation": false
-    },
-    "upstreamArgumentDefaultsVerified": 12,
-    "withoutNodeWebCryptoHostTextEncoder": true,
-    "providedWebAPIs": [
-      "URL",
-      "URLSearchParams",
-      "TextDecoder"
-    ],
-    "doneExactlyOnce": true,
-    "liveWeatherRequests": false,
-    "deviceVPNValidation": false
+    "originalArgumentDefaultsVerified": 12,
+    "scriptDeclarations": 7,
+    "parameterBindings": 21,
+    "completionExactlyOnce": true,
+    "nativeCallbacksAwaited": true,
+    "nativeSurgeValidation": false,
+    "liveWeatherRequests": false
   },
-  "canonicalEntry": "Loon/script/iRingo.WeatherKit.lpx",
-  "compatibilityEntries": [
-    "Loon/script/WeatherKit.lpx",
-    "Loon/script/WeatherKit.plugin"
-  ],
-  "compatibilityEntriesIdentical": true,
-  "scriptURLsVerified": 5,
-  "scriptResourceRef": "v3.3.4",
-  "originalArgumentDefaultsVerified": 12,
-  "nativeArgumentDeclarations": 21,
-  "allNineFilesUnchangedFromCI": true,
-  "previousBuildRecord": "loon-build-validation-v3.3.3.json",
-  "previousNativeEvidence": {
-    "version": "3.3.2-cache.9",
-    "buildRecord": "loon-build-validation-v9.json",
-    "iPhoneUserConfirmation": "iphone-v9-user-confirmation.json"
-  },
-  "v334DirectDeviceRetest": false,
-  "deviceMemoryOrPowerMeasurement": false,
-  "longRunningVPNValidation": false,
-  "upstreamPRDraft": true,
-  "artifacts": {
-    "LICENSE.txt": {
-      "bytes": 12847,
-      "sha256": "bf92e803fbe23f6d85a77cac78ed56c1c7ccbb611eb2f0c9145eee9839f483c7"
-    },
-    "SHA256SUMS.txt": {
-      "bytes": 670,
-      "sha256": "94cf2af108d8015fa89f4e6242c911daeba9b206d75798d1031aea277874a4c1"
-    },
-    "WeatherKit.lpx": {
-      "bytes": 9594,
-      "sha256": "0feb1dfd32c8e5a8abc44ffe7342f1f436e33da6cac22b567cc2273fac808243"
-    },
-    "WeatherKit.plugin": {
-      "bytes": 9594,
-      "sha256": "0feb1dfd32c8e5a8abc44ffe7342f1f436e33da6cac22b567cc2273fac808243"
-    },
-    "build-provenance.json": {
-      "bytes": 4945,
-      "sha256": "3362d27ca5bad4f6d1c3d32a327126c20eb2ac5f00501f229e86d970714d1915"
-    },
-    "iRingo.WeatherKit.lpx": {
-      "bytes": 9594,
-      "sha256": "0feb1dfd32c8e5a8abc44ffe7342f1f436e33da6cac22b567cc2273fac808243"
-    },
-    "request.bundle.js": {
-      "bytes": 291387,
-      "sha256": "d8e75cb50be818668e26fa7c08b66c471d5fac2b8d63db73a1e5eb6eed333bfd"
-    },
-    "response.bundle.js": {
-      "bytes": 440294,
-      "sha256": "36ad530a21d6c08078f1f3e1ef7337ce67656bbcc19870c229bcc300237ee800"
-    },
-    "scale.bundle.js": {
-      "bytes": 29703,
-      "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f"
-    }
-  },
-  "publicBytesVerification": "v3.3.4-publication-verification.json",
-  "releaseCommit": "4b39eddecc27032268bad0c9e22fcb95050bc5c0",
-  "upstreamSyncVerification": "upstream-sync-validation.json"
+  "nativeSurgeValidation": false,
+  "nativeMacRecord": "mac-native-observations-v3.3.5.json",
+  "priorLockedCICandidate": "loon-build-validation-v3.3.5-loon-candidate.json",
+  "batteryOrMemoryPercentageMeasured": false
 }

@@ -1,29 +1,31 @@
 #  iRingo: 🌤 WeatherKit
 
-本仓库是 [NSRingo/WeatherKit](https://github.com/NSRingo/WeatherKit) 的 Fork，保留原作者、Apache-2.0 许可证与 Git 历史。当前 Loon 发行 `v3.3.4` 按原版用途与参数含义修正处理逻辑；插件名称、功能描述和原版一致，下载资源来自本 Fork。
+本仓库是 [NSRingo/WeatherKit](https://github.com/NSRingo/WeatherKit) 的 Fork，保留原作者、Apache-2.0 许可证与 Git 历史。当前发行 **v3.3.5** 同时提供 Loon 和 Surge 版本，插件名称、功能描述与参数含义沿用原版。
 
-[更新说明](CHANGELOG.md) · [原版含义与行为核对](docs/upstream-intent-audit.md) · [上游使用指南](https://NSRingo.github.io/guide/Weather/weather-kit) · [原版合并请求 #107（草稿）](https://github.com/NSRingo/WeatherKit/pull/107)
+[更新说明](CHANGELOG.md) · [正式 Release](https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.5) · [原版配置指南](https://NSRingo.github.io/guide/Weather/weather-kit)
 
 ## 安装与更新
 
-[一键导入 Loon](https://www.nsloon.com/openloon/import?plugin=https%3A%2F%2Fraw.githubusercontent.com%2Fhhhoratioxu%2FWeatherKit%2Fmain%2FLoon%2Fscript%2FiRingo.WeatherKit.lpx) · [插件订阅直链](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/iRingo.WeatherKit.lpx) · [正式 Release](https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.4)
+| 客户端 | 订阅地址 |
+| --- | --- |
+| Loon | [一键导入](https://www.nsloon.com/openloon/import?plugin=https%3A%2F%2Fraw.githubusercontent.com%2Fhhhoratioxu%2FWeatherKit%2Fmain%2FLoon%2Fscript%2FiRingo.WeatherKit.lpx) · [iRingo.WeatherKit.lpx](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/iRingo.WeatherKit.lpx) |
+| Surge | [iRingo.WeatherKit.sgmodule](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Surge/script/iRingo.WeatherKit.sgmodule) |
 
-正式文件为 `Loon/script/iRingo.WeatherKit.lpx`。已订阅 `WeatherKit.lpx` 或 `WeatherKit.plugin` 的用户可继续更新，三个入口内容相同；只启用一份 WeatherKit。最低 Loon 版本为 `3.5.1(983)`，沿用既有 MitM 配置。默认算法 EU_EAQI、日志 WARN、独立诊断关闭。
+Loon 原有 WeatherKit.lpx、WeatherKit.plugin 地址继续可用，与正式入口同内容。Surge 同时提供 WeatherKit.sgmodule 兼容入口。每个客户端只启用一份 WeatherKit，沿用已有的 MitM 证书配置。
 
-## 功能与边界
+## 功能
 
-保留原版的天气、空气质量、下一小时降水和预警设置。本 Fork 修复主天气 App 的 WeatherKit v3 JSON 兼容、11 种算法的输入与单位及 CO 标签问题，并保留缺项补充、逐产品失败回退、缓存和请求合并。完整六项污染物不额外请求供应商。
+- 保留原版天气、空气质量、下一小时降水、天气预警与详情功能。
+- 主天气 App 支持 WeatherKit v3；修复天气状态、降水统计与预警编号格式不兼容。
+- 支持 11 种内置空气质量算法及 None，保留六项有效污染物浓度并修复 Apple QWeather CO 标签问题。
+- 算法只作用于指定原始指数标准，默认目标仍为 HJ6332012；默认保留已有昨日对比及独立来源设置。
+- 已有数据优先，缺项补充失败保留原有天气。备用查询默认关闭，单独填写另一来源令牌不会改变所选来源。
+- 默认缓存为 60/180/15/15 秒，网络发起预算 8000 毫秒、最多三个活跃供应商请求；不增加后台轮询。
 
-算法只在选中的原始指数标准上生效，默认目标仍是 HJ6332012；不会因选择算法而强制转换全部地区。污染物浓度补齐与指数替换分别处理；空目标列表及 None 停用本地指数转换。默认保留已有 Apple 昨日对比，缺失或明确开启重算时使用独立配置的昨日来源。备用查询为 Fork 的可选扩展，`ProviderFallback.Enabled` 默认关闭，填写另一来源 Token 不会自动切换来源。
+Loon 最低版本为 3.5.1(983)。Surge 使用自己的 .sgmodule、字符串参数、秒制 HTTP 超时及 JSC/WebView 引擎，见 [Surge 说明](docs/surge.md)。WK3 自定义处理限 iOS/macOS 主天气 App；后台、组件和手表继续保留 Apple 原传输。供应商专用接口仍需要有效的账户权限与令牌。
 
-默认实况／空气质量缓存 60 秒、小时／每日预报 180 秒、分钟降水／预警 15 秒；网络发起预算 8000 毫秒、最多三个活跃请求。保留正文、向量、缓存容量与异步完成边界；没有新增后台轮询。设置与限制见[稳定性与缓存](docs/resilience.md)、[v3 兼容说明](docs/ios273-v3.md)和[空气质量修复](docs/air-quality-v9.md)。InstantCast 和研究模型的当前浓度换算不等于官方日均发布值。
+[原版用途与参数核对](docs/upstream-intent-audit.md) · [缓存与稳定性](docs/resilience.md) · [预警编号修复](docs/weather-alert-id-v3.md) · [本次构建记录](docs/loon-build-validation.json) · [Mac 原生观察记录](docs/mac-native-observations-v3.3.5.json)
 
-本次发行范围为 Loon。其他客户端保留上游源码与模板，不将 Loon 原生规则直接移植过去。
+v3.3.5 当前源码在本地通过 345 项回归，Loon 40 个压缩脚本场景、15 个规则检查及 Surge 29 个压缩脚本场景。Surge 尚未独立原生实测；Mac 观察记录标明了实际测试的候选提交，未扩展为本次最终产物全部原生验收或设备耗电、内存下降比例。
 
-## 构建与验证
-
-使用锁定依赖的 GitHub Actions 构建，产物包含正式名称、兼容入口、三个运行脚本、许可证、构建来源和 SHA-256 清单。本版 [Actions 41970394845](https://github.com/hhhoratioxu/WeatherKit/actions/runs/41970394845) 完整锁定安装通过 325 项回归、38 个真实压缩脚本场景和 15 个表达式／路由／jq 检查；原版 12 项参数默认值全部核对一致。下载的九文件 CI 资产摘要与内部八条清单匹配，重新执行压缩场景全部通过。详细证据见[验证文件](docs/loon-build-validation.json)与[v3.3.4 发布记录](docs/release-v3.3.4.md)。本轮包含运行逻辑修正，不沿用旧版运行脚本同字节的结论。
-
-此前 cache-v9 完成 309 项回归、35 个实际压缩脚本场景和 15 个表达式／路由／jq 检查，Mac 原生核对七种算法及六项污染物；2026-11-05 用户确认 iPhone 使用成功。这些历史证据按当时版本保留，v3.3.3 的 CI 与公共文件核验见[历史记录](docs/release-v3.3.3.md)。v3.3.4 尚未独立进行设备复测。设备耗电或内存下降比例未测量；桌面模拟不能作为设备 VPN 稳定性证明。
-
-历史 [cache-v9](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v9) 及更早发布保留。此前内存工作见 [v7](docs/processing-memory-v7.md)、[v6](docs/cache-memory-v6.md)、[v5](docs/memory-work.md)；其中比例仅为 Node/V8 桌面测量。
+历史 [v3.3.4](https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.4)、[v3.3.3](https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.3) 和 [cache-v9](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v9) 保留。[原版合并请求 #107](https://github.com/NSRingo/WeatherKit/pull/107) 的实际状态见 [同步记录](docs/upstream-sync.md)。
