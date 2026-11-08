@@ -1,6 +1,7 @@
 // Copyright 2026 hhhoratioxu. SPDX-License-Identifier: Apache-2.0
 import { sha256 } from "@noble/hashes/sha2";
 import serializeProviderCache from "../function/serializeProviderCache.mjs";
+import { hasNativeProviderRuntime } from "../function/nativeProviderRuntime.mjs";
 
 // Application bounds, not claims about the host VPN process's memory limits.
 export const REQUEST_CACHE_LIMITS = Object.freeze({ entries: 8, bodyCharacters: 96 * 1024, responseCharacters: 1024 * 1024, storageCharacters: 256 * 1024, identityCharacters: 8192, concurrent: 3, pending: 16, maximumTTLSeconds: 300 });
@@ -20,7 +21,7 @@ export function fingerprint(identity) {
     return Array.from(sha256(bytes), byte => byte.toString(16).padStart(2, "0")).join("");
 }
 function nativeStore(key) {
-    if (typeof $loon !== "string" || typeof $persistentStore === "undefined") return undefined;
+    if (!hasNativeProviderRuntime() || typeof $persistentStore === "undefined") return undefined;
     return { read: () => $persistentStore.read(key), write: value => $persistentStore.write(value, key) };
 }
 function bounded(value, fallback, minimum, maximum) {
@@ -101,7 +102,7 @@ export default class ProviderRequestCache {
         this.#stats.reasons[label] = (this.#stats.reasons[label] ?? 0) + 1;
     }
     report(label = "response") {
-        if (!this.#diagnostics || this.#reported || typeof $loon !== "string") return;
+        if (!this.#diagnostics || this.#reported || !hasNativeProviderRuntime()) return;
         this.#reported = true;
         // Fixed labels and numeric counters only: never include request identities, bodies or error messages.
         console.log(`[WeatherKit] ${JSON.stringify({ phase: label === "request" ? "request" : "response", ...this.stats })}`);
@@ -202,7 +203,7 @@ export default class ProviderRequestCache {
             this.#stats.budgetSkips++;
             throw new ProviderRequestError("budget");
         }
-        const outgoing = typeof $loon === "string" ? { ...request, timeout: Math.max(1, Math.floor(Math.min(bounded(request.timeout, 5000, 1, 5000), remaining))) } : request;
+        const outgoing = hasNativeProviderRuntime() ? { ...request, timeout: Math.max(1, Math.floor(Math.min(bounded(request.timeout, 5000, 1, 5000), remaining))) } : request;
         const started = this.#now();
         let headers;
         this.#stats.requests++;

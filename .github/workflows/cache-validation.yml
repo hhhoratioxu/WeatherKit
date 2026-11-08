@@ -1,4 +1,4 @@
-name: WeatherKit Loon validation
+name: WeatherKit Loon and Surge validation
 
 on:
   workflow_dispatch:
@@ -12,6 +12,7 @@ on:
       - package-lock.json
       - arguments-builder.*.config.ts
       - template/loon.handlebars
+      - template/surge.native.handlebars
       - .github/workflows/cache-validation.yml
 
 permissions:
@@ -46,6 +47,13 @@ jobs:
         run: npm test
       - name: Build native Loon scripts and plugin
         run: npm run build:loon-cache
+      - name: Build native Surge scripts and module
+        run: npm run build:surge-cache
+      - uses: actions/upload-artifact@v4
+        with:
+          name: weatherkit-surge
+          path: Surge/script/
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
           name: weatherkit-loon
