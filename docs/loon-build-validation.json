@@ -134,5 +134,6 @@
   "nativeSurgeValidation": false,
   "nativeMacRecord": "mac-native-observations-v3.3.5.json",
   "priorLockedCICandidate": "loon-build-validation-v3.3.5-loon-candidate.json",
-  "batteryOrMemoryPercentageMeasured": false
+  "batteryOrMemoryPercentageMeasured": false,
+  "publicationReceipt": "v3.3.5-publication-verification.json"
 }

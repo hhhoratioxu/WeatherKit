@@ -1,0 +1,51 @@
+{
+  "verifiedDate": "2026-11-05",
+  "forkRelease": "v3.3.4",
+  "upstreamRepository": "NSRingo/WeatherKit",
+  "pullRequestURL": "https://github.com/NSRingo/WeatherKit/pull/107",
+  "stateAtVerification": "open",
+  "draft": true,
+  "mergedAtVerification": false,
+  "reviewStatus": "draft-original-semantics-audit",
+  "base": "main",
+  "baseSHA": "c40e8f8a13c8304a7ef500cb74acc5948af14b3f",
+  "headBranch": "sync/loon-v3-and-air-quality",
+  "headSHA": "831852ff37cdfd74cabab9c3665fefb754c037bf",
+  "commits": 5,
+  "changedFiles": 69,
+  "ciRun": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/41971388558",
+  "ciConclusion": "success",
+  "node": "v22.23.4",
+  "fullLockfileInstall": true,
+  "regressionTests": 325,
+  "bundledVMScenarios": 38,
+  "nativeExpressionFixtures": 15,
+  "originalArgumentDefaultsVerified": 12,
+  "archiveSHA256": "9710a1ccf33c786b70b88875013becbbb2623ad760b2ba8f7fbb4f2c6355c2b1",
+  "artifactFiles": 5,
+  "downloadedBundlesReexecuted": true,
+  "runtimeBytesIdenticalToPublishedFork": true,
+  "runtimeComparison": {
+    "archiveDigestMatches": true,
+    "files": [
+      "LICENSE.txt",
+      "iRingo.WeatherKit.lpx",
+      "request.loon.bundle.js",
+      "response.loon.bundle.js",
+      "scale.loon.bundle.js"
+    ],
+    "runtimeFullByteIdentityWithV334": {
+      "request": true,
+      "response": true,
+      "scale": true
+    },
+    "upstreamReleaseURLsPreserved": true,
+    "fixtureVersion": "0.0.0-test"
+  },
+  "upstreamReleaseURLsPreserved": true,
+  "upstreamVersionPolicyPreserved": true,
+  "rawDeviceCapturePublished": false,
+  "directDeviceRetest": false,
+  "deviceMemoryOrPowerMeasurement": false,
+  "previousSnapshot": "upstream-sync-validation-v3.3.3.json"
+}

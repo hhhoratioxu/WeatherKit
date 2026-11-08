@@ -1,13 +1,11 @@
-# 原版同步记录
+# Upstream synchronization
 
-2026-11-05 按用户要求，先整理本 Fork 的 Loon 命名与发行，再对照原版用途及参数含义修正处理逻辑。Fork 正式版本为 [v3.3.4](https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.4)；原版 [NSRingo/WeatherKit #107](https://github.com/NSRingo/WeatherKit/pull/107) 保持 Open、Draft，尚未合入。
+Fork [v3.3.5](https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.5) publishes both Loon and Surge. [NSRingo/WeatherKit #107](https://github.com/NSRingo/WeatherKit/pull/107) is Open and Ready for review, not merged. The original maintainer controls upstream acceptance and publication.
 
-原版基线为 c40e8f8，正式插件、源码及指南的核对见[原版含义审计](upstream-intent-audit.md)。本轮恢复指数目标名单、默认保留昨日对比及独立来源的控制，并要求明确开启备用查询。算法数值、CO 单位、WK3 主 App 适配及有界缓存继续保留。
+The upstream contribution remains scoped to the existing Loon compatibility, data handling and bounded provider work. It includes the WK3 warning UUID correction and the original parameter-semantics audit. It does not copy Fork subscription URLs, generated release files or the new Surge distribution into the original repository. The upstream package name, version policy and release URLs are preserved.
 
-PR 分支 sync/loon-v3-and-air-quality 当前提交为 831852ff37cdfd74cabab9c3665fefb754c037bf，共五个提交、69 个源码、构建、文档与测试文件。保留原版包名、版本策略、插件名称和 Release URL；编译发行文件、Fork 订阅入口、个人凭据及原始设备抓包不进入 PR。Loon 使用独立 .loon.bundle.js，新增参数在生成后明确声明原生类型。
+Current head: 355b5f5dad9d01cb13167949f8334a489b301811, based on upstream c40e8f8; seven commits and 72 files. The latest commit only updates documentation. Code commit 4d1f127 passed the locked [Actions build](https://github.com/hhhoratioxu/WeatherKit/actions/runs/42234270265): 335 regressions, 40 compiled VM scenarios, 15 expression/route/jq checks and twelve original defaults. The five-file artifact was downloaded and reexecuted, and its three runtime files are byte-identical to the Mac candidate that was observed.
 
-[当前分支 CI](https://github.com/hhhoratioxu/WeatherKit/actions/runs/41971388558) 使用 Node v22.23.4、完整锁定安装，通过 325 项回归、38 个压缩脚本场景和 15 个表达式／路由／jq 检查；原版 12 项正式参数默认值逐项一致。下载的五文件资产 ZIP SHA-256 为 9710a1ccf33c786b70b88875013becbbb2623ad760b2ba8f7fbb4f2c6355c2b1，归档及重新执行检查通过。三个运行文件与 Fork v3.3.4 整份文件同字节；0.0.0-test 只表示构建夹具。
+The current Fork additionally enables native Surge storage, timeouts and entry points, so its final runtime bytes differ from that earlier candidate. The final Fork was built locally using Node v24.22.1, with 345 regressions, Loon 40/15 and Surge 29 compiled scenarios recorded before publication. These are distinguished from native observations and do not establish native Surge, device battery or memory acceptance.
 
-Fork 的 Release、固定 tag 和 main 各九个文件已与 CI 原始字节匹配，共 27 个公共文件。原版仓库仍由维护者审核决定实际合入，不能将 Fork 发布解释为原版官方订阅已更新。本轮尚未独立复测设备；旧版 Mac 观察与 iPhone 用户反馈不等于新修正的设备或耗电验收。
-
-结构化证据见[当前同步验证](upstream-sync-validation.json)。此前 v3.3.3 的 309/35/15、dac6b02 分支与非草稿状态仅为历史快照，另存于[历史验证](upstream-sync-validation-v3.3.3.json)。
+[Publication receipt](v3.3.5-publication-verification.json) records nineteen assets and 57 matching public files across Release, tag and main. [Structured upstream state](upstream-sync-validation.json) and [Mac observations](mac-native-observations-v3.3.5.json) retain the exact boundaries. Previous v3.3.4 synchronization data is archived in [the historical snapshot](upstream-sync-validation-v3.3.4.json).
