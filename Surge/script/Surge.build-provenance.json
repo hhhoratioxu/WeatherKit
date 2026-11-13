@@ -1,13 +1,13 @@
 {
-  "version": "3.3.5",
-  "sourceCommit": "c91bb422d9a104cbeaacf602a6f0778f6683cf87",
-  "resourceRef": "v3.3.5",
-  "node": "v24.22.1",
+  "version": "3.3.6",
+  "sourceCommit": "a88661cb5cd9cf1e23c8cf352e8786ed9e32366c",
+  "resourceRef": "v3.3.6",
+  "node": "v22.23.4",
   "bundleChecks": {
-    "pass": 29,
+    "pass": 35,
     "fail": 0,
     "scenarios": [
-      "seven native script declarations, disjoint routes and all twenty-one parameter bindings",
+      "seven native script declarations, disjoint routes and all twelve parameter bindings",
       "original twelve argument defaults and identifier-only Surge parameter names",
       "iOS main Weather app negotiates JSON without body, WebAPI or network access",
       "macOS main Weather app negotiates JSON without body, WebAPI or network access",
@@ -30,16 +30,22 @@
       "nonmatching target keeps Apple index and validators",
       "retained Apple warning UUID stays readable: processing disabled",
       "retained Apple warning UUID stays readable: weatherAlerts",
-      "provider failure completes after native callback, preserves bytes and emits redacted diagnostics",
+      "provider failure completes after native callback and preserves bytes without runtime statistics",
       "healthy weather replacement and native response framing use Surge body and headers",
       "background, failed, malformed and opaque WK3 responses use untouched passthrough",
-      "warning details accept ids first and reuse bounded native Surge persistent cache",
+      "warning details accept ids first and fetch again on repeated execution",
       "failed warning detail request preserves the Apple response path",
-      "WK2 binary passthrough retains the native typed array without reencoding"
+      "WK2 binary passthrough retains the native typed array without reencoding",
+      "forecastPeriodic-only JSON is adapted without provider work",
+      "weatherChanges-only JSON is adapted without provider work",
+      "last-minute rain transition survives the compiled provider path",
+      "empty provider minutes preserve native passthrough",
+      "WeatherKit-selected coordinate warning details use untouched passthrough",
+      "modified WK2 binary invalidates original entity headers"
     ],
     "originalArgumentDefaultsVerified": 12,
     "scriptDeclarations": 7,
-    "parameterBindings": 21,
+    "parameterBindings": 12,
     "completionExactlyOnce": true,
     "nativeCallbacksAwaited": true,
     "nativeSurgeValidation": false,
@@ -57,24 +63,7 @@
     "API.QWeather.Token": "API_QWeather_Token",
     "API.WAQI.Token": "API_WAQI_Token",
     "Storage": "Storage",
-    "LogLevel": "LogLevel",
-    "RequestCache.TTL": "RequestCache_TTL",
-    "RequestCache.ForecastTTL": "RequestCache_ForecastTTL",
-    "RequestCache.MinutelyTTL": "RequestCache_MinutelyTTL",
-    "RequestCache.AlertsTTL": "RequestCache_AlertsTTL",
-    "RequestCache.BudgetMs": "RequestCache_BudgetMs",
-    "RequestCache.CooldownSeconds": "RequestCache_CooldownSeconds",
-    "RequestCache.Diagnostics": "RequestCache_Diagnostics",
-    "Region.Fallback": "Region_Fallback",
-    "ProviderFallback.Enabled": "ProviderFallback_Enabled"
+    "LogLevel": "LogLevel"
   },
-  "lockfileSHA256": "689e9d774bf21d1d52e4d7ea2a2db63fd2e5f015b3872dac381295d17a575f6c",
-  "buildOrigin": "local-workspace",
-  "sourceFilesMatchPublishedCommit": true,
-  "fullLockfileInstallRepeated": false,
-  "regressionTests": {
-    "pass": 345,
-    "fail": 0,
-    "skip": 0
-  }
+  "lockfileSHA256": "689e9d774bf21d1d52e4d7ea2a2db63fd2e5f015b3872dac381295d17a575f6c"
 }

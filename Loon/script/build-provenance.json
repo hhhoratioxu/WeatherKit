@@ -1,11 +1,11 @@
 {
-  "version": "3.3.5",
-  "sourceCommit": "c91bb422d9a104cbeaacf602a6f0778f6683cf87",
-  "resourceRef": "v3.3.5",
-  "node": "v24.22.1",
+  "version": "3.3.6",
+  "sourceCommit": "a88661cb5cd9cf1e23c8cf352e8786ed9e32366c",
+  "resourceRef": "v3.3.6",
+  "node": "v22.23.4",
   "schemaPackage": "1.1.2",
   "bundleChecks": {
-    "pass": 40,
+    "pass": 46,
     "fail": 0,
     "scenarios": [
       "custom scale uses a standalone bundle without storage or provider requests",
@@ -14,6 +14,10 @@
       "unhandled content passthrough",
       "v3 JSON replaces weather with WK3 types and preserves unknown fields after native callbacks finish",
       "Apple v3 JSON is adapted to the native Weather reader, including unselected periodic forecasts",
+      "forecastPeriodic-only JSON adapts native fields and invalidates original entity headers without supplier work",
+      "weatherChanges-only JSON adapts native fields and invalidates original entity headers without supplier work",
+      "a rain transition at the last summarized minute survives the compiled provider path",
+      "empty provider minutes preserve the exact original weather response",
       "unselected Apple warning UUID bytes become native strings without changing warning content or unknown products",
       "failed warning supplementation preserves a readable original Apple warning identifier",
       "native Apple QWeather CO is repaired at ingress with no duplicate provider lookup",
@@ -34,18 +38,20 @@
       "v3 provider failure preserves exact Apple JSON, whitespace and validators",
       "WK3 binary stays opaque if JSON negotiation is not honoured",
       "web warning parsing without TextEncoder",
-      "parsed warning cache survives a new Loon execution",
-      "failed warning request passes through with safe diagnostics",
+      "a repeated warning request fetches independently without persistent response reuse",
+      "failed warning request passes through without the removed runtime statistics",
+      "WeatherKit-selected coordinate warning details retain the original Apple request and validators",
       "binary weather response retains Apple values and completes after native failures",
       "existing Apple minute table is preserved without provider work or routine logs",
       "Apple-only provider preserves original binary weather without a decoder round trip",
       "oversized binary input retains the original view without decoding or provider work",
       "partial hourly replacement changes only a matching row and leaves source binary intact",
       "a dedicated token alone never switches away from the explicitly selected provider",
-      "missing minute data uses one configured backup after primary failure",
+      "legacy stored fallback, region and statistics settings cannot reactivate removed features",
       "HTTP 502 provider body with http failure cannot overwrite Apple weather",
       "HTTP 200 provider body with invalid failure cannot overwrite Apple weather",
-      "one shared Caiyun callback can replace healthy weather while preserving failed Apple alerts",
+      "modified WK2 binary invalidates original HTTP entity headers",
+      "independent Caiyun product requests replace healthy weather while preserving failed Apple alerts",
       "partial replacement preserves future fields inside an unchanged selected hourly table",
       "failed alert replacement retains the complete original binary response"
     ],
@@ -83,13 +89,5 @@
     "liveWeatherRequests": false,
     "deviceVPNValidation": false
   },
-  "lockfileSHA256": "689e9d774bf21d1d52e4d7ea2a2db63fd2e5f015b3872dac381295d17a575f6c",
-  "buildOrigin": "local-workspace",
-  "sourceFilesMatchPublishedCommit": true,
-  "fullLockfileInstallRepeated": false,
-  "regressionTests": {
-    "pass": 345,
-    "fail": 0,
-    "skip": 0
-  }
+  "lockfileSHA256": "689e9d774bf21d1d52e4d7ea2a2db63fd2e5f015b3872dac381295d17a575f6c"
 }
