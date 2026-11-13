@@ -30,4 +30,4 @@ Loon 最低版本为 3.5.1(983)。Surge 使用自己的 .sgmodule、字符串参
 
 历史 [v3.3.4](https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.4)、[v3.3.3](https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.3) 和 [cache-v9](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v9) 保留。[原版合并请求 #107](https://github.com/NSRingo/WeatherKit/pull/107) 的实际状态见 [同步记录](docs/upstream-sync.md)。
 
-2026-11-13 的 [技术审计](docs/development-audit-2026-11-13.md) 和 [本地精简验证](docs/remove-extra-controls-2026-11-13.md) 保留为发布前的历史记录。用户随后授权更新，v3.3.6 将精简后的源码和生成的 Loon、Surge 文件一起发布；本地验证为 344 项测试、Loon 46 个压缩脚本场景及 15 项规则检查、Surge 35 个压缩脚本场景。发布产物固定引用 `v3.3.6`，原有订阅地址和兼容入口保持不变。自动验证不代表 Loon/Surge 真机 VPN 或耗电验收。
+2026-11-13 的 [技术审计](docs/development-audit-2026-11-13.md) 和 [本地精简验证](docs/remove-extra-controls-2026-11-13.md) 保留为发布前的历史记录。用户随后授权更新，v3.3.6 已将精简后的源码和生成的 Loon、Surge 文件一起发布。[锁定依赖 CI](https://github.com/hhhoratioxu/WeatherKit/actions/runs/43448848656) 通过 344 项测试、Loon 46 个压缩脚本场景及 15 项规则检查、Surge 35 个压缩脚本场景；main/tag/Release 共 57 份公开文件通过字节核对，见 [发布验证记录](docs/v3.3.6-publication-verification.json)。发布产物固定引用 `v3.3.6`，原有订阅地址和兼容入口保持不变。自动验证不代表 Loon/Surge 真机 VPN 或耗电验收。

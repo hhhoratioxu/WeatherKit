@@ -1,5 +1,7 @@
 # Upstream synchronization
 
+> Historical v3.3.5 snapshot. The current Fork release is [v3.3.6](v3.3.6.md), which removes the extra request controls. Its publication does not update the upstream PR described below.
+
 Fork [v3.3.5](https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.5) publishes both Loon and Surge. [NSRingo/WeatherKit #107](https://github.com/NSRingo/WeatherKit/pull/107) is Open and Ready for review, not merged. The original maintainer controls upstream acceptance and publication.
 
 The upstream contribution remains scoped to the existing Loon compatibility, data handling and bounded provider work. It includes the WK3 warning UUID correction and the original parameter-semantics audit. It does not copy Fork subscription URLs, generated release files or the new Surge distribution into the original repository. The upstream package name, version policy and release URLs are preserved.

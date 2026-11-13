@@ -1,0 +1,417 @@
+{
+  "version": "3.3.6",
+  "status": "published",
+  "verifiedAtUTC": "2026-11-13T15:14:05.619435+00:00",
+  "repository": "hhhoratioxu/WeatherKit",
+  "sourceCommit": "a88661cb5cd9cf1e23c8cf352e8786ed9e32366c",
+  "artifactCommit": "bc0a5c6f5348d55dc07f55d6cae1f2672cf3e865",
+  "mainVerifiedAtCommit": "bc0a5c6f5348d55dc07f55d6cae1f2672cf3e865",
+  "tag": "v3.3.6",
+  "tagObject": "60c6b02e419e75899e8b9049e5d0dfc5b2857ff0",
+  "releaseURL": "https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.6",
+  "publishedAt": "2026-11-13T15:10:27Z",
+  "authorization": "User explicitly requested publication after removal: 更新啊",
+  "CI": {
+    "url": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/43448848656",
+    "runId": 43448848656,
+    "conclusion": "success",
+    "node": "v22.23.4",
+    "cleanLockedDependencyInstallation": true,
+    "unitTests": {
+      "pass": 344,
+      "fail": 0,
+      "skipped": 0
+    },
+    "LoonBundleScenarios": 46,
+    "LoonExpressionChecks": 15,
+    "SurgeBundleScenarios": 35,
+    "originalPluginParameters": 12
+  },
+  "removedControls": [
+    "RequestCache.TTL",
+    "RequestCache.ForecastTTL",
+    "RequestCache.MinutelyTTL",
+    "RequestCache.AlertsTTL",
+    "RequestCache.BudgetMs",
+    "RequestCache.CooldownSeconds",
+    "RequestCache.Diagnostics",
+    "Region.Fallback",
+    "ProviderFallback.Enabled"
+  ],
+  "assetsVerifiedAgainstCI": [
+    {
+      "name": "scale.bundle.js",
+      "bytes": 29703,
+      "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f"
+    },
+    {
+      "name": "WeatherKit.plugin",
+      "bytes": 6915,
+      "sha256": "d5d11c3305a7a0a38c576701927751ea74f7cb49921701a3da0d000feff5c405"
+    },
+    {
+      "name": "build-provenance.json",
+      "bytes": 5816,
+      "sha256": "5900b9b463c4ca8e04ac682fbcfeb7c386f61cb762088017b05d263fa11277f3"
+    },
+    {
+      "name": "request.bundle.js",
+      "bytes": 156376,
+      "sha256": "37ceb06da75f4a866980100b7401463b19c07c35e59e3493839f95bad9605183"
+    },
+    {
+      "name": "iRingo.WeatherKit.lpx",
+      "bytes": 6915,
+      "sha256": "d5d11c3305a7a0a38c576701927751ea74f7cb49921701a3da0d000feff5c405"
+    },
+    {
+      "name": "WeatherKit.lpx",
+      "bytes": 6915,
+      "sha256": "d5d11c3305a7a0a38c576701927751ea74f7cb49921701a3da0d000feff5c405"
+    },
+    {
+      "name": "LICENSE.txt",
+      "bytes": 11575,
+      "sha256": "9b215ec9e7d5df96a1b968aaffe596c620fc9a21c175994cc4bb6b3bdbebde4b"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "bytes": 670,
+      "sha256": "665d2c8cec967f02108e440934cf9eb5e91b6af124032a0b27ad6f9282c5afcf"
+    },
+    {
+      "name": "response.bundle.js",
+      "bytes": 303200,
+      "sha256": "86fae89ed3bab954217e65e55ebd147cae8b091cceff4ccd5710b80e1357d2d5"
+    },
+    {
+      "name": "scale.surge.bundle.js",
+      "bytes": 29671,
+      "sha256": "ab1a4b171b409c35241cef8ec1222e36c1de043c9b147f344cf36f890f15d8bb"
+    },
+    {
+      "name": "WeatherKit.sgmodule",
+      "bytes": 9260,
+      "sha256": "9563f2ae23eeb89b56a423e016200be8f234c83575fdb96e596fd93cd543f407"
+    },
+    {
+      "name": "Surge.SHA256SUMS.txt",
+      "bytes": 813,
+      "sha256": "9f9291e51a8515b9363208d3053a8bfc9982e9c2cf2c20786e53859d4cd0e79d"
+    },
+    {
+      "name": "transport.surge.bundle.js",
+      "bytes": 402,
+      "sha256": "676da74e14a6b184e9d54ca239ee2940f6514fd2d6ba6c966987f555be31a474"
+    },
+    {
+      "name": "response.surge.bundle.js",
+      "bytes": 304170,
+      "sha256": "fc911bf2d2291b3c4a1b9727cd45df72f5437f2ae4c15ea6b240c706ee9a34f8"
+    },
+    {
+      "name": "iRingo.WeatherKit.sgmodule",
+      "bytes": 9260,
+      "sha256": "9563f2ae23eeb89b56a423e016200be8f234c83575fdb96e596fd93cd543f407"
+    },
+    {
+      "name": "availability.surge.bundle.js",
+      "bytes": 1102,
+      "sha256": "0db3275a94cb4d67d91c9c2be67a60130fc838aaaf61dedd71290e514fe98f41"
+    },
+    {
+      "name": "request.surge.bundle.js",
+      "bytes": 156363,
+      "sha256": "ab9f70b8a1b103660ad5621df8868e84272d15ef099588b59d6de3e386907ea4"
+    },
+    {
+      "name": "Surge.build-provenance.json",
+      "bytes": 4171,
+      "sha256": "05ae8669ba91c83046557c23a7aa8a9f5d5490e4d2afcf830ead4afc65d42db3"
+    },
+    {
+      "name": "Surge.LICENSE.txt",
+      "bytes": 11575,
+      "sha256": "9b215ec9e7d5df96a1b968aaffe596c620fc9a21c175994cc4bb6b3bdbebde4b"
+    }
+  ],
+  "publicMainAndTagFilesVerifiedAgainstCI": [
+    {
+      "ref": "main",
+      "path": "Loon/script/scale.bundle.js",
+      "status": 200,
+      "bytes": 29703,
+      "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f"
+    },
+    {
+      "ref": "main",
+      "path": "Loon/script/WeatherKit.plugin",
+      "status": 200,
+      "bytes": 6915,
+      "sha256": "d5d11c3305a7a0a38c576701927751ea74f7cb49921701a3da0d000feff5c405"
+    },
+    {
+      "ref": "main",
+      "path": "Loon/script/build-provenance.json",
+      "status": 200,
+      "bytes": 5816,
+      "sha256": "5900b9b463c4ca8e04ac682fbcfeb7c386f61cb762088017b05d263fa11277f3"
+    },
+    {
+      "ref": "main",
+      "path": "Loon/script/request.bundle.js",
+      "status": 200,
+      "bytes": 156376,
+      "sha256": "37ceb06da75f4a866980100b7401463b19c07c35e59e3493839f95bad9605183"
+    },
+    {
+      "ref": "main",
+      "path": "Loon/script/iRingo.WeatherKit.lpx",
+      "status": 200,
+      "bytes": 6915,
+      "sha256": "d5d11c3305a7a0a38c576701927751ea74f7cb49921701a3da0d000feff5c405"
+    },
+    {
+      "ref": "main",
+      "path": "Loon/script/WeatherKit.lpx",
+      "status": 200,
+      "bytes": 6915,
+      "sha256": "d5d11c3305a7a0a38c576701927751ea74f7cb49921701a3da0d000feff5c405"
+    },
+    {
+      "ref": "main",
+      "path": "Loon/script/LICENSE.txt",
+      "status": 200,
+      "bytes": 11575,
+      "sha256": "9b215ec9e7d5df96a1b968aaffe596c620fc9a21c175994cc4bb6b3bdbebde4b"
+    },
+    {
+      "ref": "main",
+      "path": "Loon/script/SHA256SUMS.txt",
+      "status": 200,
+      "bytes": 670,
+      "sha256": "665d2c8cec967f02108e440934cf9eb5e91b6af124032a0b27ad6f9282c5afcf"
+    },
+    {
+      "ref": "main",
+      "path": "Loon/script/response.bundle.js",
+      "status": 200,
+      "bytes": 303200,
+      "sha256": "86fae89ed3bab954217e65e55ebd147cae8b091cceff4ccd5710b80e1357d2d5"
+    },
+    {
+      "ref": "main",
+      "path": "Surge/script/scale.surge.bundle.js",
+      "status": 200,
+      "bytes": 29671,
+      "sha256": "ab1a4b171b409c35241cef8ec1222e36c1de043c9b147f344cf36f890f15d8bb"
+    },
+    {
+      "ref": "main",
+      "path": "Surge/script/WeatherKit.sgmodule",
+      "status": 200,
+      "bytes": 9260,
+      "sha256": "9563f2ae23eeb89b56a423e016200be8f234c83575fdb96e596fd93cd543f407"
+    },
+    {
+      "ref": "main",
+      "path": "Surge/script/Surge.SHA256SUMS.txt",
+      "status": 200,
+      "bytes": 813,
+      "sha256": "9f9291e51a8515b9363208d3053a8bfc9982e9c2cf2c20786e53859d4cd0e79d"
+    },
+    {
+      "ref": "main",
+      "path": "Surge/script/transport.surge.bundle.js",
+      "status": 200,
+      "bytes": 402,
+      "sha256": "676da74e14a6b184e9d54ca239ee2940f6514fd2d6ba6c966987f555be31a474"
+    },
+    {
+      "ref": "main",
+      "path": "Surge/script/response.surge.bundle.js",
+      "status": 200,
+      "bytes": 304170,
+      "sha256": "fc911bf2d2291b3c4a1b9727cd45df72f5437f2ae4c15ea6b240c706ee9a34f8"
+    },
+    {
+      "ref": "main",
+      "path": "Surge/script/iRingo.WeatherKit.sgmodule",
+      "status": 200,
+      "bytes": 9260,
+      "sha256": "9563f2ae23eeb89b56a423e016200be8f234c83575fdb96e596fd93cd543f407"
+    },
+    {
+      "ref": "main",
+      "path": "Surge/script/availability.surge.bundle.js",
+      "status": 200,
+      "bytes": 1102,
+      "sha256": "0db3275a94cb4d67d91c9c2be67a60130fc838aaaf61dedd71290e514fe98f41"
+    },
+    {
+      "ref": "main",
+      "path": "Surge/script/request.surge.bundle.js",
+      "status": 200,
+      "bytes": 156363,
+      "sha256": "ab9f70b8a1b103660ad5621df8868e84272d15ef099588b59d6de3e386907ea4"
+    },
+    {
+      "ref": "main",
+      "path": "Surge/script/Surge.build-provenance.json",
+      "status": 200,
+      "bytes": 4171,
+      "sha256": "05ae8669ba91c83046557c23a7aa8a9f5d5490e4d2afcf830ead4afc65d42db3"
+    },
+    {
+      "ref": "main",
+      "path": "Surge/script/Surge.LICENSE.txt",
+      "status": 200,
+      "bytes": 11575,
+      "sha256": "9b215ec9e7d5df96a1b968aaffe596c620fc9a21c175994cc4bb6b3bdbebde4b"
+    },
+    {
+      "ref": "v3.3.6",
+      "path": "Loon/script/scale.bundle.js",
+      "status": 200,
+      "bytes": 29703,
+      "sha256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f"
+    },
+    {
+      "ref": "v3.3.6",
+      "path": "Loon/script/WeatherKit.plugin",
+      "status": 200,
+      "bytes": 6915,
+      "sha256": "d5d11c3305a7a0a38c576701927751ea74f7cb49921701a3da0d000feff5c405"
+    },
+    {
+      "ref": "v3.3.6",
+      "path": "Loon/script/build-provenance.json",
+      "status": 200,
+      "bytes": 5816,
+      "sha256": "5900b9b463c4ca8e04ac682fbcfeb7c386f61cb762088017b05d263fa11277f3"
+    },
+    {
+      "ref": "v3.3.6",
+      "path": "Loon/script/request.bundle.js",
+      "status": 200,
+      "bytes": 156376,
+      "sha256": "37ceb06da75f4a866980100b7401463b19c07c35e59e3493839f95bad9605183"
+    },
+    {
+      "ref": "v3.3.6",
+      "path": "Loon/script/iRingo.WeatherKit.lpx",
+      "status": 200,
+      "bytes": 6915,
+      "sha256": "d5d11c3305a7a0a38c576701927751ea74f7cb49921701a3da0d000feff5c405"
+    },
+    {
+      "ref": "v3.3.6",
+      "path": "Loon/script/WeatherKit.lpx",
+      "status": 200,
+      "bytes": 6915,
+      "sha256": "d5d11c3305a7a0a38c576701927751ea74f7cb49921701a3da0d000feff5c405"
+    },
+    {
+      "ref": "v3.3.6",
+      "path": "Loon/script/LICENSE.txt",
+      "status": 200,
+      "bytes": 11575,
+      "sha256": "9b215ec9e7d5df96a1b968aaffe596c620fc9a21c175994cc4bb6b3bdbebde4b"
+    },
+    {
+      "ref": "v3.3.6",
+      "path": "Loon/script/SHA256SUMS.txt",
+      "status": 200,
+      "bytes": 670,
+      "sha256": "665d2c8cec967f02108e440934cf9eb5e91b6af124032a0b27ad6f9282c5afcf"
+    },
+    {
+      "ref": "v3.3.6",
+      "path": "Loon/script/response.bundle.js",
+      "status": 200,
+      "bytes": 303200,
+      "sha256": "86fae89ed3bab954217e65e55ebd147cae8b091cceff4ccd5710b80e1357d2d5"
+    },
+    {
+      "ref": "v3.3.6",
+      "path": "Surge/script/scale.surge.bundle.js",
+      "status": 200,
+      "bytes": 29671,
+      "sha256": "ab1a4b171b409c35241cef8ec1222e36c1de043c9b147f344cf36f890f15d8bb"
+    },
+    {
+      "ref": "v3.3.6",
+      "path": "Surge/script/WeatherKit.sgmodule",
+      "status": 200,
+      "bytes": 9260,
+      "sha256": "9563f2ae23eeb89b56a423e016200be8f234c83575fdb96e596fd93cd543f407"
+    },
+    {
+      "ref": "v3.3.6",
+      "path": "Surge/script/Surge.SHA256SUMS.txt",
+      "status": 200,
+      "bytes": 813,
+      "sha256": "9f9291e51a8515b9363208d3053a8bfc9982e9c2cf2c20786e53859d4cd0e79d"
+    },
+    {
+      "ref": "v3.3.6",
+      "path": "Surge/script/transport.surge.bundle.js",
+      "status": 200,
+      "bytes": 402,
+      "sha256": "676da74e14a6b184e9d54ca239ee2940f6514fd2d6ba6c966987f555be31a474"
+    },
+    {
+      "ref": "v3.3.6",
+      "path": "Surge/script/response.surge.bundle.js",
+      "status": 200,
+      "bytes": 304170,
+      "sha256": "fc911bf2d2291b3c4a1b9727cd45df72f5437f2ae4c15ea6b240c706ee9a34f8"
+    },
+    {
+      "ref": "v3.3.6",
+      "path": "Surge/script/iRingo.WeatherKit.sgmodule",
+      "status": 200,
+      "bytes": 9260,
+      "sha256": "9563f2ae23eeb89b56a423e016200be8f234c83575fdb96e596fd93cd543f407"
+    },
+    {
+      "ref": "v3.3.6",
+      "path": "Surge/script/availability.surge.bundle.js",
+      "status": 200,
+      "bytes": 1102,
+      "sha256": "0db3275a94cb4d67d91c9c2be67a60130fc838aaaf61dedd71290e514fe98f41"
+    },
+    {
+      "ref": "v3.3.6",
+      "path": "Surge/script/request.surge.bundle.js",
+      "status": 200,
+      "bytes": 156363,
+      "sha256": "ab9f70b8a1b103660ad5621df8868e84272d15ef099588b59d6de3e386907ea4"
+    },
+    {
+      "ref": "v3.3.6",
+      "path": "Surge/script/Surge.build-provenance.json",
+      "status": 200,
+      "bytes": 4171,
+      "sha256": "05ae8669ba91c83046557c23a7aa8a9f5d5490e4d2afcf830ead4afc65d42db3"
+    },
+    {
+      "ref": "v3.3.6",
+      "path": "Surge/script/Surge.LICENSE.txt",
+      "status": 200,
+      "bytes": 11575,
+      "sha256": "9b215ec9e7d5df96a1b968aaffe596c620fc9a21c175994cc4bb6b3bdbebde4b"
+    }
+  ],
+  "verifiedPublicFiles": 57,
+  "CICompiledRuntimeFilesMatchLocal": true,
+  "localNode": "v22.23.5",
+  "localToCIConfigDifference": "Only build time and timezone; runtime script bytes match exactly.",
+  "runtimeResourceRef": "v3.3.6",
+  "subscriptionURLsUnchanged": true,
+  "historicalTagsMoved": false,
+  "upstreamPRChanged": false,
+  "deviceVPNValidation": false,
+  "devicePerformanceClaims": false,
+  "receiptNote": "Verification covers main at the artifact commit. The following receipt commit changes documentation only; runtime/configuration bytes remain identical."
+}
