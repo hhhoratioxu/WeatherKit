@@ -1,5 +1,7 @@
 # Surge 版 WeatherKit
 
+> 以下为 v3.3.5 的历史说明。当前 [v3.3.6](v3.3.6.md) 已按用户要求删除后加的 9 项控制，仅保留原有 12 项插件参数；不再使用响应短时缓存、合并、预算、冷却、额外统计、地区推断或备用来源查询。原生单请求超时仍按秒传给 Surge。
+
 2026-11-08 按 Surge 官方 [模块](https://manual.nssurge.com/profile/module.html)、[脚本声明](https://manual.nssurge.com/scripting/overview.html)、[请求脚本](https://manual.nssurge.com/scripting/http-request.html)、[响应脚本](https://manual.nssurge.com/scripting/http-response.html) 和 [JavaScript API](https://manual.nssurge.com/scripting/api.html) 整理。使用独立原生模板，不将 Loon 条件语法或毫秒 HTTP 参数直接移入 Surge。
 
 ## 安装与设置

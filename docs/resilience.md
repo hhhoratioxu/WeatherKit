@@ -1,5 +1,7 @@
 # WeatherKit 缓存与弱网处理 v7
 
+> 历史版本说明。当前 [v3.3.6](v3.3.6.md) 已按用户要求删除短时请求缓存、合并、预算、冷却和额外统计；发布前验证见 [精简记录](remove-extra-controls-2026-11-13.md)。
+
 2026-11-01，版本 `3.3.2-cache.7`。Loon 插件正式订阅地址为 `main/Loon/script/WeatherKit.lpx`，运行脚本固定引用 `cache-v7`，旧 `cache-v6`、`cache-v5`、`cache-v4`、`cache-v3`、`cache-v2` 与 `cache-v1` 保留用于回退。
 
 ## v7 减少未改动数据编码和预警临时对象

@@ -1,0 +1,273 @@
+{
+  "node": "v22.23.5",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "iterations": 500,
+  "samples": 5,
+  "warmupIterations": 30,
+  "liveWeatherRequests": false,
+  "deviceVPNValidation": false,
+  "scope": "Independent Node/V8 processes; synchronous synthetic HTTP; TTL zero; identical complete products; retained heap is not allocation volume or device peak memory",
+  "sourceSHA256": {
+    "src/class/ForecastNextHour.mjs": "8b117edf0b365603690ea375122d4520b56dc47969a8dd6778131d2ac2327314",
+    "src/class/ProviderRequestCache.mjs": "551cc8e288364768ebd4c7a184545ff8d98bf619e182a230c1462b4330eabc6c",
+    "src/class/ColorfulClouds.mjs": "aeb45066726a07d6f5bb999a61ebe3fdedc5cf1ae56b66c07c48dae80a88f5bd",
+    "src/class/QWeather.mjs": "6f7195005658d00cc766b6a4d2988bef6f020851d77992c85bcd350abbafb483"
+  },
+  "summaries": [
+    {
+      "scenario": "caiyun",
+      "implementation": "baseline",
+      "medianCpuMicros": 33065,
+      "medianElapsedMs": 19.813374999999994,
+      "medianRetainedHeapBytes": 39008,
+      "medianMaxRSSKiB": 78192
+    },
+    {
+      "scenario": "caiyun",
+      "implementation": "current",
+      "medianCpuMicros": 31895,
+      "medianElapsedMs": 19.847875000000002,
+      "medianRetainedHeapBytes": 35528,
+      "medianMaxRSSKiB": 78432
+    },
+    {
+      "scenario": "qweather",
+      "implementation": "baseline",
+      "medianCpuMicros": 40025,
+      "medianElapsedMs": 26.241957999999997,
+      "medianRetainedHeapBytes": 53152,
+      "medianMaxRSSKiB": 79056
+    },
+    {
+      "scenario": "qweather",
+      "implementation": "current",
+      "medianCpuMicros": 40963,
+      "medianElapsedMs": 26.127459000000016,
+      "medianRetainedHeapBytes": 38208,
+      "medianMaxRSSKiB": 79088
+    }
+  ],
+  "rows": [
+    {
+      "scenario": "caiyun",
+      "implementation": "baseline",
+      "repetition": 0,
+      "requests": 500,
+      "outputSHA256": "2045d59b0859f6780a1834e0b43f59b69471dcdde833f0d1585d5db3e78aae7f",
+      "elapsedMs": 19.71154200000001,
+      "cpuMicros": 33065,
+      "retainedHeapBytes": 38640,
+      "maxRSSKiB": 78192
+    },
+    {
+      "scenario": "caiyun",
+      "implementation": "current",
+      "repetition": 0,
+      "requests": 500,
+      "outputSHA256": "2045d59b0859f6780a1834e0b43f59b69471dcdde833f0d1585d5db3e78aae7f",
+      "elapsedMs": 20.527500000000003,
+      "cpuMicros": 33380,
+      "retainedHeapBytes": 35376,
+      "maxRSSKiB": 79648
+    },
+    {
+      "scenario": "caiyun",
+      "implementation": "current",
+      "repetition": 1,
+      "requests": 500,
+      "outputSHA256": "2045d59b0859f6780a1834e0b43f59b69471dcdde833f0d1585d5db3e78aae7f",
+      "elapsedMs": 19.75425,
+      "cpuMicros": 31895,
+      "retainedHeapBytes": 36120,
+      "maxRSSKiB": 78416
+    },
+    {
+      "scenario": "caiyun",
+      "implementation": "baseline",
+      "repetition": 1,
+      "requests": 500,
+      "outputSHA256": "2045d59b0859f6780a1834e0b43f59b69471dcdde833f0d1585d5db3e78aae7f",
+      "elapsedMs": 24.793416000000008,
+      "cpuMicros": 39448,
+      "retainedHeapBytes": 38792,
+      "maxRSSKiB": 77536
+    },
+    {
+      "scenario": "caiyun",
+      "implementation": "baseline",
+      "repetition": 2,
+      "requests": 500,
+      "outputSHA256": "2045d59b0859f6780a1834e0b43f59b69471dcdde833f0d1585d5db3e78aae7f",
+      "elapsedMs": 19.28358400000002,
+      "cpuMicros": 31308,
+      "retainedHeapBytes": 39008,
+      "maxRSSKiB": 78288
+    },
+    {
+      "scenario": "caiyun",
+      "implementation": "current",
+      "repetition": 2,
+      "requests": 500,
+      "outputSHA256": "2045d59b0859f6780a1834e0b43f59b69471dcdde833f0d1585d5db3e78aae7f",
+      "elapsedMs": 19.847875000000002,
+      "cpuMicros": 31567,
+      "retainedHeapBytes": 35656,
+      "maxRSSKiB": 78112
+    },
+    {
+      "scenario": "caiyun",
+      "implementation": "current",
+      "repetition": 3,
+      "requests": 500,
+      "outputSHA256": "2045d59b0859f6780a1834e0b43f59b69471dcdde833f0d1585d5db3e78aae7f",
+      "elapsedMs": 19.838208999999992,
+      "cpuMicros": 31977,
+      "retainedHeapBytes": 35528,
+      "maxRSSKiB": 78432
+    },
+    {
+      "scenario": "caiyun",
+      "implementation": "baseline",
+      "repetition": 3,
+      "requests": 500,
+      "outputSHA256": "2045d59b0859f6780a1834e0b43f59b69471dcdde833f0d1585d5db3e78aae7f",
+      "elapsedMs": 19.813374999999994,
+      "cpuMicros": 32940,
+      "retainedHeapBytes": 39248,
+      "maxRSSKiB": 79280
+    },
+    {
+      "scenario": "caiyun",
+      "implementation": "baseline",
+      "repetition": 4,
+      "requests": 500,
+      "outputSHA256": "2045d59b0859f6780a1834e0b43f59b69471dcdde833f0d1585d5db3e78aae7f",
+      "elapsedMs": 20.66087499999999,
+      "cpuMicros": 34069,
+      "retainedHeapBytes": 39056,
+      "maxRSSKiB": 78160
+    },
+    {
+      "scenario": "caiyun",
+      "implementation": "current",
+      "repetition": 4,
+      "requests": 500,
+      "outputSHA256": "2045d59b0859f6780a1834e0b43f59b69471dcdde833f0d1585d5db3e78aae7f",
+      "elapsedMs": 19.857874999999993,
+      "cpuMicros": 30817,
+      "retainedHeapBytes": 35488,
+      "maxRSSKiB": 79200
+    },
+    {
+      "scenario": "qweather",
+      "implementation": "baseline",
+      "repetition": 0,
+      "requests": 500,
+      "outputSHA256": "fe6fac597d8a1dc438d4a6e8909dda234585ca71942b67f295377e5f50d65708",
+      "elapsedMs": 26.37925,
+      "cpuMicros": 41131,
+      "retainedHeapBytes": 53152,
+      "maxRSSKiB": 80384
+    },
+    {
+      "scenario": "qweather",
+      "implementation": "current",
+      "repetition": 0,
+      "requests": 500,
+      "outputSHA256": "fe6fac597d8a1dc438d4a6e8909dda234585ca71942b67f295377e5f50d65708",
+      "elapsedMs": 26.127459000000016,
+      "cpuMicros": 40963,
+      "retainedHeapBytes": 37592,
+      "maxRSSKiB": 79088
+    },
+    {
+      "scenario": "qweather",
+      "implementation": "current",
+      "repetition": 1,
+      "requests": 500,
+      "outputSHA256": "fe6fac597d8a1dc438d4a6e8909dda234585ca71942b67f295377e5f50d65708",
+      "elapsedMs": 26.276083,
+      "cpuMicros": 41790,
+      "retainedHeapBytes": 49184,
+      "maxRSSKiB": 80432
+    },
+    {
+      "scenario": "qweather",
+      "implementation": "baseline",
+      "repetition": 1,
+      "requests": 500,
+      "outputSHA256": "fe6fac597d8a1dc438d4a6e8909dda234585ca71942b67f295377e5f50d65708",
+      "elapsedMs": 26.44208400000001,
+      "cpuMicros": 39777,
+      "retainedHeapBytes": 53928,
+      "maxRSSKiB": 78800
+    },
+    {
+      "scenario": "qweather",
+      "implementation": "baseline",
+      "repetition": 2,
+      "requests": 500,
+      "outputSHA256": "fe6fac597d8a1dc438d4a6e8909dda234585ca71942b67f295377e5f50d65708",
+      "elapsedMs": 25.672832999999997,
+      "cpuMicros": 40463,
+      "retainedHeapBytes": 43056,
+      "maxRSSKiB": 78896
+    },
+    {
+      "scenario": "qweather",
+      "implementation": "current",
+      "repetition": 2,
+      "requests": 500,
+      "outputSHA256": "fe6fac597d8a1dc438d4a6e8909dda234585ca71942b67f295377e5f50d65708",
+      "elapsedMs": 26.06683299999999,
+      "cpuMicros": 41128,
+      "retainedHeapBytes": 37520,
+      "maxRSSKiB": 78768
+    },
+    {
+      "scenario": "qweather",
+      "implementation": "current",
+      "repetition": 3,
+      "requests": 500,
+      "outputSHA256": "fe6fac597d8a1dc438d4a6e8909dda234585ca71942b67f295377e5f50d65708",
+      "elapsedMs": 26.053167000000002,
+      "cpuMicros": 40363,
+      "retainedHeapBytes": 38208,
+      "maxRSSKiB": 78496
+    },
+    {
+      "scenario": "qweather",
+      "implementation": "baseline",
+      "repetition": 3,
+      "requests": 500,
+      "outputSHA256": "fe6fac597d8a1dc438d4a6e8909dda234585ca71942b67f295377e5f50d65708",
+      "elapsedMs": 26.241957999999997,
+      "cpuMicros": 40025,
+      "retainedHeapBytes": 40208,
+      "maxRSSKiB": 80224
+    },
+    {
+      "scenario": "qweather",
+      "implementation": "baseline",
+      "repetition": 4,
+      "requests": 500,
+      "outputSHA256": "fe6fac597d8a1dc438d4a6e8909dda234585ca71942b67f295377e5f50d65708",
+      "elapsedMs": 25.789,
+      "cpuMicros": 39784,
+      "retainedHeapBytes": 53280,
+      "maxRSSKiB": 79056
+    },
+    {
+      "scenario": "qweather",
+      "implementation": "current",
+      "repetition": 4,
+      "requests": 500,
+      "outputSHA256": "fe6fac597d8a1dc438d4a6e8909dda234585ca71942b67f295377e5f50d65708",
+      "elapsedMs": 26.206833999999986,
+      "cpuMicros": 40538,
+      "retainedHeapBytes": 38552,
+      "maxRSSKiB": 80256
+    }
+  ]
+}
