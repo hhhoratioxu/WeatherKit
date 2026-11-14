@@ -1,0 +1,157 @@
+{
+  "reportDate": "2026-11-14",
+  "timezone": "Asia/Taipei",
+  "preparedAtUTC": "2026-11-14T01:51:15.329856+00:00",
+  "status": "installed_files_verified_and_native_requests_observed_UI_acceptance_incomplete",
+  "testedRuntimeCommit": "f571a49eb3404caf5214cb9b629ee1bd74cf239c",
+  "environment": {
+    "macOS": "27.3",
+    "build": "26C5035r",
+    "LoonVersion": "0.5.0",
+    "LoonBuild": "1011"
+  },
+  "actions": {
+    "weatherKitPluginUpdatedFromExistingMainSubscription": true,
+    "updateButtonClicks": 1,
+    "enabledBefore": true,
+    "enabledAfterInActiveConfig": true,
+    "enableToggleUsed": false,
+    "otherPluginEdits": false,
+    "VPNOrNodeOrRuleOrMITMEdits": false,
+    "newCodeFixesMade": false,
+    "privateRollbackBackupsKeptLocally": true
+  },
+  "installedFiles": [
+    {
+      "name": "iRingo.WeatherKit.lpx",
+      "expectedSHA256": "d759f482eb47e40db5af2a77df0bba2f4787151713c8db18851c0b1b7d2ed44d",
+      "actualSHA256": "d759f482eb47e40db5af2a77df0bba2f4787151713c8db18851c0b1b7d2ed44d",
+      "matchesF571a49": true
+    },
+    {
+      "name": "request.bundle.js",
+      "expectedSHA256": "5166672e2b052fa1064d3d5840055b63a00eda5d46a85d01dfb678b1356dc80c",
+      "actualSHA256": "5166672e2b052fa1064d3d5840055b63a00eda5d46a85d01dfb678b1356dc80c",
+      "matchesF571a49": true
+    },
+    {
+      "name": "response.bundle.js",
+      "expectedSHA256": "643d5f9083c15e9c0578ee80cf07ca35291f24da9a118f33bfb5f334c31f69f9",
+      "actualSHA256": "643d5f9083c15e9c0578ee80cf07ca35291f24da9a118f33bfb5f334c31f69f9",
+      "matchesF571a49": true
+    },
+    {
+      "name": "scale.bundle.js",
+      "expectedSHA256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f",
+      "actualSHA256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f",
+      "matchesF571a49": true
+    }
+  ],
+  "parameters": {
+    "declaredBefore": 21,
+    "declaredAfter": 12,
+    "retainedTwelveDeclarationsAndDefaultsEqual": true,
+    "manualParameterEdits": false,
+    "postUpdateIndividualUIValueComparisonCompleted": false,
+    "WeatherKitConfigurationRowsUnchanged": true
+  },
+  "nativeAppObservation": {
+    "weatherProcessRunningObserved": true,
+    "actualWeatherAppRequests": [
+      {
+        "process": "com.apple.weather",
+        "country": "CN",
+        "status": 200,
+        "requestedProducts": [
+          "airQuality,currentWeather,dataNotice,forecastDaily,forecastHourly,forecastNextHour,forecastPeriodic,news,historicalComparisons,weatherAlerts,weatherChanges"
+        ],
+        "responseBodyAvailable": false
+      },
+      {
+        "process": "com.apple.weather",
+        "country": "GB",
+        "status": 200,
+        "requestedProducts": [
+          "airQuality,currentWeather,dataNotice,forecastDaily,forecastHourly,forecastNextHour,forecastPeriodic,news,historicalComparisons,weatherAlerts,weatherChanges"
+        ],
+        "responseBodyAvailable": false
+      }
+    ],
+    "responseContentType": "application/json",
+    "nativeScriptTag": "WeatherKit.api.v3.weather.json.response",
+    "nativeExecutions": 2,
+    "completed": 2,
+    "scriptExceptions": 0,
+    "databaseRequestedCountValues": [
+      0,
+      0
+    ],
+    "renderedWeatherUIObserved": false,
+    "savedResponseProductBodiesAvailable": false,
+    "loadedScriptVersionIndependentlyRecoverableFromExecutionRecords": false,
+    "loadedScriptVersionLimit": "Execution paths are temporary virtual filenames. Cache SHA verification and native execution evidence are distinct observations.",
+    "sessionIdAndRequestStartTimeCorrelationsVerified": true,
+    "sampleScope": "First two observed WeatherKit v3 executions after the App-attempt baseline; later background requests are outside this sample."
+  },
+  "VPN": {
+    "samples": 363,
+    "elapsedSeconds": 371.393,
+    "allObservedConnected": true,
+    "current": "Connected",
+    "samplerStopped": true
+  },
+  "preservation": {
+    "activeAndSavedConfigFilesByteUnchanged": true,
+    "otherPluginFilesCompared": 14,
+    "otherPluginFilesChanged": 0,
+    "primaryLoonProcessPIDAndStartTimeUnchanged": true
+  },
+  "UIObservationBlocker": {
+    "tool": "cua_repl",
+    "timeoutEvents": 3,
+    "operations": [
+      "read updated Loon accessibility state",
+      "open/read Apple Weather",
+      "enumerate native surfaces"
+    ],
+    "kernelResetObserved": true,
+    "UIActionsEnded": true,
+    "notClassifiedAsWeatherKitRuntimeDefect": true
+  },
+  "priorAutomatedValidation": {
+    "commit": "f571a49eb3404caf5214cb9b629ee1bd74cf239c",
+    "run": "https://github.com/hhhoratioxu/WeatherKit/actions/runs/43539548163",
+    "tests": 395,
+    "LoonScriptScenarios": 50,
+    "LoonRuleChecks": 15,
+    "SurgeScriptScenarios": 39,
+    "countsIncludedInNativeExecutions": false
+  },
+  "unverified": [
+    "Actual Weather App rendered values and refresh interaction",
+    "Manual public-city selection and controlled CN/overseas comparison",
+    "Provider attribution or acceptance of replacement weather data",
+    "AQ concentrations, EU_EAQI result and comparison semantics on device",
+    "Weather warning enrichment, details, empty/unavailable transitions on device",
+    "Independent identification of loaded engine code from the temporary execution path",
+    "Surge native device behavior and upstream dev/PR110 protocol",
+    "Network switching, prolonged VPN stability, battery, CPU and peak memory"
+  ],
+  "privacy": {
+    "rawConfigUploaded": false,
+    "credentialsUploaded": false,
+    "rawRequestHeadersUploaded": false,
+    "rawRequestURLsUploaded": false,
+    "rawResponseBodiesUploaded": false,
+    "rawScriptLogsUploaded": false,
+    "preciseCoordinatesUploaded": false,
+    "privateBackupsUploaded": false
+  },
+  "versionAndPublication": {
+    "packageVersionChanged": false,
+    "publicReleaseCreated": false,
+    "tagChanged": false,
+    "upstreamPRChanged": false,
+    "intendedCommitScope": "sanitized report and README link only"
+  }
+}
