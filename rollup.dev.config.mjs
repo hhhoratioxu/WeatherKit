@@ -9,7 +9,7 @@ export default [
         output: {
             file: "./dist/request.dev.bundle.js",
             format: "es",
-            banner: chunk => `console.log('Date: ${new Date().toLocaleString("zh-CN", { timeZone: "PRC" })}');\nconsole.log('Version: ${pkg.version ?? "dev"}');\nconsole.log('${chunk.fileName}');\nconsole.log('${pkg.displayName} β');\n/* ${pkg.homepage} */`,
+            banner: chunk => `console.log('Date: ${new Date().toLocaleString("zh-CN", { timeZone: "PRC" })}');\nconsole.log('Version: ${pkg.version ?? "dev"}');\nconsole.log('${chunk.fileName}');\nconsole.log('${pkg.displayName}');\n/* ${pkg.homepage} */`,
         },
         plugins: [
             alias({
@@ -28,7 +28,7 @@ export default [
         output: {
             file: "./dist/response.dev.bundle.js",
             format: "es",
-            banner: chunk => `console.log('Date: ${new Date().toLocaleString("zh-CN", { timeZone: "PRC" })}');\nconsole.log('Version: ${pkg.version ?? "dev"}');\nconsole.log('${chunk.fileName}');\nconsole.log('${pkg.displayName} β');\n/* ${pkg.homepage} */`,
+            banner: chunk => `console.log('Date: ${new Date().toLocaleString("zh-CN", { timeZone: "PRC" })}');\nconsole.log('Version: ${pkg.version ?? "dev"}');\nconsole.log('${chunk.fileName}');\nconsole.log('${pkg.displayName}');\n/* ${pkg.homepage} */`,
         },
         plugins: [
             alias({

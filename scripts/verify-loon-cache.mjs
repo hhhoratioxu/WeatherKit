@@ -15,7 +15,8 @@ export default async function verifyLoonCache(root) {
     assert.equal(await readFile(path.join(directory, "WeatherKit.plugin"), "utf8"), plugin, "The legacy subscription must match the canonical .lpx entry");
     const upstreamDefaults = JSON.parse(await readFile(path.join(root, "tests/fixtures/upstream-intent.json"), "utf8")).originalArgumentDefaults;
     const emittedDefaults = new Map([...plugin.matchAll(/^([^=\n]+?)\s*=\s*(?:input|select),("(?:\\.|[^"\\])*")/gm)].map(([, key, value]) => [key.trim(), JSON.parse(value)]));
-    assert.equal(emittedDefaults.size, 12);
+    assert.equal(emittedDefaults.size, 13);
+    assert.equal(emittedDefaults.get("WeatherAlerts.Language"), "Auto");
     for (const code of [plugin, requestCode, responseCode, scaleCode]) assert.doesNotMatch(code, /RequestCache|ProviderFallback|Region\.Fallback|WeatherKit\.Provider(?:Cache|Cooldown)/);
     for (const [key, value] of Object.entries(upstreamDefaults)) assert.equal(emittedDefaults.get(key), value, `Original argument default: ${key}`);
     const nativeRewrites = verifyLoonRewrites(plugin);
@@ -306,6 +307,23 @@ export default async function verifyLoonCache(root) {
     assert.equal(first.output.response.status, 200);
     assert.ok(JSON.parse(first.output.response.body).length > 0);
     scenarios.push("web warning parsing without TextEncoder");
+    for (const language of ["zh-Hans", "en"]) {
+        const text = language === "en" ? "Source English notice." : "来源中文预警。";
+        const source = html.replace("</h3>", `</h3><p class="warning-events__txt">${text}</p>`);
+        const localized = await run(requestCode, alertRequest, undefined, (outgoing, callback) => {
+            assert.equal(new URL(outgoing.url).pathname.startsWith("/en/"), language === "en");
+            assert.equal(outgoing.headers["Accept-Language"], language);
+            callback(null, { status: 200, headers: { "Content-Type": "text/html" } }, source);
+        }, { "WeatherAlerts.Language": language });
+        assert.equal(localized.nativeRequests, 1);
+        assert.equal(localized.output.response.headers["Cache-Control"], "no-store");
+        const row = JSON.parse(localized.output.response.body)[0];
+        assert.equal(row.messages[0].text, text);
+        assert.equal(row.messages[0].language, "und");
+        assert.equal(row.expireTime, "9999-12-31T00:00:00Z");
+        assert.equal(Object.hasOwn(row, "eventEndTime"), false);
+        scenarios.push(`${language}: compiled Loon preference requests source language without translating original text`);
+    }
     const second = await run(requestCode, alertRequest, undefined, (_, callback) => callback(null, { status: 200, headers: { "Content-Type": "text/html" } }, html));
     assert.equal(second.nativeRequests, 1);
     assert.equal(second.output.response.body, first.output.response.body);

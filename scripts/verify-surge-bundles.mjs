@@ -15,7 +15,8 @@ export default async function verifySurge(root) {
     assert.match(module, /hostname = %APPEND% weatherkit\.apple\.com/);
     const table = module.match(/^#!arguments = (.+)$/m)?.[1];
     const defaults = new Map([...table.matchAll(/(?:^|,)([A-Za-z0-9_]+):("[^"]*"|true|false|\d+)/g)].map(([, key, value]) => [key, JSON.parse(value)]));
-    assert.equal(defaults.size, 12);
+    assert.equal(defaults.size, 13);
+    assert.equal(defaults.get("WeatherAlerts_Language"), "Auto");
     for (const text of [module, ...Object.values(code)]) assert.doesNotMatch(text, /RequestCache|ProviderFallback|Region\.Fallback|WeatherKit\.Provider(?:Cache|Cooldown)/);
     const original = JSON.parse(await readFile(path.join(root, "tests/fixtures/upstream-intent.json"), "utf8"));
     for (const [key, value] of Object.entries(original.originalArgumentDefaults)) assert.equal(defaults.get(key.replaceAll(".", "_")), value);
@@ -39,7 +40,7 @@ export default async function verifySurge(root) {
     const emittedArgument = argumentLine.replace(/\{\{\{([^}]+)\}\}\}/g, (_, key) => String(defaults.get(key)));
     assert.match(emittedArgument, /Storage="Argument"/);
     assert.doesNotMatch(emittedArgument, /RequestCache|ProviderFallback|Region\.Fallback/);
-    const scenarios = ["seven native script declarations, disjoint routes and all twelve parameter bindings", "original twelve argument defaults and identifier-only Surge parameter names"];
+    const scenarios = ["seven native script declarations, disjoint routes and all thirteen parameter bindings", "original twelve argument defaults and identifier-only Surge parameter names"];
     const storage = new Map();
     const noNetwork = () => {
         throw new Error("Unexpected provider request");
@@ -225,6 +226,23 @@ export default async function verifySurge(root) {
     assert.equal(repeated.network, 1);
     assert.equal(repeated.output.response.body, page.output.response.body);
     scenarios.push("warning details accept ids first and fetch again on repeated execution");
+    for (const language of ["zh-Hans", "en"]) {
+        const text = language === "en" ? "Source English notice." : "来源中文预警。";
+        const source = html.replace("</h3>", `</h3><p class="warning-events__txt">${text}</p>`);
+        const localized = await run("request", alertRequest, undefined, { "WeatherAlerts.Language": language }, (outgoing, callback) => {
+            assert.equal(new URL(outgoing.url).pathname.startsWith("/en/"), language === "en");
+            assert.equal(outgoing.headers["Accept-Language"], language);
+            callback(null, { status: 200, headers: { "Content-Type": "text/html" } }, source);
+        });
+        assert.equal(localized.network, 1);
+        assert.equal(localized.output.response.headers["Cache-Control"], "no-store");
+        const row = JSON.parse(localized.output.response.body)[0];
+        assert.equal(row.messages[0].text, text);
+        assert.equal(row.messages[0].language, "und");
+        assert.equal(row.expireTime, "9999-12-31T00:00:00Z");
+        assert.equal(Object.hasOwn(row, "eventEndTime"), false);
+        scenarios.push(`${language}: compiled Surge preference requests source language without translating original text`);
+    }
     storage.clear();
     assert.equal(Object.keys((await run("request", alertRequest, undefined, {}, (_r, callback) => callback("fixture failure", {}, ""))).output).length, 0);
     scenarios.push("failed warning detail request preserves the Apple response path");
@@ -342,5 +360,5 @@ export default async function verifySurge(root) {
     assert.equal(outputFallback.output.headers["Cache-Control"], "no-store");
     assert.equal(JSON.stringify(oversizedApple), oversizedOriginal);
     scenarios.push("provider output overflow returns normalized Apple weather and periodic data through the compiled Surge script");
-    return { pass: scenarios.length, fail: 0, scenarios, originalArgumentDefaultsVerified: 12, scriptDeclarations: 7, parameterBindings: 12, completionExactlyOnce: true, nativeCallbacksAwaited: true, nativeSurgeValidation: false, liveWeatherRequests: false };
+    return { pass: scenarios.length, fail: 0, scenarios, originalArgumentDefaultsVerified: 12, scriptDeclarations: 7, parameterBindings: 13, completionExactlyOnce: true, nativeCallbacksAwaited: true, nativeSurgeValidation: false, liveWeatherRequests: false };
 }

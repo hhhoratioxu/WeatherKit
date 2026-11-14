@@ -59,6 +59,8 @@ export interface Settings {
     };
     WeatherAlerts?: {
         Provider?: "WeatherKit" | "QWeatherWeb" | "QWeather" | "ColorfulClouds";
+        /** Source-native alert text preference; missing/Auto preserves existing behavior. No machine translation. */
+        Language?: "Auto" | "zh-Hans" | "en";
     };
     NextHour?: {
         /**

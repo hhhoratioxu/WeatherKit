@@ -1,0 +1,191 @@
+{
+  "reportDate": "2026-11-14",
+  "timezone": "Asia/Taipei",
+  "status": "This public-city Safari warning detail is visually verified; full project acceptance remains incomplete; local only",
+  "baseCommit": "5d669d68052ecb01aefd632f73a76d1f33bb828b",
+  "existingUncommittedFilesPreserved": 231,
+  "existingFilesChangedByInvestigation": [],
+  "productionCodeChanged": false,
+  "installedPluginChanged": false,
+  "VPNSettingsChanged": false,
+  "actualUI": {
+    "recordedAtUTC": "2026-11-14T04:48:29.233230+00:00",
+    "UIReleased": true,
+    "UIAuthorizationSeconds": 180,
+    "VPNBefore": {
+      "list": "Connected",
+      "direct": "Connected",
+      "LoonUI": "Loon Connected"
+    },
+    "VPNAfter": "Connected",
+    "existingSafariPageObserved": true,
+    "pageTitle": "Severe Weather Alert",
+    "pageHost": "weatherkit.apple.com",
+    "pagePath": "/alertDetails/index.html",
+    "publicCity": "Baoshan, Shanghai",
+    "language": "en-GB",
+    "alertTitle": "Yellow Warning For Heavy Fog",
+    "severity": "Moderate",
+    "warningDescriptionVisible": true,
+    "definitionDescriptionVisible": true,
+    "defensiveGuidanceVisible": true,
+    "recommendedActionVisible": true,
+    "affectedAreaVisible": "Baoshan",
+    "issuerVisible": "Baoshan District Meteorological Observatory",
+    "sourceLinkVisible": true,
+    "sourceLinkHost": "qweather.com",
+    "sourceLinkRoute": "English severe-weather public page",
+    "nativeWeatherBannerClickedAgain": false,
+    "pageReloaded": false,
+    "sourceLinkClicked": false,
+    "newWeatherKitScriptsDuringObservation": [],
+    "browserBookmarksOrOtherTabsSaved": false,
+    "screenshotSaved": false,
+    "rawAXStateSaved": false,
+    "networkSettingsChanged": false,
+    "installedPluginChanged": false,
+    "acceptanceScope": "Existing Safari detail page for this one public warning; not all regions, clients, refreshes or languages"
+  },
+  "priorClickRecord": {
+    "entryRecord": 7212,
+    "scriptRecord": 1693,
+    "uniqueRequestIdAndStartTimeAssociation": true,
+    "scriptUUIDEmbeddedInSessionScriptUUIDField": true,
+    "originalStatus": 0,
+    "replacementStatus": 200,
+    "replacementContentType": "application/json",
+    "responseEndTimePresent": true,
+    "sourceRecord": 7213,
+    "sourceStatus": 200,
+    "sourceContentType": "text/html;charset=UTF-8",
+    "sourceContentLength": 8307,
+    "sourceMatchesSamePublicCityIdentifier": true,
+    "language": "en-GB",
+    "sourceStarted105msAfterParent": true,
+    "directParentChildIdentifierLinkAvailable": false
+  },
+  "knownSuccessfulNativeControls": [
+    {
+      "scriptRecord": 1693,
+      "sessionRecord": 7212,
+      "originalStatus": 0,
+      "replacementStatus": 200,
+      "responseEnded": true,
+      "downSizeEqualsReplacementHeaderBytes": true,
+      "sessionBodyFlag": 8,
+      "independentlyObservedBody": "not captured"
+    },
+    {
+      "scriptRecord": 1577,
+      "sessionRecord": 4440,
+      "originalStatus": 0,
+      "replacementStatus": 200,
+      "responseEnded": true,
+      "downSizeEqualsReplacementHeaderBytes": true,
+      "sessionBodyFlag": 8,
+      "independentlyObservedBody": "valid JSON; exact scale bytes confirmed by earlier native curl probe"
+    },
+    {
+      "scriptRecord": 1576,
+      "sessionRecord": 4439,
+      "originalStatus": 0,
+      "replacementStatus": 200,
+      "responseEnded": true,
+      "downSizeEqualsReplacementHeaderBytes": true,
+      "sessionBodyFlag": 8,
+      "independentlyObservedBody": "valid JSON; exact scale bytes confirmed by earlier native curl probe"
+    }
+  ],
+  "cacheEvidence": {
+    "AppleDetailPageWritten277msBeforeWarningAPIRequest": true,
+    "cacheLanguage": "en-GB",
+    "pageTitle": "Weather Alert",
+    "cacheContainsNoAlertIDFragmentSelector": true,
+    "cachedQWeatherHTMLPredatesClickSeconds": 2273.275,
+    "cachedQWeatherHTMLSHA256": "5077890346642201799f5208a418ddedaed13ebf47210af7d3c5c485d834ee9f",
+    "cachedQWeatherHTMLBytes": 45695,
+    "cacheETagBoundToClickResponse": false,
+    "cachedAppleClientSHA256": "b47f52c66dee96ba93125d86cb8ea0c4aa58d87eb69429d8b96e564a011d54a7"
+  },
+  "offlineActualSourceReplay": {
+    "mode": "offline VM replay of real cached public source; not a native App execution",
+    "mockCallbacks": 1,
+    "doneCalls": 1,
+    "status": 200,
+    "contentType": "application/json",
+    "alertCount": 1,
+    "descriptionsNonEmpty": true,
+    "sourcesNonEmpty": true,
+    "issueAndExpiryISO": true,
+    "AppleClientRequiredShapeValid": true,
+    "titleAreaAndIssuerAgreeWithVisiblePage": true,
+    "liveNetworkRequests": 0,
+    "thisIsNotAnAppRefreshOrPacketPair": true,
+    "AppleClientDoesNotFilterRowsByMainWeatherUUID": true,
+    "AppleVisibleTitleField": "description",
+    "genericNameFieldIsNotVisibleTitle": true
+  },
+  "singleNonUIProbe": {
+    "curlExit": 0,
+    "HTTPStatus": 302,
+    "sourceHTTPStatus": 403,
+    "scripts": [
+      {
+        "id": 1697,
+        "tag": "🌤 WeatherKit.api.v1.weatherAlerts.html.request",
+        "finished": true,
+        "exception": false,
+        "matchedSessionRecords": [
+          8565
+        ]
+      }
+    ],
+    "fallbackToAppleObserved": true,
+    "usableJSONObtained": false,
+    "retries": 0,
+    "redirectsFollowed": false,
+    "TLSBypassed": false,
+    "UAImpersonation": false,
+    "VPNAfter": "Connected",
+    "doesNotExplainEarlier200SourceClick": true
+  },
+  "remainingUnverified": [
+    "full post-update 12-parameter UI value comparison",
+    "fresh detail reload and other warning types/regions/languages",
+    "new local display name on installed clients; install intentionally unchanged",
+    "Surge real-client routing and Weather App acceptance",
+    "network switching, long-running stability, CPU/memory/power measurements"
+  ],
+  "deferredUserRequest": {
+    "feature": "User-selectable weather warning display language",
+    "implementationStarted": false,
+    "newParametersAdded": false,
+    "translationLogicAdded": false,
+    "nextResearch": [
+      "source-native language coverage",
+      "language preference and default fallback",
+      "source attribution",
+      "never call unverified translated text an official translation"
+    ]
+  },
+  "priorAutomatedValidation": {
+    "npmTest": 399,
+    "failed": 0,
+    "runDuringThisInvestigation": false,
+    "reason": "No production or test files changed; same working files preserved"
+  },
+  "publication": {
+    "commitPerformed": false,
+    "pushPerformed": false,
+    "tagsOrReleaseChanged": false
+  },
+  "privacy": {
+    "rawHeadersSaved": false,
+    "privateLocationsSaved": false,
+    "rawAXOrScreenshotsSaved": false,
+    "browserBookmarksAndUnrelatedTabsSaved": false,
+    "publicCacheReplayArtifactsKeptOnlyInRestrictedIgnoredDirectory": true
+  },
+  "snapshotIsHistorical": true,
+  "laterAcceptanceReport": "docs/native-warning-acceptance-2026-11-14.json"
+}

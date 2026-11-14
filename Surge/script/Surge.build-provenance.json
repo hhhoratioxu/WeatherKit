@@ -1,13 +1,13 @@
 {
   "version": "3.3.6",
-  "sourceCommit": "b4cf763ed0a5939dc04e81ba2ec9e0745e8babc4",
+  "sourceCommit": "5d669d68052ecb01aefd632f73a76d1f33bb828b",
   "resourceRef": "main",
   "node": "v22.23.5",
   "bundleChecks": {
-    "pass": 39,
+    "pass": 41,
     "fail": 0,
     "scenarios": [
-      "seven native script declarations, disjoint routes and all twelve parameter bindings",
+      "seven native script declarations, disjoint routes and all thirteen parameter bindings",
       "original twelve argument defaults and identifier-only Surge parameter names",
       "iOS main Weather app negotiates JSON without body, WebAPI or network access",
       "macOS main Weather app negotiates JSON without body, WebAPI or network access",
@@ -34,6 +34,8 @@
       "healthy weather replacement and native response framing use Surge body and headers",
       "background, failed, malformed and opaque WK3 responses use untouched passthrough",
       "warning details accept ids first and fetch again on repeated execution",
+      "zh-Hans: compiled Surge preference requests source language without translating original text",
+      "en: compiled Surge preference requests source language without translating original text",
       "failed warning detail request preserves the Apple response path",
       "WK2 binary passthrough retains the native typed array without reencoding",
       "forecastPeriodic-only JSON is adapted without provider work",
@@ -49,7 +51,7 @@
     ],
     "originalArgumentDefaultsVerified": 12,
     "scriptDeclarations": 7,
-    "parameterBindings": 12,
+    "parameterBindings": 13,
     "completionExactlyOnce": true,
     "nativeCallbacksAwaited": true,
     "nativeSurgeValidation": false,
@@ -59,6 +61,7 @@
     "DataSets": "DataSets",
     "Weather.Provider": "Weather_Provider",
     "WeatherAlerts.Provider": "WeatherAlerts_Provider",
+    "WeatherAlerts.Language": "WeatherAlerts_Language",
     "NextHour.Provider": "NextHour_Provider",
     "AirQuality.Current.Pollutants.Provider": "AirQuality_Current_Pollutants_Provider",
     "AirQuality.Calculate.Algorithm": "AirQuality_Calculate_Algorithm",
@@ -69,5 +72,23 @@
     "Storage": "Storage",
     "LogLevel": "LogLevel"
   },
-  "lockfileSHA256": "689e9d774bf21d1d52e4d7ea2a2db63fd2e5f015b3872dac381295d17a575f6c"
+  "lockfileSHA256": "689e9d774bf21d1d52e4d7ea2a2db63fd2e5f015b3872dac381295d17a575f6c",
+  "displayName": "WeatherKit",
+  "sourceWorkingTreeDirty": true,
+  "sourceManifestSHA256": "cd8185e197d8213e596f29d1f546c3eeb6174c210ed16df7295238e070f8d68a",
+  "warningLanguageDefault": "Auto",
+  "parameterCount": 13,
+  "unknownWarningExpiry": "9999-12-31T00:00:00Z",
+  "legacyUnknownWarningExpiryAccepted": "9999-12-31T23:59:59Z",
+  "nativeClientAcceptance": false,
+  "sourceFilesSHA256": {
+    "package.json": "f9478e950b96b39b19b1093fb8acf99d3e9727e52e79e15f4e9063cae4fc00fe",
+    "arguments-builder.full.config.ts": "ce326373fdb2f02ad9a6bd743229c548d44a01fcc2690ffcc45366812ff2e93d",
+    "src/class/WeatherAlerts.mjs": "1051a31fc95b3465150cc353f9a056c10eddee00b02e33c0c933902480d6c978",
+    "src/function/weatherAlertExpiry.mjs": "b97e61879f754462e5612cdfcccfeba4126aa6032279b68e9bba169f7062548f",
+    "src/function/providerRecovery.mjs": "21e8c1261a7c5ca37119a5d56f8de2fccae3e47751145257beaec9bc474b6535",
+    "src/function/weatherAlertLanguage.mjs": "db4ef4178e6f5a44e549f60d408c0e3485098e9d609057c01c9e996ff54ae9e7",
+    "src/function/getWeatherAlerts.mjs": "9668cd9f7a3df5c1cefb9b51804eaf2654251283ba3718f47d3393c3e76cc95b",
+    "src/function/createProviderEnvironment.mjs": "478441be3d71df17f79e06d55976b1155cbb03ca0f3a0812a6a1b8e07982ef1d"
+  }
 }

@@ -1,0 +1,203 @@
+{
+  "reportDate": "2026-11-14",
+  "timezone": "Asia/Taipei",
+  "status": "local implementation and rebuilt artifacts verified; no native UI or installation; full end-to-end still pending; no commit/push",
+  "baseCommit": "5d669d68052ecb01aefd632f73a76d1f33bb828b",
+  "sourceWorkingTreeDirty": true,
+  "compatibilityFix": {
+    "legacyUnknownExpiry": "9999-12-31T23:59:59Z",
+    "safeUnknownExpiry": "9999-12-31T00:00:00Z",
+    "missingAndNullAreUnknown": true,
+    "bothReservedStringsRecognized": true,
+    "genuineRESTSourceExpiryOffsetAndMillisecondsPreserved": true,
+    "unknownValuesCannotCreateEventEndTime": true,
+    "genuineSourceEventEndRemainsDistinct": true,
+    "genuineAppleTimeFieldsPreservedWK2AndWK3": true,
+    "genuinePastValuesStillFilteredFromActiveProducts": true,
+    "onlyChildProcessTZChanged": true,
+    "timezones": [
+      "UTC",
+      "Asia/Taipei",
+      "Pacific/Kiritimati",
+      "Etc/GMT+12"
+    ],
+    "newUserParameterAdded": false,
+    "existingLanguageParameterCount": 13,
+    "oldTwelveDefaultsPreserved": true,
+    "nineRemovedControlsRestored": false,
+    "providerOrEndpointChanged": false,
+    "timeoutOrRetryChanged": false,
+    "networkRequestsAdded": false,
+    "isPreexistingBoundary": true,
+    "notClaimedToFixMissingBody": true
+  },
+  "validation": {
+    "regressionBefore": {
+      "tests": 18,
+      "pass": 5,
+      "fail": 13,
+      "skipped": 0
+    },
+    "regressionAfter": {
+      "tests": 18,
+      "pass": 18,
+      "fail": 0,
+      "skipped": 0
+    },
+    "fullFinalSuite": {
+      "tests": 434,
+      "pass": 434,
+      "fail": 0,
+      "skipped": 0
+    },
+    "compiledLoonCopiedToWorkspace": {
+      "pass": 52,
+      "fail": 0,
+      "rules": 15,
+      "upstreamDefaults": 12
+    },
+    "compiledSurgeCopiedToWorkspace": {
+      "pass": 41,
+      "fail": 0,
+      "parameters": 13,
+      "upstreamDefaults": 12
+    },
+    "checksumEntries": 17,
+    "configurationBodiesUnchangedExceptGeneratedDate": {
+      "Loon/script/iRingo.WeatherKit.lpx": true,
+      "Surge/script/iRingo.WeatherKit.sgmodule": true
+    },
+    "realPublicHTMLReplay": {
+      "mode": "existing paired public HTML replay; rebuilt exact Loon artifact and actual cached Apple processing/date helpers; no native HTTP or DOM",
+      "nodeTimezone": "Asia/Taipei",
+      "cases": [
+        {
+          "language": "zh-Hans",
+          "sourceHTMLSHA256": "a9532ef7ff0dd2e136a73b073bcb6860c5905f9ed68723862d55d64adcb5ba6f",
+          "compiledAssetSHA256": "484509dc16aac6e09a6a60bb027377854ae898f4bba4f8006120504fab1bc4d4",
+          "sourceCalls": 1,
+          "doneCalls": 1,
+          "realNetworkRequests": 0,
+          "sharedWrites": 0,
+          "onlyJSONFieldChanged": "expireTime",
+          "oldExpiry": "9999-12-31T23:59:59Z",
+          "newExpiry": "9999-12-31T00:00:00Z",
+          "fullTextIssuerAttributionAndOtherTimesUnchanged": true,
+          "actualCachedConsumerAlerts": 1,
+          "actualCachedConsumerMessages": 3,
+          "unknownExpiryCleared": true
+        },
+        {
+          "language": "en",
+          "sourceHTMLSHA256": "59ecc0a88d0241c7c1210a0ef725cadee407b7cf91bd76a379a789300c73b395",
+          "compiledAssetSHA256": "484509dc16aac6e09a6a60bb027377854ae898f4bba4f8006120504fab1bc4d4",
+          "sourceCalls": 1,
+          "doneCalls": 1,
+          "realNetworkRequests": 0,
+          "sharedWrites": 0,
+          "onlyJSONFieldChanged": "expireTime",
+          "oldExpiry": "9999-12-31T23:59:59Z",
+          "newExpiry": "9999-12-31T00:00:00Z",
+          "fullTextIssuerAttributionAndOtherTimesUnchanged": true,
+          "actualCachedConsumerAlerts": 1,
+          "actualCachedConsumerMessages": 3,
+          "unknownExpiryCleared": true
+        }
+      ],
+      "pass": 2,
+      "fail": 0,
+      "nativeEndToEnd": false,
+      "newPublicSourceRequests": 0
+    },
+    "initialFixtureRepairNotProductionFailure": "new fixture needed responses array and the existing National Early Warning Center trigger before measuring regressions"
+  },
+  "build": {
+    "isolatedWorktree": ".cache/unknown-expiry-20261114/build",
+    "sourceManifest": ".cache/unknown-expiry-20261114/build-input-manifest.json",
+    "sourceManifestSHA256": "cd8185e197d8213e596f29d1f546c3eeb6174c210ed16df7295238e070f8d68a",
+    "sourceAndProvenanceMarkDirty": true,
+    "resourceRef": "main",
+    "version": "3.3.6",
+    "displayName": "WeatherKit",
+    "dependencyMode": "existing recovered local dependencies; no fresh npm install",
+    "node": "v22.23.5",
+    "byteIdenticalArtifacts": [
+      "Loon/script/scale.bundle.js",
+      "Loon/script/LICENSE.txt",
+      "Surge/script/transport.surge.bundle.js",
+      "Surge/script/availability.surge.bundle.js",
+      "Surge/script/scale.surge.bundle.js",
+      "Surge/script/Surge.LICENSE.txt"
+    ],
+    "copiedChangedArtifactCount": 13
+  },
+  "preservation": {
+    "preexistingWorktreeFiles": 237,
+    "outsideTaskScopeChanges": [],
+    "existingOtherReportsAndAGENTSBytePreserved": true,
+    "installedPluginFileChecks": {
+      "pass": 15,
+      "fail": 0
+    },
+    "installedScriptFileChecks": {
+      "pass": 43,
+      "fail": 0
+    },
+    "wholeConfigFileChecks": {
+      "pass": 2,
+      "fail": 0
+    },
+    "sameLoonServiceConnectedInList": true,
+    "VPNDirectStatus": "Connected",
+    "UIUsed": false,
+    "installedFilesWritten": false,
+    "sharedClientStorageWritten": false,
+    "nodesRulesMITMChanged": false
+  },
+  "sourceAndOutputSHA256": {
+    "src/class/WeatherAlerts.mjs": "1051a31fc95b3465150cc353f9a056c10eddee00b02e33c0c933902480d6c978",
+    "src/function/providerRecovery.mjs": "21e8c1261a7c5ca37119a5d56f8de2fccae3e47751145257beaec9bc474b6535",
+    "src/function/weatherAlertExpiry.mjs": "b97e61879f754462e5612cdfcccfeba4126aa6032279b68e9bba169f7062548f",
+    "tests/weatherAlertExpiry.test.mjs": "d68d6d762e1b1828d9af393ec66aa1f2496e9d0effd7c72d0285be72edf6492c",
+    "tests/severeWeatherPage.test.mjs": "dd0d1224e0f98b81a6185d83e75b52262e9f86e2b2d034f0aedee4eb98038071",
+    "scripts/verify-loon-cache.mjs": "fac7cbfeea138359b26b87a9fa651229c749d134a20fd9541773a5a66b4f29e0",
+    "scripts/verify-surge-bundles.mjs": "ddbb14157fe921e9085251f455d92987cbf0d5304ac1c213dcef3e987a576d63",
+    "Loon/script/iRingo.WeatherKit.lpx": "b3e525fcf073094e0c8bfd47144a43332c6b7360945ffcd699353c8030ca2403",
+    "Loon/script/WeatherKit.lpx": "b3e525fcf073094e0c8bfd47144a43332c6b7360945ffcd699353c8030ca2403",
+    "Loon/script/WeatherKit.plugin": "b3e525fcf073094e0c8bfd47144a43332c6b7360945ffcd699353c8030ca2403",
+    "Loon/script/request.bundle.js": "484509dc16aac6e09a6a60bb027377854ae898f4bba4f8006120504fab1bc4d4",
+    "Loon/script/response.bundle.js": "e7e1ba8ee5bd394494e1301e6c033a5edc03dcd70b86798730feffc28a113fcb",
+    "Loon/script/build-provenance.json": "7e196f237aeae7258fbb4110323035d6dc38c0325a77fa36fac0826ed55226cb",
+    "Loon/script/SHA256SUMS.txt": "2c4d147ed0f344695ec48c497752df242f976205d58765de3be70856b1430312",
+    "Surge/script/iRingo.WeatherKit.sgmodule": "2ea266a5a0eca2f29464433dcfc657c17cde171b2af9b68f7b4a388db7d9a9ae",
+    "Surge/script/WeatherKit.sgmodule": "2ea266a5a0eca2f29464433dcfc657c17cde171b2af9b68f7b4a388db7d9a9ae",
+    "Surge/script/request.surge.bundle.js": "581b48a0c30fbad61ebdbe9dd6267a3c32be98a89a696c3c768d6dd92ab56daa",
+    "Surge/script/response.surge.bundle.js": "0f535d5175ce411a24b50dc3ae63f33b3a3391ee449cee7044059a29ded823d1",
+    "Surge/script/Surge.build-provenance.json": "ec7d30eec8527a24053d599f4561740f6013850034291c6e1871884e08e6a5a5",
+    "Surge/script/Surge.SHA256SUMS.txt": "d9e0bffa602e6494ee1f2a20a6b989e711bf31a21feb28e5f60b6ec092885b0f"
+  },
+  "remainingUnverified": [
+    "native Safari end-to-end with the rebuilt candidate",
+    "native HTTP/gzip, DOM rendering and visible source-language original-text fallback",
+    "Surge real client",
+    "other regions/providers and long-running resource behavior"
+  ],
+  "publication": {
+    "commitPerformed": false,
+    "pushPerformed": false,
+    "tagsOrReleaseChanged": false,
+    "upstreamPRChanged": false,
+    "HEADUnchanged": true,
+    "stagedFiles": []
+  },
+  "checkedUTC": "2026-11-14T08:47:59.012061+00:00",
+  "snapshotIsHistorical": true,
+  "laterNativeAcceptance": {
+    "report": "docs/native-warning-acceptance-2026-11-14.json",
+    "currentArtifactsUsed": true,
+    "ChineseAndEnglishBodyVisible": true,
+    "ChineseFullNativeJSONCompared": true,
+    "originalInstallationFullyRestored": true,
+    "laterUserAuthorizedReviewedForkMainUpdate": true
+  }
+}

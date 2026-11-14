@@ -1,0 +1,519 @@
+{
+  "reportDate": "2026-11-14",
+  "timezone": "Asia/Taipei",
+  "status": "local implementation and automated checks passed; temporary native import verified 13 controls and language-dependent requests; visible warning body unavailable; original installation fully restored; no push",
+  "baseCommit": "5d669d68052ecb01aefd632f73a76d1f33bb828b",
+  "sourceWorkingTreeDirty": true,
+  "feature": {
+    "key": "WeatherAlerts.Language",
+    "values": [
+      "Auto",
+      "zh-Hans",
+      "en"
+    ],
+    "default": "Auto",
+    "parameterCount": 13,
+    "oldTwelveDefaultsAndDeclarationsUnchanged": true,
+    "invalidOrMissingPreferenceUsesOldBehavior": true,
+    "sourceNativeLanguagePreferenceOnly": true,
+    "externalTranslationService": false,
+    "explicitRESTMessageLanguage": "und",
+    "explicitDetailCacheControl": "no-store",
+    "AutoDetailCacheControl": "max-age=0",
+    "sharedCompletedResponseCache": false,
+    "inflightCoalescingAdded": false,
+    "nineRemovedControlsRestored": false,
+    "providerEndpointsChanged": false,
+    "otherWeatherProductLanguageChanged": false,
+    "version": "3.3.6"
+  },
+  "validation": {
+    "npmTest": {
+      "tests": 416,
+      "pass": 416,
+      "fail": 0,
+      "skipped": 0
+    },
+    "newLanguageCases": {
+      "pass": 17,
+      "fail": 0
+    },
+    "compiledLoon": {
+      "pass": 52,
+      "fail": 0,
+      "nativeClient": false
+    },
+    "LoonExpressionsAndJQ": {
+      "pass": 15,
+      "fail": 0,
+      "nativeParser": false
+    },
+    "compiledSurge": {
+      "pass": 41,
+      "fail": 0,
+      "parameterBindings": 13,
+      "nativeClient": false
+    },
+    "checksums": {
+      "pass": 17,
+      "fail": 0
+    },
+    "initialTwoStaticAssertionFailuresResolved": true,
+    "dependencyMode": "existing recovered local dependencies; no fresh npm install",
+    "node": "v22.23.5",
+    "sourceManifestSHA256": "472b3e0d6dc0a57d681fe081dd534657021cbc1790649a08556cfe4dd959fe03",
+    "unaffectedRuntimeBundlesUnchanged": {
+      "Loon/script/scale.bundle.js": true,
+      "Surge/script/availability.surge.bundle.js": true,
+      "Surge/script/scale.surge.bundle.js": true,
+      "Surge/script/transport.surge.bundle.js": true
+    },
+    "realSourceOfflineReplay": {
+      "mode": "new language candidate offline replay of real cached public English source; not an App refresh",
+      "sourceHTMLSHA256": "5077890346642201799f5208a418ddedaed13ebf47210af7d3c5c485d834ee9f",
+      "sourceHTMLBytes": 45695,
+      "mockCallbacks": 1,
+      "doneCalls": 1,
+      "activeCallbacksAtCompletion": 0,
+      "networkRequests": 0,
+      "mockUsesObservedHTMLContentType": true,
+      "status": 200,
+      "contentType": "application/json",
+      "JSONArray": true,
+      "alertCount": 1,
+      "fields": [
+        [
+          "areaId",
+          "areaName",
+          "attributionURL",
+          "certainty",
+          "countryCode",
+          "description",
+          "detailsUrl",
+          "effectiveTime",
+          "eventOnsetTime",
+          "eventSource",
+          "expireTime",
+          "id",
+          "importance",
+          "issuedTime",
+          "messages",
+          "name",
+          "precedence",
+          "reportedAt",
+          "responses",
+          "severity",
+          "source",
+          "urgency"
+        ]
+      ],
+      "allDescriptionsNonEmpty": true,
+      "allSourcesNonEmpty": true,
+      "allIssuerTimesISO": true,
+      "allExpireTimesISO": true,
+      "publicCachePredatesClickSeconds": 2273.275,
+      "cacheETagBoundToClickResponse": false,
+      "AppleVisibleTitleField": "description",
+      "mainUUIDEqualityNotRequiredByActualCachedAppleClient": true
+    },
+    "actualAppleConsumerMethodOfflineReplay": {
+      "mode": "actual cached Apple processData method replay with date/link/action dependencies stubbed; no DOM or App execution",
+      "inputAlerts": 1,
+      "outputAlerts": 1,
+      "messagesRetained": [
+        3
+      ],
+      "unknownLanguageMarkersDoNotDropSourceText": true,
+      "networkRequests": 0,
+      "UIUsed": false
+    },
+    "protectedPreexistingFilesUnchanged": {
+      "AGENTS.md": true,
+      "docs/mac-native-followup-2026-11-14.md": true,
+      "docs/mac-native-followup-2026-11-14.json": true,
+      "docs/display-name-2026-11-14.md": true,
+      "docs/display-name-2026-11-14.json": true,
+      "docs/warning-details-validation-2026-11-14.md": true,
+      "docs/warning-details-validation-2026-11-14.json": true,
+      "tests/displayName.test.mjs": true
+    },
+    "currentTreeDiffersFromBuildInputManifest": {
+      "README.md": "subsequent documentation clarification only",
+      "template/boxjs.settings.json": "regenerated build output; byte-identical to isolated build result"
+    },
+    "runtimeAndBuildInputsUnchangedSinceBuild": true,
+    "generatedBoxJSMatchesIsolatedBuildOutput": true,
+    "finalReadOnlyVPNCheck": {
+      "sameLoonServiceConnectedInList": true,
+      "directStatus": "Connected",
+      "UIReusedAfterRelease": false
+    }
+  },
+  "readOnlyFollowup": {
+    "atUTC": "2026-11-14T06:35:42.888515+00:00",
+    "readOnlyInstalledInvestigation": true,
+    "candidateCorrectDiskIdentity": {
+      "MD5OfUnchangedResourceURLMatchesInstalledFilename": true,
+      "candidateAndInstalledExpectedDatesDiffer": true,
+      "candidateHeaderDate": "2026-11-14 14:00:22",
+      "observedAfterReplacementUIHeaderDate": "2026-11-14 09:09:16",
+      "candidateArgumentDeclarations": 13,
+      "restoredInstalledArgumentDeclarations": 12,
+      "allTwelveDeclarationLinesByteEqual": true,
+      "newArgumentNameUnique": true,
+      "newArgumentFirstValue": "Auto",
+      "nativeObjectArgumentReferenceCount": 1,
+      "legacyArgumentListReferenceCount": 4,
+      "rulesUnchanged": true,
+      "rewriteUnchanged": true,
+      "mitmUnchanged": true,
+      "candidateSHA256": "80cd3d8aeab027695acd5de18c393ae832a943f9cee11466af08d0c269ed0d53"
+    },
+    "directObservation": "after exact candidate cache replacement, re-opened detail retained old date and 12 controls",
+    "conclusion": "disk replacement alone did not publish candidate metadata to the current client model",
+    "likelyMechanism": "pre-existing parsed resource model / bound runtime snapshot; inference supported by retained old metadata and official binding semantics",
+    "notEstablished": [
+      "which individual cache file read calls occurred during the window; no file-access trace was active",
+      "candidate production scripts executed; no WeatherKit script record occurred during the actual window",
+      "defect in new select declaration or source-language runtime"
+    ],
+    "officialChecks": {
+      "date": "2026-11-14",
+      "selectDefaultTypeStringMayBeOmitted": true,
+      "argumentValuesBindAtConfigurationLoadAndRuntimeUsesImmutableSnapshot": true,
+      "publicURLSchemeHasImportAndUpdateAllButNoDocumentedSinglePluginLocalDiskReload": true,
+      "sources": [
+        "https://nsloon.app/docs/Plugin/",
+        "https://nsloon.app/docs/Script/script_v2/",
+        "https://nsloon.app/docs/Scheme/"
+      ]
+    },
+    "existingLogs": {
+      "windowWeatherKitScriptRecords": 0,
+      "earlierWeatherKitScript1711UTC": "2026-11-14T06:22:00.530Z; before preflight and replacement",
+      "coreaudioPluginErrorUnrelatedToWeatherKit": true,
+      "postConfigureChangedMessagesObservedOnlyAfterNameSave": true,
+      "noObservedExplicitWeatherKitParserFailure": true,
+      "rawLogsNotSavedOrPrinted": true
+    },
+    "existingURLCache": {
+      "onlyExactKnownPublicPluginURLQueried": true,
+      "matchingEntries": 0,
+      "notEvidenceOfNoNetworkRead": true
+    },
+    "nextPlanFile": ".cache/warning-language-20261114/native-import-plan/plan.json",
+    "newUIUse": false,
+    "installedFilesWrittenDuringInvestigation": false,
+    "newWeatherNetworkRequests": 0
+  },
+  "preparedNextScope": {
+    "status": "authorized and executed; restored; server stopped",
+    "temporaryPluginName": "WeatherKit language validation (temporary)",
+    "sourceHost": "127.0.0.1",
+    "sourcePort": 42897,
+    "sourceFiles": 3,
+    "originalURLAndSavedParametersRestoredExactly": true,
+    "originalActivationRestored": true,
+    "serverStarted": true,
+    "serverStopped": true,
+    "temporaryPluginRemoved": true,
+    "runtimeExactProductionCandidate": true,
+    "nativeParameterCountAndLanguageDependentRequestsVerified": true,
+    "visibleSourceLanguageBodyAcceptancePassed": false,
+    "UIReleased": true
+  },
+  "remainingUnverified": [
+    "current active alert source body and actual Chinese/English text",
+    "actual native browser rendering of valid und-tagged source messages and original-text fallback",
+    "distinguish absent source alert from extraction or consumer filtering using actual captured source and generated bodies",
+    "Surge real client",
+    "other regions/providers and long-term network/CPU/memory/power behavior"
+  ],
+  "publication": {
+    "committed": false,
+    "pushed": false,
+    "tagOrReleaseChanged": false,
+    "upstreamPRChanged": false,
+    "conditionalPushGateSatisfied": false
+  },
+  "privacy": {
+    "rawAPIParameterValuesPrintedOrSaved": false,
+    "rawHeadersOrCookiesInReport": false,
+    "privateCoordinatesInReport": false,
+    "rawAXOrScreenshotsSaved": false,
+    "localEvidenceInIgnoredDirectory": true
+  },
+  "primarySourceDocumentsChecked20261114": [
+    "https://dev.qweather.com/docs/api/warning/weather-alert/",
+    "https://dev.qweather.com/en/docs/api/warning/alert-guide/",
+    "https://docs.caiyunapp.com/weather-api/v2/v2.6/5-alert.html",
+    "https://nsloon.app/docs/Plugin/",
+    "https://nsloon.app/docs/Script/script_v2/",
+    "https://nsloon.app/docs/Scheme/"
+  ],
+  "initialThreeFileNativeAttempt": {
+    "atUTC": "2026-11-14T06:24:50.813092+00:00",
+    "candidateApplied": true,
+    "candidateControlsRecognized": false,
+    "observedParameterCount": 12,
+    "expectedCandidateParameterCount": 13,
+    "candidateThreeFilesRestored": {
+      "iRingo.WeatherKit.lpx": true,
+      "request.bundle.js": true,
+      "response.bundle.js": true
+    },
+    "allThreeFilesRestored": true,
+    "ownResourceName": "WeatherKit",
+    "nameVerifiedInListAndDetail": true,
+    "originalTextFieldsUnchangedInMemory": true,
+    "originalSevenPopupsUnchanged": true,
+    "originalDataSetsUnchanged": true,
+    "existingTwelveValuesChanged": false,
+    "newLanguageSettingSaved": false,
+    "effectiveLanguageBehavior": "previous Auto behavior; no new setting exists in installed plugin",
+    "languageNativeAcceptance": "blocked: reopening detail did not reload the cached plugin model",
+    "freshLanguageNetworkRequestsMade": 0,
+    "SafariReloaded": false,
+    "allOtherRemotePluginFilesUnchanged": true,
+    "otherRemotePluginFilesChecked": 14,
+    "configs": [
+      {
+        "kind": "active",
+        "otherRowsUnchanged": true,
+        "weatherKitRowCount": 1,
+        "ownTagWeatherKit": true,
+        "ownEnabled": true
+      },
+      {
+        "kind": "saved",
+        "otherRowsUnchanged": true,
+        "weatherKitRowCount": 1,
+        "ownTagWeatherKit": true,
+        "ownEnabled": true
+      }
+    ],
+    "sameLoonServiceConnectedInList": true,
+    "directVPNStatus": "Connected",
+    "LoonUIConnected": true,
+    "VPNControlsTouched": false,
+    "UIReleased": true,
+    "elapsedUIWindowMinutesLessThan": 8,
+    "pushAllowed": false,
+    "pushReason": "native language acceptance not passed; user condition fully normal before push not satisfied"
+  },
+  "temporaryNativeImportAcceptance": {
+    "atUTC": "2026-11-14T07:55:50.656492+00:00",
+    "UIReleased": true,
+    "UIElapsedMinutesLessThan": 8,
+    "candidateImportedAnd13ControlsObserved": true,
+    "candidateDateObserved": "2026-11-14 14:00:22",
+    "originalTwelveTextAndSelectionValuesPreserved": true,
+    "UILanguageSequence": [
+      "Auto",
+      "zh-Hans",
+      "en",
+      "Auto"
+    ],
+    "selectedLanguagePlistObservedBeforeRemoval": [
+      "zh-Hans",
+      "en"
+    ],
+    "runtimeSourceLanguagesObserved": [
+      "zh-Hans",
+      "en"
+    ],
+    "runtimeLanguageEvidence": "exact candidate request cache hashes plus constant en-GB Apple detail URL; actual source paths and Accept-Language changed to selected preference",
+    "literalRuntimeArgumentDumpCaptured": false,
+    "candidateScriptIDs": [
+      1725,
+      1726
+    ],
+    "candidateScriptsFinishedWithoutException": true,
+    "publicDetailRefreshesByLanguage": {
+      "zh-Hans": 1,
+      "en": 1
+    },
+    "bothSourceHTTPStatus": 200,
+    "bothParentJSONStatus": 200,
+    "bothExplicitParentsNoStore": true,
+    "sourceRequestPathsDistinct": true,
+    "freshSourceRequestPerLanguageObserved": true,
+    "actualWarningTextVisible": false,
+    "bothSafariResults": "Weather Alert Unavailable; may be cancelled or no longer in effect",
+    "sourceBodyCaptured": false,
+    "sourceLanguageBodyAcceptance": "not passed; no active warning text displayed; do not infer source validity or language from HTTP 200",
+    "originalPluginName": "WeatherKit",
+    "originalNameURLAndEnabledVerifiedInUI": true,
+    "originalParameterCountRestored": 12,
+    "originalThreeFilesUnchanged": true,
+    "allPreexistingPluginFilesUnchanged": true,
+    "preexistingPluginFilesChecked": 15,
+    "allPreexistingScriptFilesUnchanged": true,
+    "preexistingScriptFilesChecked": 43,
+    "changedOrMissingPreexistingScriptNames": [],
+    "changedOrMissingPreexistingPluginNames": [],
+    "configs": [
+      {
+        "kind": "active",
+        "allBytesUnchanged": true,
+        "otherRowsUnchanged": true,
+        "ownRowRestored": true,
+        "temporaryURLAbsent": true
+      },
+      {
+        "kind": "saved",
+        "allBytesUnchanged": true,
+        "otherRowsUnchanged": true,
+        "ownRowRestored": true,
+        "temporaryURLAbsent": true
+      }
+    ],
+    "temporaryResourceAndTwoScriptCachesRemovedByNativeDelete": true,
+    "extraCacheCleanupWrites": false,
+    "serverStopped": true,
+    "sameLoonServiceConnectedInList": true,
+    "directVPNStatus": "Connected",
+    "LoonUIConnectedAtEnd": true,
+    "VPNOrNodeSettingsChanged": false,
+    "committed": false,
+    "pushed": false,
+    "criticalAcceptancePassed": false,
+    "sharedScaleRecovery": {
+      "nativeDeleteAlsoRemovedExistingWeatherKitScaleCache": true,
+      "exactPreflightBytesRestoredFromLocalUnchangedArtifact": true,
+      "expectedSHA256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f",
+      "onlyMissingOwnScaleCreatedWithExclusiveLease": true,
+      "atUTC": "2026-11-14T07:56:34.470203+00:00"
+    },
+    "finalScriptDigestCheck": {
+      "pass": 43,
+      "fail": 0
+    }
+  },
+  "nativeSourceResponseEvidence": {
+    "scriptRuns": [
+      {
+        "id": 1725,
+        "scriptTag": "🌤 WeatherKit.api.v1.weatherAlerts.html.request",
+        "isFinished": 1,
+        "isException": 0,
+        "startTime": 1794642635246,
+        "endTime": 1794642635592,
+        "pluginName": "WeatherKit 语言验收（临时）"
+      },
+      {
+        "id": 1726,
+        "scriptTag": "🌤 WeatherKit.api.v1.weatherAlerts.html.request",
+        "isFinished": 1,
+        "isException": 0,
+        "startTime": 1794642682240,
+        "endTime": 1794642682566,
+        "pluginName": "WeatherKit 语言验收（临时）"
+      }
+    ],
+    "parentSessions": [
+      {
+        "id": 13055,
+        "statusCode": 0,
+        "replaceStatusCode": 200,
+        "responseEndTime": 1794642635598,
+        "path": "/api/v1/weatherAlerts",
+        "cacheControl": [
+          "no-store"
+        ],
+        "contentType": [
+          "application/json"
+        ],
+        "scriptRecord": 1725
+      },
+      {
+        "id": 13092,
+        "statusCode": 0,
+        "replaceStatusCode": 200,
+        "responseEndTime": 1794642682569,
+        "path": "/api/v1/weatherAlerts",
+        "cacheControl": [
+          "no-store"
+        ],
+        "contentType": [
+          "application/json"
+        ],
+        "scriptRecord": 1726
+      }
+    ],
+    "sourceSessions": [
+      {
+        "id": 13056,
+        "requestStartTime": 1794642635256,
+        "statusCode": 200,
+        "replaceStatusCode": 0,
+        "bodyLength": null,
+        "sessionBodyFlag": 0,
+        "host": "www.qweather.com",
+        "path": "/severe-weather/baoshan-101020300.html",
+        "acceptLanguage": [
+          "zh-Hans"
+        ],
+        "contentType": [
+          "text/html;charset=UTF-8"
+        ],
+        "publicBaoshanIdentifier": true
+      },
+      {
+        "id": 13093,
+        "requestStartTime": 1794642682249,
+        "statusCode": 200,
+        "replaceStatusCode": 0,
+        "bodyLength": null,
+        "sessionBodyFlag": 0,
+        "host": "www.qweather.com",
+        "path": "/en/severe-weather/baoshan-101020300.html",
+        "acceptLanguage": [
+          "en"
+        ],
+        "contentType": [
+          "text/html;charset=UTF-8"
+        ],
+        "publicBaoshanIdentifier": true
+      }
+    ],
+    "directParentChildLinkInDatabase": false,
+    "associationBasis": "same public identifier, one refresh per language, source starts 10ms/9ms after corresponding script",
+    "sourceBodiesCaptured": false,
+    "sourceHTTP200AloneDoesNotProveUsableAlertOrLanguage": true
+  },
+  "lastUpdatedUTC": "2026-11-14T07:59:31.811881+00:00",
+  "finalRecoveryCheck": {
+    "checkedUTC": "2026-11-14T08:00:07.058005+00:00",
+    "pluginFiles": {
+      "pass": 15,
+      "fail": 0
+    },
+    "scriptFiles": {
+      "pass": 43,
+      "fail": 0
+    },
+    "wholeConfigurationFiles": {
+      "pass": 2,
+      "fail": 0
+    },
+    "originalNameURLAndEnabledAndTwelveUIValuesVerified": true,
+    "temporaryResourcesRemoved": true,
+    "serverStopped": true,
+    "VPN": "Connected",
+    "sameServiceInList": true,
+    "UIReleased": true,
+    "workingHEAD": "5d669d68052ecb01aefd632f73a76d1f33bb828b",
+    "stagedFiles": [],
+    "newUIOrWeatherRequests": 0
+  },
+  "snapshotIsHistorical": true,
+  "laterNativeAcceptance": {
+    "report": "docs/native-warning-acceptance-2026-11-14.json",
+    "currentArtifactsUsed": true,
+    "ChineseAndEnglishBodyVisible": true,
+    "ChineseFullNativeJSONCompared": true,
+    "originalInstallationFullyRestored": true,
+    "laterUserAuthorizedReviewedForkMainUpdate": true
+  }
+}

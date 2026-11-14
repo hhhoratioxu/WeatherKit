@@ -22,7 +22,7 @@ plugin = plugin.replace(/^(#!author = .+)$/m, "$1,hhhoratioxu[https://github.com
 const header = plugin.match(/^#!arguments = (.+)$/m)?.[1];
 if (!header) throw new Error("Surge argument table missing");
 const mapping = [...header.matchAll(/(?:^|,)([^,:]+):("[^"]*"|true|false|\d+)/g)].map(([, key]) => [key, key.replaceAll(".", "_")]);
-if (mapping.length !== 12 || new Set(mapping.map(([, name]) => name)).size !== mapping.length) throw new Error("Unexpected or colliding Surge arguments");
+if (mapping.length !== 13 || new Set(mapping.map(([, name]) => name)).size !== mapping.length) throw new Error("Unexpected or colliding Surge arguments");
 let normalized = header;
 for (const [key, name] of mapping) {
     normalized = normalized.replace(`${key}:`, `${name}:`);

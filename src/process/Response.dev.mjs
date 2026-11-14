@@ -432,16 +432,16 @@ async function InjectWeatherAlerts(weatherAlerts, Settings, enviroments) {
             break;
         }
         case "ColorfulClouds": {
-            if (isNationalWarningCenter || !providerProductAvailable(weatherAlerts)) newWeatherAlerts = await enviroments.colorfulClouds.WeatherAlert();
+            if (isNationalWarningCenter || !providerProductAvailable(weatherAlerts)) newWeatherAlerts = await (enviroments.weatherAlertsColorfulClouds ?? enviroments.colorfulClouds).WeatherAlert();
             break;
         }
         case "QWeather": {
-            if (isNationalWarningCenter || !providerProductAvailable(weatherAlerts)) newWeatherAlerts = await enviroments.qWeather.WeatherAlert();
+            if (isNationalWarningCenter || !providerProductAvailable(weatherAlerts)) newWeatherAlerts = await (enviroments.weatherAlertsQWeather ?? enviroments.qWeather).WeatherAlert();
             break;
         }
         case "QWeatherWeb":
         default: {
-            newWeatherAlerts = await enviroments.qWeather.WeatherAlertWeb(weatherAlerts?.detailsUrl);
+            newWeatherAlerts = await (enviroments.weatherAlertsQWeather ?? enviroments.qWeather).WeatherAlertWeb(weatherAlerts?.detailsUrl);
             break;
         }
     }

@@ -1,0 +1,118 @@
+{
+  "reportDate": "2026-11-14",
+  "timezone": "Asia/Taipei",
+  "status": "local only; awaiting complete feature acceptance; no commit or push",
+  "baseCommit": "5d669d68052ecb01aefd632f73a76d1f33bb828b",
+  "sourceWorkingTreeDirty": true,
+  "displayName": "WeatherKit",
+  "version": "3.3.6",
+  "scope": {
+    "maintainedTemplateCount": 13,
+    "fixedRewriteModuleCount": 5,
+    "nativeLoonAliases": 3,
+    "nativeSurgeAliases": 2,
+    "developmentPublicationDescriptions": 6,
+    "developmentConsoleDisplaySuffixRemoved": true
+  },
+  "validation": {
+    "npmTest": {
+      "tests": 399,
+      "pass": 399,
+      "fail": 0,
+      "skipped": 0
+    },
+    "newNameRegressionCases": 4,
+    "newCasesFailedBeforeNameChange": 4,
+    "compiledLoon": {
+      "pass": 50,
+      "fail": 0
+    },
+    "LoonRules": {
+      "pass": 15,
+      "fail": 0
+    },
+    "compiledSurge": {
+      "pass": 39,
+      "fail": 0
+    },
+    "generatedArgumentEntryNames": 12,
+    "checksumEntries": 17
+  },
+  "preservation": {
+    "packageFieldsExceptDisplayNameUnchanged": true,
+    "all49SourceFilesUnchanged": true,
+    "all8NativeRuntimeBundlesByteIdentical": true,
+    "versionsURLsParametersAuthorsAndFunctionalConfigurationUnchanged": true,
+    "nativeEntryChanges": "display-name header and generated date only",
+    "fixedRewriteAndTemplateBodiesUnchanged": true,
+    "protectedExistingFilesUnchanged": {
+      "AGENTS.md": true,
+      "docs/mac-native-followup-2026-11-14.md": true,
+      "docs/mac-native-followup-2026-11-14.json": true
+    },
+    "installedLoonPluginUnchanged": true,
+    "HEADUnchanged": true
+  },
+  "build": {
+    "isolatedSnapshot": ".cache/display-name-20261114/build",
+    "sourceManifestSHA256": "54d69f7378e7f6c234140b43217704f666b7055ec5183390f31c78b1010086f7",
+    "sourceManifest": ".cache/display-name-20261114/source-manifest.json",
+    "dependencyMode": "existing local recovered dependencies; no fresh npm install",
+    "localBuildProvenanceMarksDirtySource": true,
+    "node": "v22.23.5"
+  },
+  "sourceAndOutputFilesSHA256": {
+    ".github/workflows/deploy.yml": "eb8ed3dd0ab85b9b68a23f4ae72a5a2edf535fbbf5b4e2bac03f80f1fda244e0",
+    "Loon/script/SHA256SUMS.txt": "434e8f9658a4801a2e228c4e4d83b5c6bcac960ab4a0adc1063fdc40401a7986",
+    "Loon/script/WeatherKit.lpx": "b45b3276da4570cfea449d411bc52aed5c5408e2f92eed849a630da81d1ee1d2",
+    "Loon/script/WeatherKit.plugin": "b45b3276da4570cfea449d411bc52aed5c5408e2f92eed849a630da81d1ee1d2",
+    "Loon/script/build-provenance.json": "cab71812d3ef2dd86f5dc15c69356d5d47cfe7864c324848f04c7eb4b6a7396b",
+    "Loon/script/iRingo.WeatherKit.lpx": "b45b3276da4570cfea449d411bc52aed5c5408e2f92eed849a630da81d1ee1d2",
+    "README.md": "f0a702567a7eb1cd080455fe84bfa4c0c7fbeb8e3995d4f97a5bf232d7ef4271",
+    "Surge/script/Surge.SHA256SUMS.txt": "d24d1e808138084b4f1010c962e8db02b3b077c4e59c199e3fa67c393f31160d",
+    "Surge/script/Surge.build-provenance.json": "ebda9d131eafee69ffe720b8eddd57e55d08e5dbbfc9a347f683026a2e9f7941",
+    "Surge/script/WeatherKit.sgmodule": "636c1c37609c3a098f5b514937b56aefaecf3a739e7429d68503d86c480e2752",
+    "Surge/script/iRingo.WeatherKit.sgmodule": "636c1c37609c3a098f5b514937b56aefaecf3a739e7429d68503d86c480e2752",
+    "modules/iRingo.WeatherKit.Rewrite.lpx": "f9ffbf0803d357d29c8d5419750fd9350e7fe2cde34d8498973df33540d451d0",
+    "modules/iRingo.WeatherKit.Rewrite.sgmodule": "a8a4fcb27dd04189dde6a37e3d732726a8f463d1ccf0c4d3fb8ae0ae01c29ed6",
+    "modules/iRingo.WeatherKit.Rewrite.srmodule": "a8a4fcb27dd04189dde6a37e3d732726a8f463d1ccf0c4d3fb8ae0ae01c29ed6",
+    "modules/iRingo.WeatherKit.Rewrite.stoverride": "cd3f1815d13980ca474458a995f7da8c992dd1eea0e12c406afa8b6cd9d66b06",
+    "modules/iRingo.WeatherKit.Rewrite.yaml": "12152013edf3dc63afaaddba44d9cae3ca7b96128c21244a8f8e3c4eefdedb68",
+    "package.json": "f9478e950b96b39b19b1093fb8acf99d3e9727e52e79e15f4e9063cae4fc00fe",
+    "rollup.dev.config.mjs": "09fb66feb9c36cf00fd7bfd9bb29132599e2d3daddf50b7656aaadefef338f1f",
+    "scripts/build-loon-cache.mjs": "208c3743ecb057e7a3767183e2155728589ab31a6c8a24ba1fc0a5a74b828a2d",
+    "template/loon.dev.handlebars": "fad15cf6c91e05cd659d2764fa502e1b7ca8fc3ba97c55064195233362a39b2f",
+    "template/loon.rewrite.handlebars": "4523bfd61a5460f57abe6b623cfe583b434bbd72eda243bc0b5e9b9c9e36640b",
+    "template/quantumultx.dev.handlebars": "9f62a26236479250c78eee317d275cd3640eff4d4a05003b1373f7842b4c817a",
+    "template/shadowrocket.rewrite.handlebars": "1b324592d00ce3104671363d5c7c500cb4bfff64a95304e08885cd4f2585cb87",
+    "template/stash.dev.handlebars": "5dfaa3c4aa6b6bf1efb898155c99d9932e1d2e7973662060bf9f7aab86248b3d",
+    "template/stash.rewrite.handlebars": "236d8b3d7daaa05f2354eab80e0fde4ea418e4b81fa487f13de1e1e07813c5a7",
+    "template/surge.dev.handlebars": "1310ec13ef75df54b240e7b4899f8ecbd2fc6dcc4cf15c9e7b901e699a2bae32",
+    "template/surge.rewrite.handlebars": "960cea9724c5f5dd3bf12dfc831e65ad4306a150ddcc048116fd73b9af634825",
+    "tests/severeWeatherRewriteModules.test.mjs": "f62266c00ddaa357e9804fc810943d570972ef5083101f6df1b767ba1a1904b7",
+    "tests/displayName.test.mjs": "b88928a991994d9de51a7f70d2b68eaf7bf39e2a14864e2f969c3db337651500"
+  },
+  "nonUIWarningFollowup": {
+    "existingSessionRecordsStillLackBodyAndAppAttribution": true,
+    "HTML200AloneInsufficientForAcceptedNativeDetails": true,
+    "confirmedNewCodeDefect": false,
+    "functionalCodeChanged": false,
+    "liveNetworkProbesMade": false,
+    "UIUsed": false,
+    "detailAcceptanceStillPending": true
+  },
+  "publication": {
+    "committed": false,
+    "pushed": false,
+    "releaseOrTagsChanged": false,
+    "installedPluginUpdated": false,
+    "networkSettingsChanged": false
+  },
+  "modelPreference": {
+    "requested": "6.1 Sol",
+    "reasoning": "Max",
+    "independentlyVerified": false
+  },
+  "snapshotIsHistorical": true,
+  "laterAcceptanceReport": "docs/native-warning-acceptance-2026-11-14.json"
+}

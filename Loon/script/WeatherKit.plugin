@@ -1,4 +1,4 @@
-#!name =  iRingo: 🌤 WeatherKit
+#!name = WeatherKit
 #!desc = iOS 18 & macOS 15 & watchOS 11\n1.解锁全部天气功能\n2.修改空气质量数据\n3.修改下一小时降水数据\n4.修改天气数据\n5.修改天气预警数据
 #!openUrl = http://boxjs.com/#/app/iRingo.WeatherKit
 #!author = VirgilClyne[https://github.com/VirgilClyne],WordlessEcho[https://github.com/WordlessEcho],001[https://github.com/001ProMax],hhh2210[https://github.com/hhh2210],hhhoratioxu[https://github.com/hhhoratioxu]
@@ -6,7 +6,7 @@
 #!icon = https://developer.apple.com/assets/elements/icons/weatherkit/weatherkit-128x128.png
 #!tag =  iRingo
 #!system = iOS,iPadOS,macOS,watchOS
-#!date = 2026-11-14 09:09:16
+#!date = 2026-11-14 16:41:49
 #!version = 3.3.6
 #!system_version = 18
 #!loon_version = 3.5.1(983)
@@ -15,6 +15,7 @@
 DataSets = input,"airQuality,currentWeather,forecastDaily,forecastHourly,forecastNextHour,weatherAlerts",tag=[数据集],desc=选择需要解析并处理的数据集；未选择的数据槽始终保持原样透传，不作修改。
 Weather.Provider = select,"ColorfulClouds","WeatherKit","QWeather",tag=[天气] 数据源,desc=使用选定的数据源替换天气数据。
 WeatherAlerts.Provider = select,"QWeatherWeb","WeatherKit","QWeather","ColorfulClouds",tag=[天气预警] 数据源,desc=使用选定的数据源处理天气预警数据。
+WeatherAlerts.Language = select,"Auto","zh-Hans","en",tag=[天气预警] 正文语言偏好,desc=仅向所选来源请求预警语言，不使用第三方翻译。来源不支持或返回其他语言时保留原文、签发单位与出处；Apple 原始标题和页面标签可能仍随系统语言。
 NextHour.Provider = select,"ColorfulClouds","WeatherKit","QWeather",tag=[未来一小时降水强度] 数据源,desc=使用选定的数据源填充未来一小时降水强度的数据。
 AirQuality.Current.Pollutants.Provider = select,"ColorfulClouds","QWeather",tag=[今日污染物] 数据源,desc=使用选定的数据源填补污染物数据。
 AirQuality.Calculate.Algorithm = select,"EU_EAQI","None","UBA","WAQI_InstantCast_US","WAQI_InstantCast_CN","WAQI_InstantCast_CN_25_DRAFT","CA_AQHI","HK_AQHI","AQHI_Multi_CN","AQHI_Multi_CN_HK","CN_DEATH_AQHI","CN_DEATH_HK_AQHI",tag=[iRingo内置算法] 算法,desc=使用内置算法，通过污染物数据本地计算空气指数。InstantCast源自于WAQI，美标版本使用了WAQI的臭氧标准。
@@ -38,10 +39,10 @@ request if (${request.method} == "GET" || ${request.method} == "HEAD" || ${reque
 
 [Script]
 http-request ^https?:\/\/weatherkit\.apple\.com\/api\/v1\/airQualityScale\/[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*\/(?:HK|CN)\.AQHI(?:\.\d+)?(?:[?#]|$) script-path=https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/scale.bundle.js, tag=🌤 WeatherKit.api.v1.airQualityScale.request
-http-request ^https?:\/\/weatherkit\.apple\.com\/api\/v1\/weatherAlerts\?(?:[^#]*&)?ids=[^&#]*-[0-9]{9}(?:&|$) script-path=https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/request.bundle.js, tag=🌤 WeatherKit.api.v1.weatherAlerts.html.request, argument=[{DataSets},{Weather.Provider},{WeatherAlerts.Provider},{NextHour.Provider},{AirQuality.Current.Pollutants.Provider},{AirQuality.Calculate.Algorithm},{API.ColorfulClouds.Token},{API.QWeather.Host},{API.QWeather.Token},{API.WAQI.Token},{Storage},{LogLevel}]
-http-request ^https?:\/\/weatherkit\.apple\.com\/api\/v1\/weatherAlerts\?(?:[^#]*&)?ids=-?[0-9]+(?:\.[0-9]+)?,-?[0-9]+(?:\.[0-9]+)?(?:&|$) script-path=https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/request.bundle.js, tag=🌤 WeatherKit.api.v1.weatherAlerts.api.request, argument=[{DataSets},{Weather.Provider},{WeatherAlerts.Provider},{NextHour.Provider},{AirQuality.Current.Pollutants.Provider},{AirQuality.Calculate.Algorithm},{API.ColorfulClouds.Token},{API.QWeather.Host},{API.QWeather.Token},{API.WAQI.Token},{Storage},{LogLevel}]
-http-response ^https?:\/\/weatherkit\.apple\.com\/api\/v2\/weather\/ requires-body=1, binary-body-mode=1, script-path=https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/response.bundle.js, tag=🌤 WeatherKit.api.v2.weather.response, argument=[{DataSets},{Weather.Provider},{WeatherAlerts.Provider},{NextHour.Provider},{AirQuality.Current.Pollutants.Provider},{AirQuality.Calculate.Algorithm},{API.ColorfulClouds.Token},{API.QWeather.Host},{API.QWeather.Token},{API.WAQI.Token},{Storage},{LogLevel}]
-response if ${url} ~= /^https:\/\/weatherkit\.apple\.com\/api\/v3\/weather\// && ${request.method} == "GET" && ${request.header['User-Agent']} ~= /^WeatherKit_Weather_(iOS|macOS)_/ && ${response.status} == 200 && ${response.header['Content-Type']} ~= /^application\/json(?:;|$)/i then script("https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/response.bundle.js", {${DataSets}, ${Weather.Provider}, ${WeatherAlerts.Provider}, ${NextHour.Provider}, ${AirQuality.Current.Pollutants.Provider}, ${AirQuality.Calculate.Algorithm}, ${API.ColorfulClouds.Token}, ${API.QWeather.Host}, ${API.QWeather.Token}, ${API.WAQI.Token}, ${Storage}, ${LogLevel}}) with requires_body=true, tag="🌤 WeatherKit.api.v3.weather.json.response"
+http-request ^https?:\/\/weatherkit\.apple\.com\/api\/v1\/weatherAlerts\?(?:[^#]*&)?ids=[^&#]*-[0-9]{9}(?:&|$) script-path=https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/request.bundle.js, tag=🌤 WeatherKit.api.v1.weatherAlerts.html.request, argument=[{DataSets},{Weather.Provider},{WeatherAlerts.Provider},{WeatherAlerts.Language},{NextHour.Provider},{AirQuality.Current.Pollutants.Provider},{AirQuality.Calculate.Algorithm},{API.ColorfulClouds.Token},{API.QWeather.Host},{API.QWeather.Token},{API.WAQI.Token},{Storage},{LogLevel}]
+http-request ^https?:\/\/weatherkit\.apple\.com\/api\/v1\/weatherAlerts\?(?:[^#]*&)?ids=-?[0-9]+(?:\.[0-9]+)?,-?[0-9]+(?:\.[0-9]+)?(?:&|$) script-path=https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/request.bundle.js, tag=🌤 WeatherKit.api.v1.weatherAlerts.api.request, argument=[{DataSets},{Weather.Provider},{WeatherAlerts.Provider},{WeatherAlerts.Language},{NextHour.Provider},{AirQuality.Current.Pollutants.Provider},{AirQuality.Calculate.Algorithm},{API.ColorfulClouds.Token},{API.QWeather.Host},{API.QWeather.Token},{API.WAQI.Token},{Storage},{LogLevel}]
+http-response ^https?:\/\/weatherkit\.apple\.com\/api\/v2\/weather\/ requires-body=1, binary-body-mode=1, script-path=https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/response.bundle.js, tag=🌤 WeatherKit.api.v2.weather.response, argument=[{DataSets},{Weather.Provider},{WeatherAlerts.Provider},{WeatherAlerts.Language},{NextHour.Provider},{AirQuality.Current.Pollutants.Provider},{AirQuality.Calculate.Algorithm},{API.ColorfulClouds.Token},{API.QWeather.Host},{API.QWeather.Token},{API.WAQI.Token},{Storage},{LogLevel}]
+response if ${url} ~= /^https:\/\/weatherkit\.apple\.com\/api\/v3\/weather\// && ${request.method} == "GET" && ${request.header['User-Agent']} ~= /^WeatherKit_Weather_(iOS|macOS)_/ && ${response.status} == 200 && ${response.header['Content-Type']} ~= /^application\/json(?:;|$)/i then script("https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/response.bundle.js", {${DataSets}, ${Weather.Provider}, ${WeatherAlerts.Provider}, ${WeatherAlerts.Language}, ${NextHour.Provider}, ${AirQuality.Current.Pollutants.Provider}, ${AirQuality.Calculate.Algorithm}, ${API.ColorfulClouds.Token}, ${API.QWeather.Host}, ${API.QWeather.Token}, ${API.WAQI.Token}, ${Storage}, ${LogLevel}}) with requires_body=true, tag="🌤 WeatherKit.api.v3.weather.json.response"
 
 [MITM]
 hostname = weatherkit.apple.com

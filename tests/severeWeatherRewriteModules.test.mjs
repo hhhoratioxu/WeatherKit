@@ -133,7 +133,7 @@ test("Rewrite templates stay aligned with fixed Rewrite modules", async () => {
     const fixedTemplates = ["loon.rewrite.handlebars", "stash.rewrite.handlebars"];
     for (const filename of rewriteTemplates) {
         const content = await readFile(new URL(`../template/${filename}`, import.meta.url), "utf8");
-        assert.ok(content.includes("(Rewrite)"), filename);
+        assert.match(content.split(/\r?\n/, 1)[0], /^(?:#!name = |name: ")\{\{@package 'displayName'\}\}"?$/, filename);
         assert.ok(content.includes(weatherAlertsPagePattern), filename);
         assert.ok(content.includes(weatherAlertsCoordinatePattern), filename);
         assert.ok(!content.includes(mergedWeatherAlertsIdentifierPattern), filename);
@@ -225,7 +225,7 @@ test("Dev builds use dev templates, bundles, and output names", async () => {
         assert.ok(deployWorkflow.includes(`dist/${output}`), output);
     }
     for (const [index, template] of templates.entries()) {
-        assert.match(template, / β/, devTemplates[index]);
+        assert.match(template.split(/\r?\n/, 1)[0], /^(?:#!name = |name: ")\{\{@package 'displayName'\}\}"?$/, devTemplates[index]);
         assert.match(template, /(?:request|response)\.dev\.bundle\.js/, devTemplates[index]);
         assert.doesNotMatch(template, /\/raw\/(?:request|response)\.bundle\.js/, devTemplates[index]);
         assert.ok(template.includes(weatherAlertsPageHandlerPattern), devTemplates[index]);
@@ -268,7 +268,7 @@ test("WeatherAlert provider settings expose web and user API choices", async () 
     ]);
 
     assert.match(full, /key: "WeatherAlerts\.Provider"[\s\S]*defaultValue: "QWeatherWeb"[\s\S]*key: "WeatherKit"[\s\S]*key: "QWeatherWeb"[\s\S]*key: "QWeather"[\s\S]*key: "ColorfulClouds"/);
-    assert.match(full, /export const weatherAlerts = \[weatherAlertsProvider\]/);
+    assert.match(full, /export const weatherAlerts = \[weatherAlertsProvider, weatherAlertsLanguage\]/);
     assert.match(full, /export const airQuality = \[airQualityCurrentPollutantsProvider\]/);
     assert.match(full, /export const dataSets: Arg\[\] = \[[\s\S]*defaultValue: \["airQuality", "currentWeather", "forecastDaily", "forecastHourly", "forecastNextHour", "weatherAlerts"\]/);
     const releaseDataSets = full.slice(full.indexOf("export const dataSets:"), full.indexOf("export const dataSetsFull:"));
@@ -297,7 +297,7 @@ test("WeatherAlert provider settings expose web and user API choices", async () 
     assert.match(release, /args: \[\.\.\.dataSets,[^\]]*\.\.\.weatherAlerts,[^\]]*\.\.\.airQuality/);
     assert.match(dev, /import \{[^}]*airQualityFull[^}]*dataSetsFull[^}]*weatherFull[^}]*\} from "\.\/arguments-builder\.full\.config"/);
     assert.match(dev, /args: \[\.\.\.dataSetsFull, \.\.\.weatherFull, \.\.\.weatherAlerts, \.\.\.nextHourFull, \.\.\.airQualityFull, \.\.\.calculateFull, \.\.\.api, \.\.\.storage, \.\.\.logLevel\]/);
-    assert.match(database, /WeatherAlerts: \{ Provider: "QWeatherWeb" \}/);
+    assert.match(database, /WeatherAlerts: \{ Provider: "QWeatherWeb", Language: "Auto" \}/);
     assert.match(types, /WeatherAlerts\?: \{[\s\S]*Provider\?: "WeatherKit" \| "QWeatherWeb" \| "QWeather" \| "ColorfulClouds"/);
     assert.match(boxjs, /@iRingo\.WeatherKit\.Settings\.WeatherAlerts\.Provider[\s\S]*"val":\s*"QWeatherWeb"[\s\S]*"key":\s*"WeatherKit"/);
     const boxjsSettings = JSON.parse(boxjs);

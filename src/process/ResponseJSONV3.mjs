@@ -265,7 +265,7 @@ function v3Environment(environment) {
             },
         });
     }
-    let colorfulClouds, qWeather;
+    let colorfulClouds, qWeather, weatherAlertsColorfulClouds, weatherAlertsQWeather;
     return {
         country: environment.country,
         transport: environment.transport,
@@ -274,6 +274,12 @@ function v3Environment(environment) {
         },
         get qWeather() {
             return (qWeather ??= wrap(environment.qWeather));
+        },
+        get weatherAlertsColorfulClouds() {
+            return (weatherAlertsColorfulClouds ??= wrap(environment.weatherAlertsColorfulClouds));
+        },
+        get weatherAlertsQWeather() {
+            return (weatherAlertsQWeather ??= wrap(environment.weatherAlertsQWeather));
         },
         get waqi() {
             return environment.waqi;

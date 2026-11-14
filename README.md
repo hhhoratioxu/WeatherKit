@@ -1,6 +1,6 @@
-#  iRingo: 🌤 WeatherKit
+# WeatherKit
 
-本仓库是 [NSRingo/WeatherKit](https://github.com/NSRingo/WeatherKit) 的 Fork，保留原作者、Apache-2.0 许可证与 Git 历史。当前发行 **v3.3.6** 同时提供 Loon 和 Surge 版本，插件名称、功能描述与原有参数含义沿用原版。
+本仓库是 [NSRingo/WeatherKit](https://github.com/NSRingo/WeatherKit) 的 Fork，保留原作者、Apache-2.0 许可证与 Git 历史。当前发行 **v3.3.6** 同时提供 Loon 和 Surge 版本；本地维护中的插件显示名称统一为 `WeatherKit`，功能描述与原有参数含义沿用原版。
 
 [更新说明](CHANGELOG.md) · [正式 Release](https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.6) · [原版配置指南](https://NSRingo.github.io/guide/Weather/weather-kit)
 
@@ -31,7 +31,11 @@ Loon 原有 WeatherKit.lpx、WeatherKit.plugin 地址继续可用，与正式入
 - 已有数据优先，缺项补充失败保留原有天气。仅使用所选数据源，单独填写另一来源令牌不会改变所选来源。
 - v3.3.6 已移除短时请求缓存、在途合并、网络发起预算、失败冷却、额外运行统计、地区推断与备用查询，保留原有 12 项插件参数。更新现有插件后，相关 9 项控件不再显示；保留正常单请求超时和失败时的 Apple 数据。
 
+本次新增第 13 项 `[天气预警] 正文语言偏好`（`WeatherAlerts.Language`）：自动、简体中文或 English，默认自动保持旧行为。仅向当前来源请求对应语言；不支持、缺少译文或返回混合语言时保留来源原文、签发单位和出处，不调用第三方翻译。其他天气产品语言、Apple 原始预警标题和页面标签分别沿用各自设置。来源返回文字的实际语言未确认时使用 `und` 标识，不将其冒充已核验的译文。原有 12 项参数及默认值保留，已移除的 9 项控制不恢复。实现与前期阶段记录见 [预警语言候选](docs/warning-language-2026-11-14.md)。后续使用同一份重建候选临时导入 Mac Loon，已确认 13 项设置、原 12 项值不变，以及有效公开预警的中英文正文、签发单位和来源链接实际显示；中文完整原生 JSON 也与本轮来源逐段核对一致，详见 [本轮预警原生验收与范围](docs/native-warning-acceptance-2026-11-14.md)。验收后恢复原插件并停止本机服务。GitHub 源码与生成产物更新不代表设备已安装，仍由用户自行更新原订阅。
+
 Loon 最低版本为 3.5.1(983)。Surge 使用自己的 .sgmodule、字符串参数、秒制 HTTP 超时及 JSC/WebView 引擎，见 [Surge 说明](docs/surge.md)。WK3 自定义处理限 iOS/macOS 主天气 App；后台、组件和手表继续保留 Apple 原传输。供应商专用接口仍需要有效的账户权限与令牌。
+
+同时修复未知预警到期时间在正时区跨入 10000 年的兼容边界，兼容旧占位值并保留真实到期时间；它与此前无正文现象没有已证实的因果关系。重建候选的原生 JSON 已确认输出安全占位值且不制造事件结束时间，详见 [未知到期时间兼容修复](docs/unknown-expiry-2026-11-14.md) 及 [后续原生结果](docs/native-warning-acceptance-2026-11-14.md)。全量回归 434/434、Loon 编译场景 52/52 与规则 15/15、Surge 编译场景 41/41 均通过。主天气、AQ、降水等旧功能本轮以自动回归为依据，旧轮 f571a49 的实机观察单独保留；Surge 真机、其他地区／来源及长期资源表现仍未验证。
 
 [原版用途与参数核对](docs/upstream-intent-audit.md) · [v3.3.6 精简说明](docs/v3.3.6.md) · [预警编号修复](docs/weather-alert-id-v3.md) · [历史发行构建记录](docs/loon-build-validation.json) · [Mac 原生观察记录](docs/mac-native-observations-v3.3.5.json)
 

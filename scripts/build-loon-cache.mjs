@@ -21,8 +21,8 @@ let plugin = await readFile(path.join(root, "dist/iRingo.WeatherKit.lpx"), "utf8
 const upstreamBase = `https://github.com/NSRingo/WeatherKit/releases/download/v${pkg.version}`;
 if (plugin.split(`${upstreamBase}/`).length !== 6) throw new Error("Unexpected generated Loon script count");
 plugin = plugin.replaceAll(`${upstreamBase}/`, `${runtimeBase}/`);
-// Keep the upstream display name, description and homepage. Only distribution
-// URLs and contributor credit differ in this Fork.
+// Read the display name from package.json; preserve the upstream description
+// and homepage while retaining the Fork's distribution URLs and contributor credit.
 plugin = plugin.replace(/^(#!author = .+)$/m, "$1,hhhoratioxu[https://github.com/hhhoratioxu]");
 plugin = plugin.replace(/^(#!system_version = .+)$/m, "$1\n#!loon_version = 3.5.1(983)");
 if (plugin.includes(`${upstreamBase}/`)) throw new Error("The fork must load its own optimized scripts");

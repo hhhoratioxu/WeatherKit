@@ -1,0 +1,187 @@
+{
+  "date": "2026-11-14",
+  "timezone": "Asia/Taipei",
+  "publication": "local only; no push",
+  "runtimeCommit": "f571a49eb3404caf5214cb9b629ee1bd74cf239c",
+  "UIReleased": true,
+  "visibleChecks": {
+    "Shanghai": [
+      "Caiyun current weather",
+      "hourly forecast",
+      "ten-day forecast",
+      "next-hour rain",
+      "daily detail",
+      "EU.EAQI",
+      "six pollutant concentrations",
+      "CO 1100 ug/m3",
+      "yesterday comparison"
+    ],
+    "Sheffield": [
+      "DAQI 2 Low",
+      "eight pollutants",
+      "CO 280 ppb",
+      "BreezoMeter attribution"
+    ],
+    "publicWarning": [
+      "Heavy Fog banner visible",
+      "detail not verified"
+    ]
+  },
+  "nativeAppRequests": {
+    "count": 6,
+    "countryCN": 3,
+    "countryGB": 3,
+    "allHTTP200": true,
+    "allJSON": true,
+    "allMatchedScriptsFinished": true
+  },
+  "sanitizedLocalBufferSamples": 8,
+  "buffersAreNotClaimedAsMatchedSessionPairs": true,
+  "VPN": {
+    "sampleCount": 380,
+    "elapsedSeconds": 419.42,
+    "allObservedConnected": true,
+    "observerStopped": true
+  },
+  "unverified": [
+    "warning detail body and native presentation",
+    "all 12 parameter UI values after update",
+    "Surge native client",
+    "other regions and provider combinations",
+    "network switching and long term stability",
+    "CPU memory and power measurements"
+  ],
+  "newProductionCodeChanges": false,
+  "pushPerformed": false,
+  "sensitiveArtifactsIncluded": false,
+  "acceptanceComplete": false,
+  "warningDetailObservation": {
+    "bannerVisible": true,
+    "confirmedDetailContainer": false,
+    "confirmedDetailBody": false,
+    "windowScriptFinishedWithoutException": true,
+    "windowSessionStatus": 0,
+    "windowSessionProcessUnknown": true,
+    "clickUniquelyCorrelated": false,
+    "scriptLogReadable": false,
+    "rootCauseConfirmed": false
+  },
+  "nextMinimalVerification": [
+    "Re-coordinate a bounded UI window",
+    "Use one public city with an active warning and click once",
+    "Read-only correlation using App process, requestId/sessionId and requestStartTime",
+    "Record status, Content-Type, usable body presence and actual detail UI",
+    "If redirected to browser, record that separately",
+    "Stop if public provider returns 403; no network or permission changes",
+    "Fix only a reproducible, attributable code defect"
+  ],
+  "singleClickWarningFollowup": {
+    "startedAtUTC": "2026-11-14T04:01:25.011145+00:00",
+    "UIReleased": true,
+    "publicCity": "Baoshan, Shanghai",
+    "visibleBanner": "Yellow Warning For Heavy Fog",
+    "bannerClickedOnce": true,
+    "confirmedNativeDetailContainer": false,
+    "confirmedDetailBody": false,
+    "browserObservation": "No relevant tab visible in connected-browser inventory; does not prove absence in all browser internals",
+    "VPNBefore": {
+      "sameSavedService": true,
+      "list": "Connected",
+      "directStatus": "Connected",
+      "LoonUI": "Loon Connected"
+    },
+    "VPNAfter": "Connected",
+    "VPNSampling": {
+      "count": 78,
+      "elapsedSeconds": 79.19,
+      "allObservedConnected": true,
+      "stopped": true
+    },
+    "entryScript": {
+      "tag": "WeatherKit.api.v1.weatherAlerts.html.request",
+      "uniqueSessionIdAndStartTimeMatch": true,
+      "finished": true,
+      "exception": false,
+      "AppProcessAttribution": null
+    },
+    "safeSessionOutcomes": [
+      {
+        "recordId": 7212,
+        "URLScheme": "https",
+        "knownPublicDestination": "weatherkit.apple.com",
+        "endpoint": "WeatherKit weatherAlerts",
+        "status": 0,
+        "contentType": null,
+        "responseBodyFieldPresent": false,
+        "process": null,
+        "hasEndTime": false
+      },
+      {
+        "recordId": 7213,
+        "URLScheme": "https",
+        "knownPublicDestination": "www.qweather.com",
+        "endpoint": "QWeather public severe-weather HTML",
+        "status": 200,
+        "contentType": null,
+        "responseBodyFieldPresent": false,
+        "process": null,
+        "hasEndTime": false
+      }
+    ],
+    "scriptLog": [
+      {
+        "readable": true,
+        "bytes": 27,
+        "lines": 1,
+        "signals": {
+          "HTTP403": false,
+          "HTTP200": false,
+          "timeout": false,
+          "parseError": false,
+          "exception": false,
+          "QWeatherWeb": false,
+          "noActiveWarnings": false,
+          "finished": true
+        }
+      }
+    ],
+    "installedCacheChecks": [
+      {
+        "name": "iRingo.WeatherKit.lpx",
+        "SHA256": "d759f482eb47e40db5af2a77df0bba2f4787151713c8db18851c0b1b7d2ed44d",
+        "matchesRepositoryFile": true
+      },
+      {
+        "name": "request.bundle.js",
+        "cacheReadable": true,
+        "SHA256": "5166672e2b052fa1064d3d5840055b63a00eda5d46a85d01dfb678b1356dc80c",
+        "matchesRepositoryFile": true
+      },
+      {
+        "name": "response.bundle.js",
+        "cacheReadable": true,
+        "SHA256": "643d5f9083c15e9c0578ee80cf07ca35291f24da9a118f33bfb5f334c31f69f9",
+        "matchesRepositoryFile": true
+      },
+      {
+        "name": "scale.bundle.js",
+        "cacheReadable": true,
+        "SHA256": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f",
+        "matchesRepositoryFile": true
+      }
+    ],
+    "HTTP403ObservedInThisWindow": false,
+    "responseBodyAvailable": false,
+    "parentChildSessionRelationshipProven": false,
+    "rootCauseConfirmed": false,
+    "productionCodeChanged": false,
+    "configurationChanged": false,
+    "pushPerformed": false
+  },
+  "latestWarningDetailStatus": "Banner visible; single click has not yielded a confirmed detail body. Native entry script completed without exception; time-adjacent public QWeather session records 200 but lacks body, content type, end time and App attribution.",
+  "requestedModel": "6.1 Sol",
+  "requestedReasoningEffort": "Max",
+  "modelSettingIndependentlyVerified": false,
+  "snapshotIsHistorical": true,
+  "laterAcceptanceReport": "docs/native-warning-acceptance-2026-11-14.json"
+}

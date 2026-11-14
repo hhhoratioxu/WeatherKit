@@ -156,9 +156,9 @@ test("response WeatherAlert injection selects provider slot objects", async () =
         const injectWeatherAlerts = source.match(/async function InjectWeatherAlerts\([\s\S]*?(?=\n\/\*\*)/)?.[0] ?? "";
 
         assert.match(source, /case "weatherAlerts": \{[\s\S]*body\.weatherAlerts = await InjectWeatherAlerts\(body\.weatherAlerts, Settings, enviroments\)/);
-        assert.match(injectWeatherAlerts, /newWeatherAlerts = await enviroments\.colorfulClouds\.WeatherAlert\(\)/);
-        assert.match(injectWeatherAlerts, /newWeatherAlerts = await enviroments\.qWeather\.WeatherAlert\(\)/);
-        assert.match(injectWeatherAlerts, /newWeatherAlerts = await enviroments\.qWeather\.WeatherAlertWeb\(weatherAlerts\?\.detailsUrl\)/);
+        assert.match(injectWeatherAlerts, /newWeatherAlerts = await \(enviroments\.weatherAlertsColorfulClouds \?\? enviroments\.colorfulClouds\)\.WeatherAlert\(\)/);
+        assert.match(injectWeatherAlerts, /newWeatherAlerts = await \(enviroments\.weatherAlertsQWeather \?\? enviroments\.qWeather\)\.WeatherAlert\(\)/);
+        assert.match(injectWeatherAlerts, /newWeatherAlerts = await \(enviroments\.weatherAlertsQWeather \?\? enviroments\.qWeather\)\.WeatherAlertWeb\(weatherAlerts\?\.detailsUrl\)/);
         assert.doesNotMatch(injectWeatherAlerts, /QWeather\.(?:ParseWeatherAlertPageURL|BuildAppleAlertDetailsURL|FetchWeatherAlertPage)|attributionUrl|Console\.debug/);
     }
 });
@@ -205,7 +205,7 @@ test("QWeather HTML extraction is separated from WeatherAlert construction", asy
     assert.equal(alerts[0].description, "雷暴橙色预警");
     assert.equal(alerts[0].effectiveTime, "2026-07-31T03:00:00.000Z");
     assert.equal(alerts[0].eventOnsetTime, "2026-07-31T03:00:00.000Z");
-    assert.equal(alerts[0].expireTime, "9999-12-31T23:59:59Z");
+    assert.equal(alerts[0].expireTime, "9999-12-31T00:00:00Z");
     assert.equal(alerts[0].eventSource, "CN");
     assert.equal(alerts[0].importance, "high");
     assert.equal(alerts[0].reportedAt, "2026-07-31T03:00:00.000Z");

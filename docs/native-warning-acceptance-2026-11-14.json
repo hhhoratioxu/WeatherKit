@@ -1,0 +1,219 @@
+{
+  "reportDate": "2026-11-14",
+  "timezone": "Asia/Taipei",
+  "scope": "native warning language and unknown expiry acceptance; full regression; not all native product/client/environment validation",
+  "baseCommit": "5d669d68052ecb01aefd632f73a76d1f33bb828b",
+  "testedWorkingTreeDirty": true,
+  "version": "3.3.6",
+  "displayName": "WeatherKit",
+  "testedArtifacts": {
+    "Loon/script/request.bundle.js": "484509dc16aac6e09a6a60bb027377854ae898f4bba4f8006120504fab1bc4d4",
+    "Loon/script/response.bundle.js": "e7e1ba8ee5bd394494e1301e6c033a5edc03dcd70b86798730feffc28a113fcb",
+    "Loon/script/scale.bundle.js": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f",
+    "Loon/script/iRingo.WeatherKit.lpx": "b3e525fcf073094e0c8bfd47144a43332c6b7360945ffcd699353c8030ca2403"
+  },
+  "nativeWindow": {
+    "freshBackupUTC": "2026-11-14T09:59:50Z",
+    "serverStoppedByUTC": "2026-11-14T10:06:48Z",
+    "client": "Loon 0.5.0 (1011), Mac Safari",
+    "fourFixedFilesOnLoopbackOnly": true,
+    "allThreeDownloadedScriptCachesMatchedPrepared": true,
+    "original12ValuesPrivatelyComparedEqual": true,
+    "candidateControls": 13,
+    "defaultLanguage": "Auto",
+    "sequence": [
+      "Auto",
+      "zh-Hans",
+      "en",
+      "zh-Hans",
+      "Auto"
+    ],
+    "samePublicAppleEntryLanguage": "en-GB",
+    "ChineseVisible": [
+      "warning description",
+      "body",
+      "definition",
+      "five guidelines",
+      "issuer",
+      "source link"
+    ],
+    "EnglishVisible": [
+      "warning description",
+      "body prefix",
+      "definition",
+      "guideline prefix",
+      "issuer",
+      "English source link"
+    ],
+    "nativeAXLongFieldLimit": 500,
+    "EnglishFullNativeJSONSaved": false,
+    "EnglishJSONPrefixSafeExpiryObserved": true,
+    "ChineseFullNativeJSON": {
+      "language": "zh-Hans",
+      "sha256": "3a387e9927c89ab92bec8af5a7f3a8a028f72c2dfed57c4453caa253f0641217",
+      "bytes": 2414,
+      "alertCount": 1,
+      "messageCount": 3,
+      "messageLanguages": [
+        "und",
+        "und",
+        "und"
+      ],
+      "mainBodyMatchesFreshSource": true,
+      "definitionMatchesFreshSource": true,
+      "allFiveGuidelinesMatchFreshSource": true,
+      "issuerMatchesFreshSource": true,
+      "issuedTimeMatchesFreshSource": true,
+      "expireTime": "9999-12-31T00:00:00Z",
+      "eventEndTimePresent": false
+    },
+    "scripts": [
+      {
+        "id": 1753,
+        "atUTC": "2026-11-14T10:04:10.616000+00:00",
+        "finished": true,
+        "exception": false
+      },
+      {
+        "id": 1754,
+        "atUTC": "2026-11-14T10:04:27.495000+00:00",
+        "finished": true,
+        "exception": false
+      },
+      {
+        "id": 1755,
+        "atUTC": "2026-11-14T10:04:53.422000+00:00",
+        "finished": true,
+        "exception": false
+      },
+      {
+        "id": 1756,
+        "atUTC": "2026-11-14T10:05:16.993000+00:00",
+        "finished": true,
+        "exception": false
+      }
+    ],
+    "currentSessionRecordsSaved": 0,
+    "latestSessionMetadataUTC": "2026-11-14T08:22:34.499000+00:00",
+    "globalLoggingOrPacketCaptureSettingsChanged": false,
+    "sameTransactionHTMLAndJSONPairClaimed": false,
+    "sourceProbes": [
+      {
+        "language": "zh-Hans",
+        "url": "https://www.qweather.com/severe-weather/g%C3%AA%27gyai-101140709.html?from=AppleWeatherService",
+        "HTTP": 200,
+        "Date": "Sat, 14 Nov 2026 10:00:25 GMT",
+        "atUTC": "2026-11-14T10:00:26.252839+00:00",
+        "alerts": 1,
+        "sourceSHA256": "a9532ef7ff0dd2e136a73b073bcb6860c5905f9ed68723862d55d64adcb5ba6f",
+        "titles": [
+          "革吉县气象台发布大风黄色预警"
+        ],
+        "issuedTimes": [
+          "2026-11-14T04:09:00.000Z"
+        ]
+      },
+      {
+        "language": "en",
+        "url": "https://www.qweather.com/en/severe-weather/g%C3%AA%27gyai-101140709.html?from=AppleWeatherService",
+        "HTTP": 200,
+        "Date": "Sat, 14 Nov 2026 10:00:26 GMT",
+        "atUTC": "2026-11-14T10:00:26.583689+00:00",
+        "alerts": 1,
+        "sourceSHA256": "59ecc0a88d0241c7c1210a0ef725cadee407b7cf91bd76a379a789300c73b395",
+        "titles": [
+          "Geji County Meteorological Observatory issues a yellow warning for strong winds"
+        ],
+        "issuedTimes": [
+          "2026-11-14T04:09:00.000Z"
+        ]
+      }
+    ]
+  },
+  "restoration": {
+    "originalNameURL12ValuesAndEnabledUIVerified": true,
+    "originalConnectedUIVerified": true,
+    "temporaryLanguageRestoredAutoBeforeRemoval": true,
+    "originalPluginAndParameterFilesUnchanged": {
+      "count": 15,
+      "unchanged": true,
+      "missingCount": 0,
+      "changedCount": 0
+    },
+    "originalScriptFilesUnchanged": {
+      "count": 43,
+      "unchanged": true,
+      "missingCount": 0,
+      "changedCount": 0
+    },
+    "originalResourcesUnchanged": {
+      "count": 4,
+      "unchanged": true
+    },
+    "currentFullConfigFilesUnchanged": {
+      "count": 2,
+      "unchanged": true
+    },
+    "temporaryFourCachesAbsent": true,
+    "portClosed": true,
+    "fullProfileRestoredFromOldBackup": false,
+    "sameLoonServiceConnectedReadOnly": true,
+    "ownSafariTabsClosedAndStartPageRestored": true,
+    "UIReleased": true
+  },
+  "validation": {
+    "fullCurrentNpmTest": {
+      "tests": 434,
+      "pass": 434,
+      "fail": 0,
+      "skipped": 0
+    },
+    "compiledLoon": {
+      "pass": 52,
+      "fail": 0,
+      "rulesPass": 15,
+      "rulesFail": 0
+    },
+    "compiledSurge": {
+      "pass": 41,
+      "fail": 0,
+      "parameterBindings": 13
+    },
+    "originalDefaultsVerified": 12,
+    "artifactSHA256Checks": 17,
+    "dependencyMode": "existing recovered local dependencies, not fresh npm ci",
+    "node": "v22.23.5"
+  },
+  "olderNativeProductEvidence": {
+    "artifactIdentity": "f571a49",
+    "report": "docs/mac-native-followup-2026-11-14.md",
+    "products": [
+      "CN main weather and hourly/daily forecast",
+      "CN next hour precipitation",
+      "CN EU_EAQI, six pollutant measurements, CO and comparison",
+      "GB DAQI and pollutant units",
+      "HK/CN scales"
+    ],
+    "repeatedNativelyWithCurrentArtifactsThisWindow": false
+  },
+  "remainingUnverified": [
+    "full native original-text fallback when preferred source language unavailable",
+    "complete English native JSON saved and byte-compared",
+    "same-transaction source HTML and generated JSON capture",
+    "new candidate main weather/AQ/precipitation native pages in this window",
+    "native 304/ETag/timeout and network-switch fault injection",
+    "Surge real client",
+    "other regions/providers, iOS/watchOS",
+    "long-running VPN stability, CPU, peak memory and power"
+  ],
+  "publicationScope": {
+    "authorization": "user explicitly requested successful WeatherKit push after this acceptance",
+    "repository": "hhhoratioxu/WeatherKit",
+    "branch": "main",
+    "mode": "fast-forward with expected old SHA",
+    "upstreamPRChanged": false,
+    "localInstallationUpdatedAfterAcceptance": false,
+    "publicReleaseOrTagRequested": false
+  },
+  "rawSourceAndNativePayloadsPublished": false
+}

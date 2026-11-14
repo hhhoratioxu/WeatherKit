@@ -5,6 +5,7 @@ import ColorfulClouds from "../class/ColorfulClouds.mjs";
 import QWeather from "../class/QWeather.mjs";
 import WeatherAlerts from "../class/WeatherAlerts.mjs";
 import { activeProviderAlerts, providerProductAvailable } from "./providerRecovery.mjs";
+import { weatherAlertLanguage, weatherAlertParameters } from "./weatherAlertLanguage.mjs";
 
 /**
  * 获取天气预警响应
@@ -16,12 +17,18 @@ import { activeProviderAlerts, providerProductAvailable } from "./providerRecove
  * @returns {Promise<object | undefined>} 天气预警响应，undefined 保留 Apple 请求
  */
 export async function GetWeatherAlerts(identifier, parameters, Settings, headers, runtime) {
+    const preferredLanguage = weatherAlertLanguage(Settings);
+    parameters = weatherAlertParameters(parameters, Settings);
+    // Providers can return original or mixed-language notices despite a language request.
+    // Do not falsely label those messages as a verified translation of the selected language.
+    const messageLanguage = preferredLanguage ? "und" : parameters?.language;
+    const warningHeaders = preferredLanguage ? { ...headers, "Accept-Language": preferredLanguage, "accept-language": preferredLanguage } : headers;
     let body;
     try {
         switch (true) {
             case /^[^&#]*-[0-9]{9}$/.test(identifier): {
                 Console.info("☑️ QWeather.FetchWeatherAlertPage", `ids: ${identifier}`);
-                const source = await QWeather.FetchWeatherAlertPage(identifier, parameters.language, headers, runtime);
+                const source = await QWeather.FetchWeatherAlertPage(identifier, parameters.language, warningHeaders, runtime);
                 if (!providerProductAvailable(source) || !Array.isArray(source.alerts)) {
                     return undefined;
                 }
@@ -30,7 +37,7 @@ export async function GetWeatherAlerts(identifier, parameters, Settings, headers
                     {
                         attributionUrl: QWeather.BuildWeatherAlertPageURL(identifier, parameters.language, false),
                         identifier,
-                        language: parameters.language,
+                        language: messageLanguage,
                         countryCode: identifier.match(/-([0-9]+)$/)?.[1]?.startsWith("101") ? "CN" : "",
                     },
                 );
@@ -51,7 +58,7 @@ export async function GetWeatherAlerts(identifier, parameters, Settings, headers
                             {
                                 attributionUrl: source?.metadata?.attributionUrl ?? "https://www.caiyunapp.com/h5",
                                 identifier: `${parameters.latitude},${parameters.longitude}`,
-                                language: parameters.language,
+                                language: messageLanguage,
                                 countryCode: parameters.country,
                             },
                         );
@@ -69,7 +76,7 @@ export async function GetWeatherAlerts(identifier, parameters, Settings, headers
                             {
                                 attributionUrl: "https://www.12379.cn/",
                                 identifier: `${parameters.latitude},${parameters.longitude}`,
-                                language: parameters.language,
+                                language: messageLanguage,
                                 countryCode: parameters.country,
                             },
                         );
@@ -89,7 +96,7 @@ export async function GetWeatherAlerts(identifier, parameters, Settings, headers
         statusCode: 200,
         headers: {
             "Access-Control-Allow-Origin": "*",
-            "Cache-Control": "max-age=0",
+            "Cache-Control": preferredLanguage ? "no-store" : "max-age=0",
             "Content-Type": "application/json",
         },
         body: JSON.stringify(body),
