@@ -1,8 +1,8 @@
 # WeatherKit
 
-本仓库是 [NSRingo/WeatherKit](https://github.com/NSRingo/WeatherKit) 的 Fork，保留原作者、Apache-2.0 许可证与 Git 历史。当前发行 **v3.3.6** 同时提供 Loon 和 Surge 版本；本地维护中的插件显示名称统一为 `WeatherKit`，功能描述与原有参数含义沿用原版。
+本仓库是 [NSRingo/WeatherKit](https://github.com/NSRingo/WeatherKit) 的 Fork，保留原作者、Apache-2.0 许可证与 Git 历史。当前发行 **v3.3.7** 同时提供 Loon 和 Surge 版本；本地维护中的插件显示名称统一为 `WeatherKit`，功能描述与原有参数含义沿用原版。
 
-[更新说明](CHANGELOG.md) · [正式 Release](https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.6) · [原版配置指南](https://NSRingo.github.io/guide/Weather/weather-kit)
+[更新说明](CHANGELOG.md) · [正式 Release](https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.7) · [原版配置指南](https://NSRingo.github.io/guide/Weather/weather-kit)
 
 ## 安装与更新
 
@@ -13,7 +13,7 @@
 
 Loon 原有 WeatherKit.lpx、WeatherKit.plugin 地址继续可用，与正式入口同内容。Surge 同时提供 WeatherKit.sgmodule 兼容入口。每个客户端只启用一份 WeatherKit，沿用已有的 MitM 证书配置。
 
-2026-11-14 的四类兼容修复通过 **Fork main 的现有订阅入口**更新，版本号保持 3.3.6。请在原 WeatherKit 插件中更新，保留自己的参数，无需切换订阅地址或启用另一份插件。本次更新不改旧 v3.3.6 tag 和公开 Release 附件；要取得这些后续修复，请使用上表的 main 入口。
+**v3.3.7** 汇总此前 main 的四类兼容修复、预警语言和未知到期修复，并提供固定版本 Release 附件。请在原 WeatherKit 插件中更新，保留自己的参数，无需切换订阅地址或启用另一份插件；现有 main 入口和兼容别名保持可用，运行脚本固定引用 v3.3.7。旧 v3.3.6 tag 与附件保留。
 
 | 修复分支备份 | 入口 |
 | --- | --- |

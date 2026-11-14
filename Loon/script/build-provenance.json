@@ -1,7 +1,7 @@
 {
-  "version": "3.3.6",
-  "sourceCommit": "5d669d68052ecb01aefd632f73a76d1f33bb828b",
-  "resourceRef": "main",
+  "version": "3.3.7",
+  "sourceCommit": "7be5036acd8ab8b3a231471d3be695f08f52c828",
+  "resourceRef": "v3.3.7",
   "node": "v22.23.5",
   "schemaPackage": "1.1.2",
   "bundleChecks": {
@@ -95,23 +95,9 @@
     "liveWeatherRequests": false,
     "deviceVPNValidation": false
   },
-  "lockfileSHA256": "689e9d774bf21d1d52e4d7ea2a2db63fd2e5f015b3872dac381295d17a575f6c",
-  "displayName": "WeatherKit",
+  "lockfileSHA256": "e3a31fc068e03ca06fa3a1275dc06cdd6b966f71096e3f2777d924ce30dd6bfe",
   "sourceWorkingTreeDirty": true,
-  "sourceManifestSHA256": "cd8185e197d8213e596f29d1f546c3eeb6174c210ed16df7295238e070f8d68a",
-  "warningLanguageDefault": "Auto",
-  "parameterCount": 13,
-  "unknownWarningExpiry": "9999-12-31T00:00:00Z",
-  "legacyUnknownWarningExpiryAccepted": "9999-12-31T23:59:59Z",
-  "nativeClientAcceptance": false,
-  "sourceFilesSHA256": {
-    "package.json": "f9478e950b96b39b19b1093fb8acf99d3e9727e52e79e15f4e9063cae4fc00fe",
-    "arguments-builder.full.config.ts": "ce326373fdb2f02ad9a6bd743229c548d44a01fcc2690ffcc45366812ff2e93d",
-    "src/class/WeatherAlerts.mjs": "1051a31fc95b3465150cc353f9a056c10eddee00b02e33c0c933902480d6c978",
-    "src/function/weatherAlertExpiry.mjs": "b97e61879f754462e5612cdfcccfeba4126aa6032279b68e9bba169f7062548f",
-    "src/function/providerRecovery.mjs": "21e8c1261a7c5ca37119a5d56f8de2fccae3e47751145257beaec9bc474b6535",
-    "src/function/weatherAlertLanguage.mjs": "db4ef4178e6f5a44e549f60d408c0e3485098e9d609057c01c9e996ff54ae9e7",
-    "src/function/getWeatherAlerts.mjs": "9668cd9f7a3df5c1cefb9b51804eaf2654251283ba3718f47d3393c3e76cc95b",
-    "src/function/createProviderEnvironment.mjs": "478441be3d71df17f79e06d55976b1155cbb03ca0f3a0812a6a1b8e07982ef1d"
-  }
+  "sourceManifestSHA256": "edd75895f36482b237f77edceaf107b9bbee0426290d870ff0e908e6896f7415",
+  "releaseBootstrap": true,
+  "displayName": "WeatherKit"
 }
