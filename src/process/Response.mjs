@@ -5,7 +5,7 @@ import * as flatbuffers from "flatbuffers";
 import AirQuality from "../class/AirQuality.mjs";
 import ProviderTransport from "../class/ProviderTransport.mjs";
 import QWeather from "../class/QWeather.mjs";
-import WeatherAlerts from "../class/WeatherAlerts.mjs";
+import mergeWeatherAlertsProduct from "../function/mergeWeatherAlertsProduct.mjs";
 import WeatherKit2, { hasForecastNextHour } from "../class/WeatherKit2.mjs";
 import createProviderEnvironment from "../function/createProviderEnvironment.mjs";
 import database from "../function/database.mjs";
@@ -14,7 +14,7 @@ import mergeWeatherKitAvailability from "../function/mergeWeatherKitAvailability
 import parseWeatherKitURL from "../function/parseWeatherKitURL.mjs";
 import planWeatherProducts from "../function/planWeatherProducts.mjs";
 import providerNameToLogo from "../function/providerNameToLogo.mjs";
-import { activeProviderAlerts, cloneWeatherProduct, providerProductAvailable, weatherProductsEqual } from "../function/providerRecovery.mjs";
+import { cloneWeatherProduct, providerProductAvailable, weatherProductsEqual } from "../function/providerRecovery.mjs";
 import rewriteWeatherResponse from "../function/rewriteWeatherResponse.mjs";
 import setENV from "../function/setENV.mjs";
 import { MAX_WEATHER_BODY_BYTES } from "../function/weatherMemoryLimits.mjs";
@@ -392,14 +392,7 @@ async function InjectWeatherAlerts(weatherAlerts, Settings, enviroments) {
         }
     }
 
-    if (providerProductAvailable(newWeatherAlerts)) {
-        // Only copy when a usable provider result will mutate the Apple data.
-        weatherAlerts = cloneWeatherProduct(weatherAlerts) ?? {};
-        weatherAlerts.metadata = { ...weatherAlerts?.metadata, ...newWeatherAlerts.metadata };
-        weatherAlerts.detailsUrl = newWeatherAlerts.detailsUrl ?? weatherAlerts.detailsUrl;
-        weatherAlerts.alerts = WeatherAlerts.mergeAlerts(weatherAlerts?.alerts, activeProviderAlerts(newWeatherAlerts?.alerts));
-        weatherAlerts.metadata.providerLogo ||= providerNameToLogo(weatherAlerts.metadata.providerName);
-    }
+    weatherAlerts = mergeWeatherAlertsProduct(weatherAlerts, newWeatherAlerts);
 
     Console.info("✅ InjectWeatherAlerts");
     return weatherAlerts;

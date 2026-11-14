@@ -13,6 +13,15 @@
 
 Loon 原有 WeatherKit.lpx、WeatherKit.plugin 地址继续可用，与正式入口同内容。Surge 同时提供 WeatherKit.sgmodule 兼容入口。每个客户端只启用一份 WeatherKit，沿用已有的 MitM 证书配置。
 
+2026-11-14 的四类兼容修复通过独立分支 **`fix/fork-compat-20261114`** 提供，版本号保持 3.3.6；不属于新的 Release，也没有合入 main。要使用本次修复，请手动将现有 WeatherKit 的订阅地址换成对应的分支入口并更新，保留自己的参数；原 main 入口不会自动切到这个分支。不要同时启用两份 WeatherKit。
+
+| 修复分支 | 入口 |
+| --- | --- |
+| Loon | [iRingo.WeatherKit.lpx](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/fix/fork-compat-20261114/Loon/script/iRingo.WeatherKit.lpx) |
+| Surge | [iRingo.WeatherKit.sgmodule](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/fix/fork-compat-20261114/Surge/script/iRingo.WeatherKit.sgmodule) |
+
+分支包含预警状态保留、未知 JSON 容器保护、输出超限时保留已兼容 Apple 数据，以及 AQ 等级输入检查。详细边界见 [分支更新与验证](docs/fork-branch-2026-11-14.md)，远端测试状态见 [验证工作流](https://github.com/hhhoratioxu/WeatherKit/actions/workflows/cache-validation.yml?query=branch%3Afix%2Ffork-compat-20261114)。这不会自动修改设备已安装的插件。
+
 ## 功能
 
 - 保留原版天气、空气质量、下一小时降水、天气预警与详情功能。
@@ -31,3 +40,7 @@ Loon 最低版本为 3.5.1(983)。Surge 使用自己的 .sgmodule、字符串参
 历史 [v3.3.4](https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.4)、[v3.3.3](https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.3) 和 [cache-v9](https://github.com/hhhoratioxu/WeatherKit/releases/tag/cache-v9) 保留。[原版合并请求 #107](https://github.com/NSRingo/WeatherKit/pull/107) 的实际状态见 [同步记录](docs/upstream-sync.md)。
 
 2026-11-13 的 [技术审计](docs/development-audit-2026-11-13.md) 和 [本地精简验证](docs/remove-extra-controls-2026-11-13.md) 保留为发布前的历史记录。用户随后授权更新，v3.3.6 已将精简后的源码和生成的 Loon、Surge 文件一起发布。[锁定依赖 CI](https://github.com/hhhoratioxu/WeatherKit/actions/runs/43448848656) 通过 344 项测试、Loon 46 个压缩脚本场景及 15 项规则检查、Surge 35 个压缩脚本场景；main/tag/Release 共 57 份公开文件通过字节核对，见 [发布验证记录](docs/v3.3.6-publication-verification.json)。发布产物固定引用 `v3.3.6`，原有订阅地址和兼容入口保持不变。自动验证不代表 Loon/Surge 真机 VPN 或耗电验收。
+
+2026-11-14 的 [PR #107 比较、修复与本地候选](docs/pr107-review-2026-11-14.md) 保留此前比较快照；PR #107 本身没有随本次 Fork 分支更新。
+
+同日完成的 [Fork 四类修复复核](docs/fork-fixes-2026-11-14.md) 记录提交前的 395/395 完整测试、Loon 50 个模拟场景及 15 项规则检查、Surge 39 个模拟场景；“仅本地”对应当时状态。后续提交与分支产物见 [分支更新记录](docs/fork-branch-2026-11-14.md)。dev 新协议及本次修复的原生/在线验收仍未完成，不恢复已移除的 9 项控制。

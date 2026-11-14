@@ -1,4 +1,4 @@
-// Modified by hhhoratioxu, 2026-10-19: expose provider response cache lifetime.
+// User-facing weather parameters; retain the original defaults.
 import { defineConfig } from "@iringo/arguments-builder";
 import { airQualityFull, api, calculateFull, dataSetsFull, logLevel, nextHourFull, storage, weatherAlerts, weatherFull } from "./arguments-builder.full.config";
 

@@ -15,6 +15,9 @@ import { MAX_DECODED_VECTOR_ENTRIES, MAX_WEATHER_BODY_BYTES } from "../function/
 export const MAX_WEATHER_JSON_CHARACTERS = 1024 * 1024;
 const productNames = ["airQuality", "currentWeather", "forecastDaily", "forecastHourly", "forecastNextHour", "weatherAlerts"];
 const clientProductNames = [...productNames, "forecastPeriodic", "weatherChanges"];
+// Known-container traversal adapted from hhh2210/WeatherKit PR #110,
+// f4676feae89a27a8403c574c6086a433d5adb3c9, Apache-2.0; its JSON adapter credits PR #107.
+const clientContainers = new Set(["metadata", "days", "hours", "minutes", "daytimeForecast", "overnightForecast", "restOfDayForecast", "series", "forecasts", "periods", "condition", "parameters", "summary", "alerts", "pollutants"]);
 const providerMethods = new Set(["WeatherNow", "CurrentWeather", "Hourly", "ForecastHourly", "Daily", "Minutely", "WeatherAlert", "WeatherAlertWeb"]);
 const object = value => value !== null && typeof value === "object" && !Array.isArray(value);
 // WK3's FlatBuffer JSON and Weather's JSON reader have different shapes.
@@ -150,7 +153,7 @@ export function adaptV3ClientProduct(product, name) {
                     }
                 }
             }
-            visit(item);
+            if (clientContainers.has(key) || precipitationByTypeField.test(key)) visit(item);
         }
     }
     visit(product);
@@ -170,7 +173,7 @@ export function adaptV3ProviderProduct(product, name) {
         for (const key of Object.keys(value)) {
             let item = value[key];
             if (item == null) {
-                delete value[key];
+                if (item === undefined || integerRange(key) || clientContainers.has(key) || ["latitude", "longitude", "conditionCode", "precipitationType", "precipitationAmount", "snowfallAmount"].includes(key)) delete value[key];
                 continue;
             }
             if (typeof item === "number" && !Number.isFinite(item)) {
@@ -198,7 +201,7 @@ export function adaptV3ProviderProduct(product, name) {
                         else delete item[coordinate];
                     }
             }
-            visit(item);
+            if (clientContainers.has(key) || precipitationByTypeField.test(key)) visit(item);
         }
     }
     visit(product);
@@ -214,7 +217,7 @@ export function validateWeatherJSONV3(product, name) {
     if (name === "airQuality" && product?.metadata?.temporarilyUnavailable !== true && (!Number.isInteger(product?.index) || product.index < 0 || product.index > 65535 || !Number.isInteger(product?.categoryIndex) || product.categoryIndex < 1 || product.categoryIndex > 255))
         throw new TypeError("Invalid WK3 air quality index");
     if (name === "weatherAlerts" && Array.isArray(product.alerts) && product.alerts.some(alert => object(alert) && alert.id !== undefined && typeof alert.id !== "string")) throw new TypeError("Invalid native weather alert identifier");
-    function visit(value) {
+    function visit(value, known = true) {
         const kind = typeof value;
         if (kind === "bigint" || kind === "symbol" || kind === "function") throw new TypeError("Unsupported weather JSON value");
         if (kind === "string") {
@@ -231,20 +234,20 @@ export function validateWeatherJSONV3(product, name) {
         if (!value || typeof value !== "object") return;
         if (Array.isArray(value)) {
             for (const item of value) {
-                if (item == null) throw new TypeError("Missing weather JSON array item");
-                if (typeof item === "number" && (!Number.isFinite(item) || !Number.isFinite(Math.fround(item)))) throw new TypeError("Invalid weather JSON array number");
-                visit(item);
+                if (item === undefined || (known && item === null)) throw new TypeError("Missing weather JSON array item");
+                if (typeof item === "number" && (!Number.isFinite(item) || (known && !Number.isFinite(Math.fround(item))))) throw new TypeError("Invalid weather JSON array number");
+                visit(item, known);
             }
             return;
         }
         for (const key of Object.keys(value)) {
             const item = value[key],
                 range = integerRange(key);
-            if (range && item !== null && (typeof item !== "number" || !Number.isInteger(item) || item < range[0] || item > range[1])) throw new TypeError("Invalid WK3 integer field");
-            if (typeof item === "number" && (!Number.isFinite(item) || !Number.isFinite(Math.fround(item)))) throw new TypeError("Invalid weather JSON number");
-            if ((key === "conditionCode" || key === "precipitationType" || (key === "condition" && !Array.isArray(item))) && typeof item !== "string") throw new TypeError("Invalid native weather JSON condition");
-            if ((key === "precipitationAmount" || key === "snowfallAmount") && (typeof item !== "number" || !Number.isFinite(item))) throw new TypeError("Invalid native weather JSON precipitation amount");
-            visit(item);
+            if (known && range && item !== null && (typeof item !== "number" || !Number.isInteger(item) || item < range[0] || item > range[1])) throw new TypeError("Invalid WK3 integer field");
+            if (typeof item === "number" && (!Number.isFinite(item) || (known && !Number.isFinite(Math.fround(item))))) throw new TypeError("Invalid weather JSON number");
+            if (known && (key === "conditionCode" || key === "precipitationType" || (key === "condition" && !Array.isArray(item))) && typeof item !== "string") throw new TypeError("Invalid native weather JSON condition");
+            if (known && (key === "precipitationAmount" || key === "snowfallAmount") && (typeof item !== "number" || !Number.isFinite(item))) throw new TypeError("Invalid native weather JSON precipitation amount");
+            visit(item, known && (clientContainers.has(key) || precipitationByTypeField.test(key)));
         }
     }
     visit(product);
@@ -318,6 +321,9 @@ export default async function ResponseJSONV3(request, response, injectors) {
         }
     });
     if (!eligible.length) return modified ? encodeV3Response(body, response) : response;
+    // Keep one bounded, normalized Apple fallback before provider replacements.
+    // Output-size failure must not restore the incompatible pre-normalization JSON.
+    const fallbackResponse = modified ? encodeV3Response(body, response) : response;
     const transport = new ProviderTransport();
     const environment = v3Environment(createProviderEnvironment({ ...regionParameters, weatherKitLanguage: body.weatherAlerts?.metadata?.language }, Settings, transport));
 
@@ -339,7 +345,7 @@ export default async function ResponseJSONV3(request, response, injectors) {
         }),
     );
     if (!modified) return response;
-    return encodeV3Response(body, response);
+    return encodeV3Response(body, fallbackResponse);
 }
 
 function encodeV3Response(body, response) {

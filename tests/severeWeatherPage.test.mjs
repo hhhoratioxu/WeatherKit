@@ -150,7 +150,7 @@ test("WeatherAlerts standardization stays provider-agnostic", async () => {
     assert.doesNotMatch(source, /\bqWeather\b|\bQWeather\b/);
 });
 
-test("response WeatherAlert injection only selects and merges provider slot objects", async () => {
+test("response WeatherAlert injection selects provider slot objects", async () => {
     for (const path of ["../src/process/Response.mjs", "../src/process/Response.dev.mjs"]) {
         const source = await readFile(new URL(path, import.meta.url), "utf8");
         const injectWeatherAlerts = source.match(/async function InjectWeatherAlerts\([\s\S]*?(?=\n\/\*\*)/)?.[0] ?? "";
@@ -159,13 +159,12 @@ test("response WeatherAlert injection only selects and merges provider slot obje
         assert.match(injectWeatherAlerts, /newWeatherAlerts = await enviroments\.colorfulClouds\.WeatherAlert\(\)/);
         assert.match(injectWeatherAlerts, /newWeatherAlerts = await enviroments\.qWeather\.WeatherAlert\(\)/);
         assert.match(injectWeatherAlerts, /newWeatherAlerts = await enviroments\.qWeather\.WeatherAlertWeb\(weatherAlerts\?\.detailsUrl\)/);
-        assert.match(injectWeatherAlerts, /if \(providerProductAvailable\(newWeatherAlerts\)\) \{[\s\S]*weatherAlerts\.metadata = \{ \.\.\.weatherAlerts\?\.metadata, \.\.\.newWeatherAlerts\.metadata \}/);
         assert.doesNotMatch(injectWeatherAlerts, /QWeather\.(?:ParseWeatherAlertPageURL|BuildAppleAlertDetailsURL|FetchWeatherAlertPage)|attributionUrl|Console\.debug/);
     }
 });
 
 test("response provider logos are finalized inside Inject methods", async () => {
-    const injectMethods = ["InjectCurrentWeather", "InjectForecastDaily", "InjectForecastHourly", "InjectForecastNextHour", "InjectWeatherAlerts"];
+    const injectMethods = ["InjectCurrentWeather", "InjectForecastDaily", "InjectForecastHourly", "InjectForecastNextHour"];
     for (const path of ["../src/process/Response.mjs", "../src/process/Response.dev.mjs"]) {
         const source = await readFile(new URL(path, import.meta.url), "utf8");
         const topLevel = source.slice(0, source.indexOf("async function InjectCurrentWeather"));

@@ -269,10 +269,13 @@ export default async function verifySurge(root) {
     assert.equal(retainedDetails.network, 0);
     scenarios.push("WeatherKit-selected coordinate warning details use untouched passthrough");
     storage.clear();
+    const paddedBinary = new Uint8Array(binary.length + 29).fill(0xa5);
+    paddedBinary.set(binary, 13);
+    const binaryView = paddedBinary.subarray(13, 13 + binary.length);
     const modifiedBinary = await run(
         "response",
         { ...request(), url: v3.replace("/v3/", "/v2/") },
-        { status: 200, headers: { "Content-Type": "application/vnd.apple.flatbuffer", ETag: "old", "Content-Encoding": "gzip", "Content-Length": "1" }, body: binary },
+        { status: 200, headers: { "Content-Type": "application/vnd.apple.flatbuffer", ETag: "old", "Content-Encoding": "gzip", "Content-Length": "1" }, body: binaryView },
         { DataSets: "currentWeather", "Weather.Provider": "QWeather" },
         (_request, callback) => callback(null, { status: 200, headers: {} }, JSON.stringify({ code: "200", updateTime: "2026-11-13T00:00:00Z", now: { temp: "23", text: "晴", feelsLike: "24", cloud: "20", humidity: "50", precip: "0", pressure: "1000", dew: "10", vis: "10", wind360: "90", windSpeed: "2" } })),
     );
@@ -281,6 +284,63 @@ export default async function verifySurge(root) {
     assert.equal(WeatherKit2.decode(new ByteBuffer(modifiedBinary.output.body), ["currentWeather"]).currentWeather.temperature, 23);
     for (const name of ["ETag", "Content-Encoding", "Content-Length"]) assert.equal(modifiedBinary.output.headers[name], undefined);
     assert.equal(modifiedBinary.output.headers["Cache-Control"], "no-store");
+    assert.deepEqual(Array.from(binaryView), Array.from(binary));
+    assert.equal(paddedBinary[0], 0xa5);
+    assert.equal(paddedBinary.at(-1), 0xa5);
     scenarios.push("modified WK2 binary invalidates original entity headers");
+    const unavailableBody = response({ weatherAlerts: { metadata: { temporarilyUnavailable: true }, alerts: [] } });
+    const unavailable = await run("response", request("weatherAlerts"), unavailableBody, { DataSets: "weatherAlerts", "WeatherAlerts.Provider": "QWeather" }, (_, callback) => callback(null, { status: 200, headers: {} }, JSON.stringify({ metadata: {}, alerts: [] })));
+    assert.equal(unavailable.network, 1);
+    assert.equal(Object.keys(unavailable.output).length, 0);
+    scenarios.push("no native warning merge retains unavailable Apple data through Surge passthrough");
+    const futureContainer = { conditionCode: ["OPAQUE"], index: "future", precipitationAmount: { expected: 8 } };
+    const opaqueNested = await run("response", request(), response({ currentWeather: { metadata: {}, conditionCode: ["RAIN"], future: futureContainer } }), { DataSets: "" });
+    const opaqueProduct = JSON.parse(opaqueNested.output.body).currentWeather;
+    assert.equal(opaqueProduct.conditionCode, "RAIN");
+    assert.deepEqual(opaqueProduct.future, futureContainer);
+    scenarios.push("Surge JSON adaptation leaves unknown nested payloads unchanged");
+    const populatedUnavailable = await run(
+        "response",
+        request("weatherAlerts"),
+        response({ weatherAlerts: { metadata: { temporarilyUnavailable: true }, alerts: [{ id: "00112233-4455-6677-8899-aabbccddeeff", description: "Apple fixture warning" }] } }),
+        { DataSets: "weatherAlerts", "WeatherAlerts.Provider": "QWeather" },
+        (_, callback) => callback(null, { status: 200, headers: {} }, JSON.stringify({ metadata: {}, alerts: [] })),
+    );
+    assert.equal(populatedUnavailable.network, 1);
+    assert.equal(Object.keys(populatedUnavailable.output).length, 0);
+    scenarios.push("metadata-only warning supplementation preserves populated Apple alerts through Surge passthrough");
+    // Both inputs fit independently; the real provider conversion makes their combined output exceed 1 Mi characters.
+    const oversizedApple = {
+        currentWeather: { metadata: { temporarilyUnavailable: false }, temperature: 18, conditionCode: ["CLOUDY"] },
+        forecastPeriodic: { metadata: {}, forecasts: [{ periods: [{ conditionCode: ["RAIN"], precipitationAmountByType: [{ expected: 2, precipitationType: ["RAIN"] }] }] }] },
+        futureProduct: { padding: "x".repeat(768 * 1024) },
+    };
+    const oversizedOriginal = JSON.stringify(oversizedApple);
+    const oversizedProviderBody = JSON.stringify({ code: "200", fxLink: `https://fixture.example/${"p".repeat(384 * 1024)}`, now: { pubTime: "2026-11-14T00:00:00Z", temp: "23", text: "晴", feelsLike: "24", cloud: "20", humidity: "50", precip: "0", pressure: "1000", dew: "10", vis: "10", wind360: "90", windSpeed: "2" } });
+    const oversizedProvider = (_, callback) => callback(null, { status: 200, headers: {} }, oversizedProviderBody);
+    const acceptedControl = await run("response", request(), response({ currentWeather: oversizedApple.currentWeather }), { DataSets: "currentWeather", "Weather.Provider": "QWeather" }, oversizedProvider);
+    const acceptedBody = JSON.parse(acceptedControl.output.body);
+    assert.equal(acceptedControl.network, 1);
+    assert.equal(acceptedBody.currentWeather.temperature, 23, "The overflow fixture must be a valid provider replacement before combining it with the large Apple payload");
+    assert.ok(acceptedBody.currentWeather.metadata.attributionUrl.length > 384 * 1024);
+    const outputFallback = await run(
+        "response",
+        request(),
+        response(oversizedOriginal),
+        { DataSets: "currentWeather", "Weather.Provider": "QWeather" },
+        oversizedProvider,
+    );
+    const fallbackBody = JSON.parse(outputFallback.output.body);
+    assert.equal(outputFallback.network, 1);
+    assert.equal(fallbackBody.currentWeather.temperature, 18);
+    assert.equal(fallbackBody.currentWeather.conditionCode, "CLOUDY");
+    assert.equal(fallbackBody.forecastPeriodic.forecasts[0].periods[0].conditionCode, "RAIN");
+    assert.equal(fallbackBody.forecastPeriodic.forecasts[0].periods[0].precipitationAmount, 2);
+    assert.deepEqual(fallbackBody.futureProduct, oversizedApple.futureProduct);
+    assert.ok(outputFallback.output.body.length < 1024 * 1024);
+    assert.equal(outputFallback.output.headers.ETag, undefined);
+    assert.equal(outputFallback.output.headers["Cache-Control"], "no-store");
+    assert.equal(JSON.stringify(oversizedApple), oversizedOriginal);
+    scenarios.push("provider output overflow returns normalized Apple weather and periodic data through the compiled Surge script");
     return { pass: scenarios.length, fail: 0, scenarios, originalArgumentDefaultsVerified: 12, scriptDeclarations: 7, parameterBindings: 12, completionExactlyOnce: true, nativeCallbacksAwaited: true, nativeSurgeValidation: false, liveWeatherRequests: false };
 }
