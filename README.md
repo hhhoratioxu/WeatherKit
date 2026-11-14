@@ -13,14 +13,14 @@
 
 Loon 原有 WeatherKit.lpx、WeatherKit.plugin 地址继续可用，与正式入口同内容。Surge 同时提供 WeatherKit.sgmodule 兼容入口。每个客户端只启用一份 WeatherKit，沿用已有的 MitM 证书配置。
 
-2026-11-14 的四类兼容修复通过独立分支 **`fix/fork-compat-20261114`** 提供，版本号保持 3.3.6；不属于新的 Release，也没有合入 main。要使用本次修复，请手动将现有 WeatherKit 的订阅地址换成对应的分支入口并更新，保留自己的参数；原 main 入口不会自动切到这个分支。不要同时启用两份 WeatherKit。
+2026-11-14 的四类兼容修复通过 **Fork main 的现有订阅入口**更新，版本号保持 3.3.6。请在原 WeatherKit 插件中更新，保留自己的参数，无需切换订阅地址或启用另一份插件。本次更新不改旧 v3.3.6 tag 和公开 Release 附件；要取得这些后续修复，请使用上表的 main 入口。
 
-| 修复分支 | 入口 |
+| 修复分支备份 | 入口 |
 | --- | --- |
 | Loon | [iRingo.WeatherKit.lpx](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/fix/fork-compat-20261114/Loon/script/iRingo.WeatherKit.lpx) |
 | Surge | [iRingo.WeatherKit.sgmodule](https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/fix/fork-compat-20261114/Surge/script/iRingo.WeatherKit.sgmodule) |
 
-分支包含预警状态保留、未知 JSON 容器保护、输出超限时保留已兼容 Apple 数据，以及 AQ 等级输入检查。详细边界见 [分支更新与验证](docs/fork-branch-2026-11-14.md)，远端测试状态见 [验证工作流](https://github.com/hhhoratioxu/WeatherKit/actions/workflows/cache-validation.yml?query=branch%3Afix%2Ffork-compat-20261114)。这不会自动修改设备已安装的插件。
+本次更新包含预警状态保留、未知 JSON 容器保护、输出超限时保留已兼容 Apple 数据，以及 AQ 等级输入检查。详细边界见 [main 更新与验证](docs/fork-branch-2026-11-14.md)，远端测试状态见 [验证工作流](https://github.com/hhhoratioxu/WeatherKit/actions/workflows/cache-validation.yml?query=branch%3Amain)。提交到 GitHub 不表示设备已自动安装，仍由用户在原插件中更新。
 
 ## 功能
 
