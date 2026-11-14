@@ -1,10 +1,10 @@
 {
   "version": "3.3.6",
-  "sourceCommit": "a88661cb5cd9cf1e23c8cf352e8786ed9e32366c",
-  "resourceRef": "v3.3.6",
-  "node": "v22.23.4",
+  "sourceCommit": "b4cf763ed0a5939dc04e81ba2ec9e0745e8babc4",
+  "resourceRef": "main",
+  "node": "v22.23.5",
   "bundleChecks": {
-    "pass": 35,
+    "pass": 39,
     "fail": 0,
     "scenarios": [
       "seven native script declarations, disjoint routes and all twelve parameter bindings",
@@ -41,7 +41,11 @@
       "last-minute rain transition survives the compiled provider path",
       "empty provider minutes preserve native passthrough",
       "WeatherKit-selected coordinate warning details use untouched passthrough",
-      "modified WK2 binary invalidates original entity headers"
+      "modified WK2 binary invalidates original entity headers",
+      "no native warning merge retains unavailable Apple data through Surge passthrough",
+      "Surge JSON adaptation leaves unknown nested payloads unchanged",
+      "metadata-only warning supplementation preserves populated Apple alerts through Surge passthrough",
+      "provider output overflow returns normalized Apple weather and periodic data through the compiled Surge script"
     ],
     "originalArgumentDefaultsVerified": 12,
     "scriptDeclarations": 7,

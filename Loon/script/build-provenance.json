@@ -1,11 +1,11 @@
 {
   "version": "3.3.6",
-  "sourceCommit": "a88661cb5cd9cf1e23c8cf352e8786ed9e32366c",
-  "resourceRef": "v3.3.6",
-  "node": "v22.23.4",
+  "sourceCommit": "b4cf763ed0a5939dc04e81ba2ec9e0745e8babc4",
+  "resourceRef": "main",
+  "node": "v22.23.5",
   "schemaPackage": "1.1.2",
   "bundleChecks": {
-    "pass": 46,
+    "pass": 50,
     "fail": 0,
     "scenarios": [
       "custom scale uses a standalone bundle without storage or provider requests",
@@ -53,7 +53,11 @@
       "modified WK2 binary invalidates original HTTP entity headers",
       "independent Caiyun product requests replace healthy weather while preserving failed Apple alerts",
       "partial replacement preserves future fields inside an unchanged selected hourly table",
-      "failed alert replacement retains the complete original binary response"
+      "failed alert replacement retains the complete original binary response",
+      "available provider with no native warning merge cannot clear Apple unavailability",
+      "known Weather fields adapt while an unknown nested container stays opaque",
+      "metadata-only warning supplementation preserves populated Apple alerts and their unavailable state",
+      "provider output overflow returns normalized Apple weather and periodic data through the compiled Loon script"
     ],
     "nativeRewrites": {
       "pass": 15,

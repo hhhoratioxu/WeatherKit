@@ -1,0 +1,652 @@
+{
+  "preparedAtUTC": "2026-11-14T01:11:09.347423+00:00",
+  "clientTimezone": "Asia/Taipei",
+  "prePushValidationSnapshot": true,
+  "repository": "hhhoratioxu/WeatherKit",
+  "targetBranch": "main",
+  "backupBranch": "fix/fork-compat-20261114",
+  "baselineCommit": "6ff56b5ca4f3a12bf1b85e25886c2ab03716c924",
+  "sourceCommit": "b4cf763ed0a5939dc04e81ba2ec9e0745e8babc4",
+  "version": "3.3.6",
+  "resourceRef": "main",
+  "newTagOrPublicRelease": false,
+  "automaticExistingDraftWorkflowAuthorized": true,
+  "sourceTests": {
+    "tests": 395,
+    "pass": 395,
+    "fail": 0,
+    "skipped": 0,
+    "freshCiLocal": false,
+    "validatedSourceInputsMatch": 97
+  },
+  "compiledChecks": {
+    "Loon": {
+      "pass": 50,
+      "fail": 0,
+      "scenarios": [
+        "custom scale uses a standalone bundle without storage or provider requests",
+        "unknown scale language falls through with conditional headers intact",
+        "availability preserves Apple and appends plugin requirements",
+        "unhandled content passthrough",
+        "v3 JSON replaces weather with WK3 types and preserves unknown fields after native callbacks finish",
+        "Apple v3 JSON is adapted to the native Weather reader, including unselected periodic forecasts",
+        "forecastPeriodic-only JSON adapts native fields and invalidates original entity headers without supplier work",
+        "weatherChanges-only JSON adapts native fields and invalidates original entity headers without supplier work",
+        "a rain transition at the last summarized minute survives the compiled provider path",
+        "empty provider minutes preserve the exact original weather response",
+        "unselected Apple warning UUID bytes become native strings without changing warning content or unknown products",
+        "failed warning supplementation preserves a readable original Apple warning identifier",
+        "native Apple QWeather CO is repaired at ingress with no duplicate provider lookup",
+        "v3 UBA retains all six measurements with no provider request",
+        "v3 EU_EAQI retains all six measurements with no provider request",
+        "v3 WAQI_InstantCast_US retains all six measurements with no provider request",
+        "v3 WAQI_InstantCast_CN retains all six measurements with no provider request",
+        "v3 WAQI_InstantCast_CN_25_DRAFT retains all six measurements with no provider request",
+        "v3 CA_AQHI retains all six measurements with no provider request",
+        "v3 HK_AQHI retains all six measurements with no provider request",
+        "v3 AQHI_Multi_CN retains all six measurements with no provider request",
+        "v3 AQHI_Multi_CN_HK retains all six measurements with no provider request",
+        "v3 CN_DEATH_AQHI retains all six measurements with no provider request",
+        "v3 CN_DEATH_HK_AQHI retains all six measurements with no provider request",
+        "v3 None retains all six measurements with no provider request",
+        "the original nonmatching target list preserves Apple AQI despite a selected algorithm",
+        "the original disabled comparison-replacement switch keeps an existing Apple trend",
+        "v3 provider failure preserves exact Apple JSON, whitespace and validators",
+        "WK3 binary stays opaque if JSON negotiation is not honoured",
+        "web warning parsing without TextEncoder",
+        "a repeated warning request fetches independently without persistent response reuse",
+        "failed warning request passes through without the removed runtime statistics",
+        "WeatherKit-selected coordinate warning details retain the original Apple request and validators",
+        "binary weather response retains Apple values and completes after native failures",
+        "existing Apple minute table is preserved without provider work or routine logs",
+        "Apple-only provider preserves original binary weather without a decoder round trip",
+        "oversized binary input retains the original view without decoding or provider work",
+        "partial hourly replacement changes only a matching row and leaves source binary intact",
+        "a dedicated token alone never switches away from the explicitly selected provider",
+        "legacy stored fallback, region and statistics settings cannot reactivate removed features",
+        "HTTP 502 provider body with http failure cannot overwrite Apple weather",
+        "HTTP 200 provider body with invalid failure cannot overwrite Apple weather",
+        "modified WK2 binary invalidates original HTTP entity headers",
+        "independent Caiyun product requests replace healthy weather while preserving failed Apple alerts",
+        "partial replacement preserves future fields inside an unchanged selected hourly table",
+        "failed alert replacement retains the complete original binary response",
+        "available provider with no native warning merge cannot clear Apple unavailability",
+        "known Weather fields adapt while an unknown nested container stays opaque",
+        "metadata-only warning supplementation preserves populated Apple alerts and their unavailable state",
+        "provider output overflow returns normalized Apple weather and periodic data through the compiled Loon script"
+      ],
+      "nativeRewrites": {
+        "pass": 15,
+        "fail": 0,
+        "scenarios": [
+          "iOS and macOS main Weather app fixtures select the same guarded v3 transport",
+          "native v3 JSON negotiation changes only HTTPS Apple weather GET requests",
+          "v3 text and v2 binary weather select exactly one body script each",
+          "background, watch, non-JSON and failed v3 responses start no body script",
+          "native scale URL: EU.EAQI.2604",
+          "native scale URL: US.AQI.12?lang=en-US&v=1#s",
+          "native scale URL: HK.AQHI.8",
+          "native scale URL: CN.AQHI.8",
+          "native scale URL: EU.EAQI",
+          "native scale URL: EU.EAQI.preview",
+          "URL normalization preserves POST and unrelated hosts",
+          "availability and ordinary scales start no JavaScript; custom scales use the small entry",
+          "alert routes accept first or subsequent ids parameters",
+          "native jq keeps Apple ordering and unknown capabilities without duplicates",
+          "native jq preserves unknown shapes and handles an empty capability list"
+        ],
+        "validation": "emitted expressions, JavaScript regex fixtures and system jq; not a Loon parser",
+        "deviceValidation": false
+      },
+      "upstreamArgumentDefaultsVerified": 12,
+      "withoutNodeWebCryptoHostTextEncoder": true,
+      "providedWebAPIs": [
+        "URL",
+        "URLSearchParams",
+        "TextDecoder"
+      ],
+      "doneExactlyOnce": true,
+      "liveWeatherRequests": false,
+      "deviceVPNValidation": false
+    },
+    "Surge": {
+      "pass": 39,
+      "fail": 0,
+      "scenarios": [
+        "seven native script declarations, disjoint routes and all twelve parameter bindings",
+        "original twelve argument defaults and identifier-only Surge parameter names",
+        "iOS main Weather app negotiates JSON without body, WebAPI or network access",
+        "macOS main Weather app negotiates JSON without body, WebAPI or network access",
+        "other methods, hosts, background clients and missing agents preserve original transport",
+        "small JSC availability preserves unknown capabilities, ordering and unknown shapes",
+        "small JSC scale entry normalizes versions, supplies HK/CN legends and preserves POST",
+        "UBA: six physical concentrations, original trend and no extra provider query",
+        "EU_EAQI: six physical concentrations, original trend and no extra provider query",
+        "WAQI_InstantCast_US: six physical concentrations, original trend and no extra provider query",
+        "WAQI_InstantCast_CN: six physical concentrations, original trend and no extra provider query",
+        "WAQI_InstantCast_CN_25_DRAFT: six physical concentrations, original trend and no extra provider query",
+        "CA_AQHI: six physical concentrations, original trend and no extra provider query",
+        "HK_AQHI: six physical concentrations, original trend and no extra provider query",
+        "AQHI_Multi_CN: six physical concentrations, original trend and no extra provider query",
+        "AQHI_Multi_CN_HK: six physical concentrations, original trend and no extra provider query",
+        "CN_DEATH_AQHI: six physical concentrations, original trend and no extra provider query",
+        "CN_DEATH_HK_AQHI: six physical concentrations, original trend and no extra provider query",
+        "None: six physical concentrations, original trend and no extra provider query",
+        "Apple QWeather CO is repaired once at ingress even with local index conversion disabled",
+        "nonmatching target keeps Apple index and validators",
+        "retained Apple warning UUID stays readable: processing disabled",
+        "retained Apple warning UUID stays readable: weatherAlerts",
+        "provider failure completes after native callback and preserves bytes without runtime statistics",
+        "healthy weather replacement and native response framing use Surge body and headers",
+        "background, failed, malformed and opaque WK3 responses use untouched passthrough",
+        "warning details accept ids first and fetch again on repeated execution",
+        "failed warning detail request preserves the Apple response path",
+        "WK2 binary passthrough retains the native typed array without reencoding",
+        "forecastPeriodic-only JSON is adapted without provider work",
+        "weatherChanges-only JSON is adapted without provider work",
+        "last-minute rain transition survives the compiled provider path",
+        "empty provider minutes preserve native passthrough",
+        "WeatherKit-selected coordinate warning details use untouched passthrough",
+        "modified WK2 binary invalidates original entity headers",
+        "no native warning merge retains unavailable Apple data through Surge passthrough",
+        "Surge JSON adaptation leaves unknown nested payloads unchanged",
+        "metadata-only warning supplementation preserves populated Apple alerts through Surge passthrough",
+        "provider output overflow returns normalized Apple weather and periodic data through the compiled Surge script"
+      ],
+      "originalArgumentDefaultsVerified": 12,
+      "scriptDeclarations": 7,
+      "parameterBindings": 12,
+      "completionExactlyOnce": true,
+      "nativeCallbacksAwaited": true,
+      "nativeSurgeValidation": false,
+      "liveWeatherRequests": false
+    }
+  },
+  "artifacts": {
+    "Loon": {
+      "checksumsVerified": 8,
+      "scriptReferencesVerified": 5,
+      "files": {
+        "scale.bundle.js": "5896bada8857312ebf5a70b7519452d21c8fbd6131e0df882d8d5f83b813016f",
+        "WeatherKit.plugin": "d759f482eb47e40db5af2a77df0bba2f4787151713c8db18851c0b1b7d2ed44d",
+        "build-provenance.json": "4f9b7f75ae0c04f30040c2739eab07762d5ed5e1c078e5d70de0e903dd391434",
+        "request.bundle.js": "5166672e2b052fa1064d3d5840055b63a00eda5d46a85d01dfb678b1356dc80c",
+        "iRingo.WeatherKit.lpx": "d759f482eb47e40db5af2a77df0bba2f4787151713c8db18851c0b1b7d2ed44d",
+        "WeatherKit.lpx": "d759f482eb47e40db5af2a77df0bba2f4787151713c8db18851c0b1b7d2ed44d",
+        "LICENSE.txt": "9b215ec9e7d5df96a1b968aaffe596c620fc9a21c175994cc4bb6b3bdbebde4b",
+        "SHA256SUMS.txt": "a28344251d891a87bb9b155984d7d0a0e8a61cf5a7bb287d303eb67666d8f769",
+        "response.bundle.js": "643d5f9083c15e9c0578ee80cf07ca35291f24da9a118f33bfb5f334c31f69f9"
+      }
+    },
+    "Surge": {
+      "checksumsVerified": 9,
+      "scriptReferencesVerified": 7,
+      "files": {
+        "scale.surge.bundle.js": "ab1a4b171b409c35241cef8ec1222e36c1de043c9b147f344cf36f890f15d8bb",
+        "WeatherKit.sgmodule": "3f25c55e612d3e899acbf8d6292e65da14fa5cff8ad38afdc0fa679143004792",
+        "Surge.SHA256SUMS.txt": "8604cfc6027219d31acf19da092598c8650e002b23d8ccef9397db0c40da5fc7",
+        "transport.surge.bundle.js": "676da74e14a6b184e9d54ca239ee2940f6514fd2d6ba6c966987f555be31a474",
+        "response.surge.bundle.js": "e6366e19d3e063474755270ca4a9d9515505c92c64ec0282d387f431a7ac0e59",
+        "iRingo.WeatherKit.sgmodule": "3f25c55e612d3e899acbf8d6292e65da14fa5cff8ad38afdc0fa679143004792",
+        "availability.surge.bundle.js": "0db3275a94cb4d67d91c9c2be67a60130fc838aaaf61dedd71290e514fe98f41",
+        "request.surge.bundle.js": "b350b23b98198190be4112aaa185063dd94d49d0905c23e816d34873cbbd9cc9",
+        "Surge.build-provenance.json": "6b40fd9c8c51675087fc2532556e55996be946a06af4fe92665ebd92ff67253f",
+        "Surge.LICENSE.txt": "9b215ec9e7d5df96a1b968aaffe596c620fc9a21c175994cc4bb6b3bdbebde4b"
+      }
+    }
+  },
+  "sourceInputs": {
+    ".github/RELEASE-TEMPLATE.md": {
+      "bytes": 166,
+      "sha256": "aea58e4bd96c650b7974e507e91ad499399be3a2e547dd0ec2867c5c2387820f"
+    },
+    ".github/workflows/build.yml": {
+      "bytes": 2109,
+      "sha256": "d50d272c9b50465d1c807a44a35f9f409567f6a909f11bc4266bc813976c5c2a"
+    },
+    ".github/workflows/cache-validation.yml": {
+      "bytes": 1483,
+      "sha256": "5463ecc0082ebd2e1a2cf0d4915dafba77d8eb110c27eea9b371259991b13c98"
+    },
+    ".github/workflows/deploy.yml": {
+      "bytes": 2255,
+      "sha256": "45a7bbd1215fdfd2283210d07bab9849243bb0dc1b4d78a48a0dc6804b272bcc"
+    },
+    ".github/workflows/dev.yml": {
+      "bytes": 831,
+      "sha256": "4dcc49121b831794fcac7ff2d1d6561893a2aa0952b4182d15b70c94cf3d2ff5"
+    },
+    ".github/workflows/draft.yml": {
+      "bytes": 661,
+      "sha256": "5cef12b55b546ecdf5f224bd766bef141475e9369c756045bac25ee80aa85108"
+    },
+    ".github/workflows/pre-release.yml": {
+      "bytes": 789,
+      "sha256": "1fb55b727fe8604c1783864be0add546cd3a3fe2e3338fc5948f25a28ce1ec74"
+    },
+    ".github/workflows/release.yml": {
+      "bytes": 687,
+      "sha256": "00bbdeb1f5fa65127fa59bf4e55d69dd8a86d3f134fe313d142a5247527a8979"
+    },
+    "LICENSE": {
+      "bytes": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    "arguments-builder.dev.config.ts": {
+      "bytes": 1265,
+      "sha256": "1503d580a27bb8e3e012ac57b07bd94ac290e0990e4375c8ad880d305c1439ec"
+    },
+    "arguments-builder.full.config.ts": {
+      "bytes": 15813,
+      "sha256": "ee4367f22e5524c3fa4baeda0e1418251a59d8fbf74cca3fe382fb4f46eecc59"
+    },
+    "arguments-builder.release.config.ts": {
+      "bytes": 457,
+      "sha256": "66e7a02796a708df4e195abfa9d2b4f7b44b3b88fb294f4d6827833fab692e67"
+    },
+    "arguments-builder.rewrite.config.ts": {
+      "bytes": 1090,
+      "sha256": "c16d71ef83b109b7cd207bf71e678be6e22b41b8ac9d77bd0bfe74e5e5f3f346"
+    },
+    "arguments-builder.surge.config.ts": {
+      "bytes": 593,
+      "sha256": "76aacf61f932cf1af1d4d9810263edbb4f85aa25fbf436cb0f815256e204cf5c"
+    },
+    "package-lock.json": {
+      "bytes": 213121,
+      "sha256": "689e9d774bf21d1d52e4d7ea2a2db63fd2e5f015b3872dac381295d17a575f6c"
+    },
+    "package.json": {
+      "bytes": 3649,
+      "sha256": "a9998143cf298563848a2e410e13c0a5a8ae2ef9f2a6ac4cd772a805d9e574d1"
+    },
+    "rollup.config.mjs": {
+      "bytes": 1810,
+      "sha256": "f1a388d19432521dd0267bca690df43af13d09ae8e9dfebbf22aa12f2cd6d0f5"
+    },
+    "rollup.dev.config.mjs": {
+      "bytes": 1762,
+      "sha256": "58106f94e505bbcbe3ccc8075700c90dc3d505dcc98cce63ba6ec5c3c95b398e"
+    },
+    "scripts/build-loon-cache.mjs": {
+      "bytes": 4055,
+      "sha256": "a56e006c0e11b64224dea305e087b78c6b1d0d28e4126e1ddc951f5dd256e307"
+    },
+    "scripts/build-surge-cache.mjs": {
+      "bytes": 3860,
+      "sha256": "c3e833e645f30768b6e00179b55b36d844685eb3117dbfbb231be0da2385a436"
+    },
+    "scripts/measure-processing-memory.mjs": {
+      "bytes": 9751,
+      "sha256": "56fd4564b6cdb143c451330931e4f49420f7164ec799b4cb99cb00d08aa3ee76"
+    },
+    "scripts/rollup-loon.config.mjs": {
+      "bytes": 853,
+      "sha256": "7ac224fd30992fadc2f0dcb3b436d9bd5da0fa2b753258d9d1e52bec5c3e8290"
+    },
+    "scripts/rollup-surge.config.mjs": {
+      "bytes": 831,
+      "sha256": "1db1b6d7a3d1c632c18488d411f4aa404bf1ccc1d97c4aa18f7fd4e3a7aeedb8"
+    },
+    "scripts/verify-loon-cache.mjs": {
+      "bytes": 41057,
+      "sha256": "8a527810753f68d7339d860f291383da67f0150902d5cdbcbcfd35dbfa3e1229"
+    },
+    "scripts/verify-loon-rewrites.mjs": {
+      "bytes": 9679,
+      "sha256": "58b62d3d67bf544ab7b75beccc2a9b8f82a94c9d84bf7d94deba53f8ff79d476"
+    },
+    "scripts/verify-surge-bundles.mjs": {
+      "bytes": 26552,
+      "sha256": "2d7a2e2d7b979f21cba2f30d80e35b658b0f9f897eda596a0244e8114a60e9d4"
+    },
+    "src/Hono.js": {
+      "bytes": 1133,
+      "sha256": "12dd8267f48c83b43c9297bb7ae659b60740567bf49edf96ebce08acdb4e1f9e"
+    },
+    "src/class/AirQuality.mjs": {
+      "bytes": 133522,
+      "sha256": "c5ebd8eab4dc3ed76585151d1241e256950e674dcf80634dc234c517e1aa059c"
+    },
+    "src/class/AirQualityScale.mjs": {
+      "bytes": 66519,
+      "sha256": "c96c2570b9a7984d64688d6c63a4a3f8d6e38d0bdba2878f013367c11f433007"
+    },
+    "src/class/ColorfulClouds.mjs": {
+      "bytes": 48116,
+      "sha256": "017e08f4bebf98f6003127fc8f05e5d4b1deb8b3eeebb266095584dc2a853589"
+    },
+    "src/class/ForecastNextHour.mjs": {
+      "bytes": 15570,
+      "sha256": "8b117edf0b365603690ea375122d4520b56dc47969a8dd6778131d2ac2327314"
+    },
+    "src/class/HonoWorkerAdapter.mjs": {
+      "bytes": 7057,
+      "sha256": "e96b6d23766ea394361030c470559d33ed52a5699c59d17c930311546c654dfa"
+    },
+    "src/class/MatchEnum.mjs": {
+      "bytes": 9815,
+      "sha256": "a780ead4fe371a7e4590affa3bffd52bb07becc3bcb0e2f565d7320b94258ff1"
+    },
+    "src/class/ProviderTransport.mjs": {
+      "bytes": 2848,
+      "sha256": "b501f0ce51874f60cace172a75561d65f95262dc8b6c8a37d6923eaeee31cdcd"
+    },
+    "src/class/QWeather.mjs": {
+      "bytes": 78547,
+      "sha256": "41730c349364ec75c2db7a3256b9f45135edf3447d2bca1fa2d6e8d4d750ec7f"
+    },
+    "src/class/SimplePrecisionMath.mjs": {
+      "bytes": 2687,
+      "sha256": "5a95761beaa6423f0925ad67d2dba9e5eb08ee03564f739b323686d22478284e"
+    },
+    "src/class/WAQI.mjs": {
+      "bytes": 15176,
+      "sha256": "27566784354a4b1af3468444daae7cbdfa44f07874c5dbece1a32d6b22ae6ad1"
+    },
+    "src/class/Weather.mjs": {
+      "bytes": 6961,
+      "sha256": "a5ce014260bca6a1b79ecd38466a4baaac089d05c13bcdbffff149e45ac28153"
+    },
+    "src/class/WeatherAlerts.mjs": {
+      "bytes": 31199,
+      "sha256": "f714446202373324bf3f6108424d2f569074ddbff4aae090ac23bea9596eb279"
+    },
+    "src/class/WeatherKit2.mjs": {
+      "bytes": 60398,
+      "sha256": "a436cf8a9f636881593dd5f771fa20796a16fa7f93edb67143687c5e4bd4a4ed"
+    },
+    "src/function/createProviderEnvironment.mjs": {
+      "bytes": 928,
+      "sha256": "b7c6e8f8b210be66efa17f5a88af059809704086dab872fe58efe0a935925d55"
+    },
+    "src/function/database.mjs": {
+      "bytes": 7571,
+      "sha256": "e1dc5abc0bc5c7b639ef38378226c5532190c20e4caf5fd1e82029424e2b5897"
+    },
+    "src/function/ensureTextEncoder.mjs": {
+      "bytes": 2179,
+      "sha256": "6b4525858d09bdb1a734c99936350f8bf35ceb25b6d88e76ba0298e499841b05"
+    },
+    "src/function/fetchProvider.mjs": {
+      "bytes": 2505,
+      "sha256": "ba178b37c087906c118a5389d9cd17b78d79cf0eeb5afd72b473a4564ce73c88"
+    },
+    "src/function/getWeatherAlerts.mjs": {
+      "bytes": 5026,
+      "sha256": "4bce470008458394dd2fd51c2206a1982dc8280a81389e89f59393a25d53080e"
+    },
+    "src/function/mergeForecastCopy.mjs": {
+      "bytes": 811,
+      "sha256": "9b6676ef3923e541684c1c1bc889f870f5660e96a166e70ca7e34750867d6db1"
+    },
+    "src/function/mergeWeatherAlertsProduct.mjs": {
+      "bytes": 1237,
+      "sha256": "05ea8ae8446c297e4a767444e6d0310f6a2f14333592bb178fd13c8da985ede5"
+    },
+    "src/function/mergeWeatherKitAvailability.mjs": {
+      "bytes": 347,
+      "sha256": "237189d9d7b421fd3d72db246c836dd93ef3975e6e36d51d77f767e2b6e3e823"
+    },
+    "src/function/nativeProviderRuntime.mjs": {
+      "bytes": 271,
+      "sha256": "91bd17c49dc6f11f8885140f894e5bdb95ad5ebb3df593a6f893e3e92e43883c"
+    },
+    "src/function/parseWeatherKitURL.mjs": {
+      "bytes": 3175,
+      "sha256": "05cb7249a98ab416bd10b84e4c3a11bae50162be5fb0aa93f2cd44175a3369e1"
+    },
+    "src/function/planWeatherProducts.mjs": {
+      "bytes": 677,
+      "sha256": "80aae3ecefb8a8b43b9961e42a73acb6f98eb446969456b033272e0ca6387324"
+    },
+    "src/function/providerNameToLogo.mjs": {
+      "bytes": 2461,
+      "sha256": "a4df024193c390b38b247bf2c4e143743e4e4baa1374b1b6c507cf4822a32a73"
+    },
+    "src/function/providerRecovery.mjs": {
+      "bytes": 2957,
+      "sha256": "ef37698de3d5f0e411734e132be0cc6c3eac69423fee70021312ee66e7c71ee9"
+    },
+    "src/function/rewriteWeatherResponse.mjs": {
+      "bytes": 657,
+      "sha256": "9686d5380f5e6c94858411a20fc9a99607d9fabc2a9b6b1d91dfccf5de79a0ca"
+    },
+    "src/function/setENV.mjs": {
+      "bytes": 1614,
+      "sha256": "751da08490a0769dcb3aca14803f160fd56c5edca92a6457a237c487a870872e"
+    },
+    "src/function/utf8Length.mjs": {
+      "bytes": 696,
+      "sha256": "7d07252be58a2478b4c9d1f421db3037da3896d47cafb5d2a6a466a4d7dbcd81"
+    },
+    "src/function/weatherMemoryLimits.mjs": {
+      "bytes": 516,
+      "sha256": "8fb9100b9f88b157409fc4e62788c8fea0ec5c7b7d41462a96c634a1ef69f549"
+    },
+    "src/loon/request.js": {
+      "bytes": 1052,
+      "sha256": "71f249a4e4d8427554ee7d5c8b0609059c20d76a2271fabeb7d0aa4cb7afc6b9"
+    },
+    "src/loon/response.js": {
+      "bytes": 307,
+      "sha256": "dcf952fe6210610974f653daf56db951cc3d51e3870a7cff22418f0dead5ca9f"
+    },
+    "src/loon/scale.js": {
+      "bytes": 779,
+      "sha256": "fa1ed608f977081f0cf8e7f10df81b389d2c92cb0a50b1104400c6e57269ff62"
+    },
+    "src/process/Request.dev.mjs": {
+      "bytes": 8176,
+      "sha256": "be0bad21a7bbd7183fd849671a1b6a371f33f56788e3e37a5e29813c5fc1a5f4"
+    },
+    "src/process/Request.mjs": {
+      "bytes": 7117,
+      "sha256": "76bc95fd7badcf22ad47d9a2b9e16a3a6bc6d84b7341303efbcb1b589805bc86"
+    },
+    "src/process/Response.dev.mjs": {
+      "bytes": 42076,
+      "sha256": "9c60db1f25786c7d11942d116dfa9bf7ebe830eca1e1ecd2eabbcf9ba106d124"
+    },
+    "src/process/Response.mjs": {
+      "bytes": 37513,
+      "sha256": "3fb162124c156f2b00b23f8dcdfd5d074f992a52eede0246c3c726c0697c1b9b"
+    },
+    "src/process/ResponseJSONV3.mjs": {
+      "bytes": 17745,
+      "sha256": "b8f7dd26ac758c7b7c57c7592491e8c77cbeed6d71ec5c73a06020356616de77"
+    },
+    "src/request.dev.js": {
+      "bytes": 1743,
+      "sha256": "28b0d68accfcdf264dc3995e03a488d3e8132b32d028548c0bc106841b4e3808"
+    },
+    "src/request.js": {
+      "bytes": 1739,
+      "sha256": "e28ada4797e3b38c99886ff9e60c2fcc584a43a49fc2cea6f6ad8f5d915cc8eb"
+    },
+    "src/response.dev.js": {
+      "bytes": 298,
+      "sha256": "fd4d8e0723317f3a6c59e84f1178d774a3e8cd886bca6a627d28a5097027c986"
+    },
+    "src/response.js": {
+      "bytes": 294,
+      "sha256": "c7f93ace394dc39e46bcc9abf05f565337f1c2f19c4f45d44fe01b5d8dcfd3de"
+    },
+    "src/surge/availability.js": {
+      "bytes": 1656,
+      "sha256": "545c32892c04bcb1e5c79155a737be915d2a59e9d4c85207e09515a065b1c724"
+    },
+    "src/surge/request.js": {
+      "bytes": 1041,
+      "sha256": "90a2fc73292d6a221f0e5429f431cf3521478a5a6436af1551769c83d1ab1854"
+    },
+    "src/surge/response.js": {
+      "bytes": 1566,
+      "sha256": "8771c00557c61d08283a2e6315d3ac7d611d6c6193f6648ce5d95d9a22e2c4eb"
+    },
+    "src/surge/scale.js": {
+      "bytes": 774,
+      "sha256": "99814eaa833a51036b39e4bf7d5e1eec7b891407fcdcbaec342045db2998b995"
+    },
+    "src/surge/transport.js": {
+      "bytes": 771,
+      "sha256": "5ef0505d73fd739b3059ac9bd9aef826ad28a5b5aec2e2f262ab11be87ff125d"
+    },
+    "src/types.d.ts": {
+      "bytes": 14712,
+      "sha256": "986d6a6847b9d34215ef5954be5762b9c1b00de38534b2cc2e7132eb64c3351b"
+    },
+    "tests/airQualityAlgorithms.test.mjs": {
+      "bytes": 9405,
+      "sha256": "94406aac9512b2827d637f32aefd94d82e4e6c835fa6b182f728682c5bd93349"
+    },
+    "tests/airQualityScale.test.mjs": {
+      "bytes": 6507,
+      "sha256": "5fc9a6237adf0b37fe44cb5b66313869c686b0d904a0423ac6be59ab778dbeb8"
+    },
+    "tests/dailyPrecipitationTotals.test.mjs": {
+      "bytes": 5240,
+      "sha256": "5cbdbcbf3f799cc520df31faa8522a7cd658e54c9b55600504c07faa7ab80117"
+    },
+    "tests/fixtures/processingMemoryFixture.mjs": {
+      "bytes": 3312,
+      "sha256": "e4d3ce2bb997c155907039f9985e9b0f57f231c3ee02d7ff623175c7f69cb13d"
+    },
+    "tests/fixtures/upstream-intent.json": {
+      "bytes": 1480,
+      "sha256": "16628fa7f0fba666735288bbe29819533bdfd5a4949db741f5aac8152768c51e"
+    },
+    "tests/flatBufferRootProcessor.test.mjs": {
+      "bytes": 10559,
+      "sha256": "62b9c8f0c67d0c1acb2bbb85568f6674d7863acf8cfdeb5d6ee0c32221533002"
+    },
+    "tests/forecastNextHour.test.mjs": {
+      "bytes": 9730,
+      "sha256": "ba1a70642b03dcd39a4345b83632a26936eeb7d928d3ee087ba1eea788cf6e59"
+    },
+    "tests/honoWorkerAdapter.test.mjs": {
+      "bytes": 738,
+      "sha256": "b6ffd3a5b182741ed64488924ec3f9f5e46057a6bc225253268bf27b1c2c297a"
+    },
+    "tests/loonNativeRewrites.test.mjs": {
+      "bytes": 354,
+      "sha256": "226f66f0bf5ff046746e982e6aab204facab602ed99381d5077fe8df9cb10def"
+    },
+    "tests/loonProviderFetch.test.mjs": {
+      "bytes": 2463,
+      "sha256": "61ca9cf57bf6fa79065ee9cf98a2836554ae11dd17a1e495a70e0be355a626a7"
+    },
+    "tests/mergeWeatherAlertsProduct.test.mjs": {
+      "bytes": 2833,
+      "sha256": "40f4d08bcdf3a83b31081bf0fa09a5bdaf2d587b257e58c63dee30f2d91b3117"
+    },
+    "tests/pr107ReviewRegressions.test.mjs": {
+      "bytes": 12317,
+      "sha256": "6a2a062cbb316f73e8c34b32eeb0d22894235baed5a31b0257f404f13d215144"
+    },
+    "tests/providerMetadataContracts.test.mjs": {
+      "bytes": 7148,
+      "sha256": "4c5424072b8da2e422ce294eef5a8840eb6b3ee70d92476eb634a76833bd24c1"
+    },
+    "tests/providerResilience.test.mjs": {
+      "bytes": 8896,
+      "sha256": "ee17e1f45114a1069b3d5212738c46455d0b38be7396130159c0b8d2afb27af5"
+    },
+    "tests/providerTransport.test.mjs": {
+      "bytes": 6820,
+      "sha256": "a6d4b0b477871f2cf1247ed31bc2be861b5d2548a18b4350db6113b6ffcc3c09"
+    },
+    "tests/qWeatherGridCache.test.mjs": {
+      "bytes": 6310,
+      "sha256": "8d08d83a653f9eebd4183000ccc4965cdfbf7f062db8e0874c24765403bd448d"
+    },
+    "tests/removedControls.test.mjs": {
+      "bytes": 4831,
+      "sha256": "b16b492ddfeea06dde5d7f98e861603c71197493bc255ab1ad29f845aaf6cfb2"
+    },
+    "tests/requestAvailabilityContracts.test.mjs": {
+      "bytes": 10893,
+      "sha256": "f4dec4d6da0431829ff12a3673c517f55c34299be162b25898f9a12e159d2307"
+    },
+    "tests/responseJSONV3.test.mjs": {
+      "bytes": 23639,
+      "sha256": "2ad95964a66da370ccdc2707af7afb5a4c57cfb676063fa984b1e40075fdfbfb"
+    },
+    "tests/responseMemoryPaths.test.mjs": {
+      "bytes": 5757,
+      "sha256": "0befd51c9c785df5b6f16c70306339f2e0d907624fbd209123954a81c548663f"
+    },
+    "tests/severeWeatherPage.test.mjs": {
+      "bytes": 53868,
+      "sha256": "2b11bc006e48349bc6f8cca74b9692566c52940f41ed6e2d28db2d5e4f9ed012"
+    },
+    "tests/severeWeatherRewriteModules.test.mjs": {
+      "bytes": 23264,
+      "sha256": "5becb93ee0e30efc0c149732240d32f32f52a2c5291e416e2d94c45cf4087af4"
+    },
+    "tests/surgeProviderRuntime.test.mjs": {
+      "bytes": 1994,
+      "sha256": "d8e91f9fda9ec47135b0f1a0511e40d7947cab60428b33026fe4413521160164"
+    },
+    "tests/upstreamIntent.test.mjs": {
+      "bytes": 9111,
+      "sha256": "83a05a24b58ec20195b922f7f597e69338de271410ca5ccd1e00949124b345df"
+    },
+    "tests/weatherAlertIdentifiersV3.test.mjs": {
+      "bytes": 6679,
+      "sha256": "1206e433a5223275097cfc199ee136c290dd9d0e173655dc7e7b92ec86ab7074"
+    },
+    "tests/weatherBoundaryRegressions.test.mjs": {
+      "bytes": 13545,
+      "sha256": "38df674336ab286e4bffcf6f33c9c9d2c075b34f8171be26d1fde2ff8c5ca824"
+    },
+    "tests/weatherEnumSafety.test.mjs": {
+      "bytes": 3216,
+      "sha256": "3243b7616738cc41b81ed389d5dc4af8a36e7286086782819f77272f94871d44"
+    },
+    "tests/weatherKitSelectiveDecode.test.mjs": {
+      "bytes": 44190,
+      "sha256": "3cd2f88c27f72e5b803a430aab0d4477bba6ae0bd1b1b7a989c2fe7e89b4102f"
+    },
+    "tests/weatherMemoryPaths.test.mjs": {
+      "bytes": 2275,
+      "sha256": "5d06989c789bc496d21f186bacb934869ce95cd9b3524b2c524feb73f948e48a"
+    },
+    "tests/weatherPowerPaths.test.mjs": {
+      "bytes": 899,
+      "sha256": "64efcda61930963fd11881c6c9a1af437b46002e972222e2f644e7ae57dc5a51"
+    }
+  },
+  "sourceInputManifestSHA256": "81429f35595e500b050a169aa907f73ccdedc27f516ef5e7703316b335fa3de4",
+  "installedSubscriptionReadOnly": {
+    "readOnly": true,
+    "configurationWrites": false,
+    "subscriptionRows": [
+      {
+        "kind": "active tunnel configuration",
+        "subscriptionURL": "https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/iRingo.WeatherKit.lpx",
+        "queryOmitted": false
+      },
+      {
+        "kind": "saved configuration",
+        "subscriptionURL": "https://raw.githubusercontent.com/hhhoratioxu/WeatherKit/main/Loon/script/iRingo.WeatherKit.lpx",
+        "queryOmitted": false
+      }
+    ],
+    "cachedPluginVersion": "3.3.5",
+    "cachedScriptRefs": [
+      "v3.3.5"
+    ],
+    "cachedPluginSHA256": "3e9baeea95cd613cc295a24ccd3fdd0d7be2c38fe52dfd4b674d5ecbf2726de7"
+  },
+  "nativeConfigurationModified": false,
+  "candidateInstalledOnDevice": false,
+  "remoteCIStatus": "Observe GitHub Actions after push; local tests are not remote CI.",
+  "localDependencyLimit": "Recovered dependencies; previous clean npm ci failed with GitHub Packages E403.",
+  "protocolLimit": "Fork schema remains 1.1.2; dev/PR110 inspectTable dependency blockage not resolved or claimed passed.",
+  "privateDataCommitted": false,
+  "logCacheOrDependenciesCommitted": false,
+  "sourceAttributionPreserved": true,
+  "originalParametersPreserved": 12,
+  "removedExtraControlsRestored": false
+}
