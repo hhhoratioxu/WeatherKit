@@ -1,8 +1,8 @@
 {
   "version": "3.3.7",
-  "sourceCommit": "7be5036acd8ab8b3a231471d3be695f08f52c828",
+  "sourceCommit": "ce0e8a0362533d184efe24f6a5e26c0f29c85423",
   "resourceRef": "v3.3.7",
-  "node": "v22.23.5",
+  "node": "v22.23.4",
   "bundleChecks": {
     "pass": 41,
     "fail": 0,
@@ -72,9 +72,5 @@
     "Storage": "Storage",
     "LogLevel": "LogLevel"
   },
-  "lockfileSHA256": "e3a31fc068e03ca06fa3a1275dc06cdd6b966f71096e3f2777d924ce30dd6bfe",
-  "sourceWorkingTreeDirty": true,
-  "sourceManifestSHA256": "edd75895f36482b237f77edceaf107b9bbee0426290d870ff0e908e6896f7415",
-  "releaseBootstrap": true,
-  "displayName": "WeatherKit"
+  "lockfileSHA256": "e3a31fc068e03ca06fa3a1275dc06cdd6b966f71096e3f2777d924ce30dd6bfe"
 }
