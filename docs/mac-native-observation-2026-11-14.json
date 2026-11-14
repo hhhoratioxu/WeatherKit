@@ -153,5 +153,118 @@
     "tagChanged": false,
     "upstreamPRChanged": false,
     "intendedCommitScope": "sanitized report and README link only"
+  },
+  "nonUIFollowup": {
+    "additionalMacUIActions": false,
+    "publicHTTPAlertProbe": {
+      "kind": "live native Loon request-script HTTP probe; not Weather App UI validation",
+      "publicLocation": "Beijing public QWeather city page",
+      "curlExit": 0,
+      "HTTPStatus": "301",
+      "JSONType": null,
+      "alertCount": null,
+      "responseBytes": 162,
+      "nativeScriptRecords": [
+        {
+          "tag": "🌤 WeatherKit.api.v1.weatherAlerts.html.request",
+          "finished": true,
+          "exception": false,
+          "requestedCount": 0
+        }
+      ],
+      "rawBodySaved": false,
+      "credentialsAdded": false,
+      "UIUsed": false,
+      "runtimeOrConfigurationModified": false
+    },
+    "publicHTTPSAndVendorChecks": [
+      {
+        "kind": "nativeAppleHTTPS",
+        "publicLocation": "Beijing",
+        "curlExit": 0,
+        "HTTPStatus": "302",
+        "bodyBytes": 0,
+        "JSONType": null,
+        "alertCount": null,
+        "hasExpectedLocationMarker": false,
+        "hasWarningOrNoWarningMarker": false,
+        "nativeScriptRecords": [
+          {
+            "tag": "🌤 WeatherKit.api.v1.weatherAlerts.html.request",
+            "finished": true,
+            "exception": false
+          }
+        ],
+        "TLSValidationBypassed": false,
+        "credentialsAdded": false,
+        "rawBodySaved": false
+      },
+      {
+        "kind": "directPublicQWeather",
+        "publicLocation": "Beijing",
+        "curlExit": 0,
+        "HTTPStatus": "403",
+        "bodyBytes": 1415,
+        "JSONType": null,
+        "alertCount": null,
+        "hasExpectedLocationMarker": false,
+        "hasWarningOrNoWarningMarker": false,
+        "nativeScriptRecords": [],
+        "TLSValidationBypassed": false,
+        "credentialsAdded": false,
+        "rawBodySaved": false
+      }
+    ],
+    "appHTTPCache": [
+      {
+        "weatherkitCacheRows": 11,
+        "boundedJSONBodies": 4,
+        "cachedProductCounts": {},
+        "whitelistedProviderCounts": {},
+        "airQualityScales": {}
+      }
+    ],
+    "temporaryJSONObservation": {
+      "initialWeatherJSONBuffers": 2,
+      "observedAQScales": [
+        "DAQI.2604"
+      ],
+      "observedPollutantCounts": [
+        8,
+        8
+      ],
+      "observedAlertCounts": [
+        0,
+        0
+      ],
+      "providerAttributionResolved": false,
+      "processingPhaseOrAppAcceptanceConfirmed": false,
+      "subsequentBoundedReadWeatherBuffers": 0,
+      "rawBuffersSavedOrUploaded": false
+    },
+    "UIReadOnlyDiagnostics": {
+      "officialDiagnosticDirectoryExists": true,
+      "boundedRecentLogScan": {
+        "filesRead": 8,
+        "computerUseRelatedLines": 6,
+        "timeoutMarkers": 0,
+        "permissionDeniedMarkers": 0,
+        "AXErrorMarkers": 0
+      },
+      "rawLogDataStoredOrPrinted": false,
+      "rootCauseEstablished": false,
+      "permissionsOrAppsModified": false
+    },
+    "officialDocumentation": [
+      "https://learn.chatgpt.com/docs/computer-use",
+      "https://learn.chatgpt.com/docs/reference/troubleshooting"
+    ],
+    "pluginAndThreeScriptBytesStillMatchF571a49": true,
+    "VPNObservedAfterProbes": "Connected",
+    "newBusinessCodeFixes": false,
+    "nextRequiredEvidence": [
+      "Available, coordinated Mac UI for Weather display and parameter value checks",
+      "Accessible valid warning source response and correlated product payloads for AQ/source/alert acceptance"
+    ]
   }
 }
