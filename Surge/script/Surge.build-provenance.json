@@ -1,8 +1,8 @@
 {
-  "version": "3.3.7",
-  "sourceCommit": "ce0e8a0362533d184efe24f6a5e26c0f29c85423",
-  "resourceRef": "v3.3.7",
-  "node": "v22.23.4",
+  "version": "3.3.8",
+  "sourceCommit": "5d42a422a46787bfd6b23eb291c3cfbeee9f17fc",
+  "resourceRef": "v3.3.8",
+  "node": "v22.23.5",
   "bundleChecks": {
     "pass": 41,
     "fail": 0,
@@ -72,5 +72,8 @@
     "Storage": "Storage",
     "LogLevel": "LogLevel"
   },
-  "lockfileSHA256": "e3a31fc068e03ca06fa3a1275dc06cdd6b966f71096e3f2777d924ce30dd6bfe"
+  "lockfileSHA256": "cd3e3e78d5d5bf5dc8e892c2198235652d10393f6692123da6905d5678946ab4",
+  "sourceWorkingTreeDirty": true,
+  "sourceManifestSHA256": "a1c0658c7f299dd2f0bf0875529030a53abdf9c58c8726e73a094c6b691a71ac",
+  "releaseBootstrap": true
 }
