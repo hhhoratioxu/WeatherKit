@@ -2,6 +2,8 @@
 
 v3.3.8 已纳入 WK3 失败回退的临时分配优化：本次执行已有的 Apple 回退不再重复序列化。Node/V8 大回应样本采样分配减少约 18.5%，保留堆基本不变，详见 [量测与限制](docs/json-fallback-memory-2026-11-16.md)。
 
+2026-11-16 Mac Loon 原生观测：更新后两次主天气脚本完成，未标记脚本异常，耗时分别为 884 ms、12 ms；同窗口原生天气产品缓存有更新。每脚本内存字段为空，未证明真机常驻内存下降，详见 [实际数据与验收范围](docs/mac-loon-v338-2026-11-16.md)。
+
 本仓库是 [NSRingo/WeatherKit](https://github.com/NSRingo/WeatherKit) 的 Fork，保留原作者、Apache-2.0 许可证与 Git 历史。当前发行 **v3.3.8** 同时提供 Loon 和 Surge 版本；本地维护中的插件显示名称统一为 `WeatherKit`，功能描述与原有参数含义沿用原版。
 
 [更新说明](CHANGELOG.md) · [正式 Release](https://github.com/hhhoratioxu/WeatherKit/releases/tag/v3.3.8) · [原版配置指南](https://NSRingo.github.io/guide/Weather/weather-kit)
