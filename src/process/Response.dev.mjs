@@ -11,6 +11,7 @@ import WeatherAlerts from "../class/WeatherAlerts.mjs";
 import WeatherKit2 from "../class/WeatherKit2.mjs";
 import WeatherKit3 from "../class/WeatherKit3.mjs";
 import database from "../function/database.mjs";
+import debugJSON from "../function/debugJSON.mjs";
 import mergeWeatherKitAvailability from "../function/mergeWeatherKitAvailability.mjs";
 import parseWeatherKitURL from "../function/parseWeatherKitURL.mjs";
 import providerNameToLogo from "../function/providerNameToLogo.mjs";
@@ -146,15 +147,15 @@ export async function Response($request, $response) {
                                     );
                                 }
                                 skipDefaultWrite = true;
-                                let text;
-                                try {
-                                    text = JSON.stringify(body);
-                                } catch {
-                                    // 不可序列化的结果保留原包（控制流，不是数值防御）/ Unserializable results keep the original package (control flow, not value defense).
-                                    break;
-                                }
                                 // 仅在实际改写时重写并清理缓存验证头 / Rewrite and revalidate headers only when actually changed.
                                 if (changed) {
+                                    let text;
+                                    try {
+                                        text = JSON.stringify(body);
+                                    } catch {
+                                        // 不可序列化的结果保留原包 / Unserializable results keep the original package.
+                                        break;
+                                    }
                                     // 改写后移除旧正文长度、编码与缓存验证头；bodyBytes 旧载荷一并移除。
                                     // After rewriting, drop stale length/encoding/cache-validation headers and any old bodyBytes payload.
                                     for (const key of Object.keys($response.headers ?? {})) if (["content-length", "content-encoding", "etag", "last-modified", "content-md5", "digest", "cache-control"].includes(key.toLowerCase())) delete $response.headers[key];
@@ -163,7 +164,7 @@ export async function Response($request, $response) {
                                     $response.body = text;
                                 }
                             } else if (url.pathname.startsWith("/api/v1/availability/")) {
-                                Console.debug(`body: ${JSON.stringify(body)}`);
+                                debugJSON("body", body);
                                 body = mergeWeatherKitAvailability(body, Configs?.Availability?.v2);
                             }
                             break;
@@ -237,7 +238,7 @@ export async function Response($request, $response) {
                                                     break;
                                                 }
                                                 case "forecastNextHour": {
-                                                    Console.debug(`body.forecastNextHour: ${JSON.stringify(body?.forecastNextHour, null, 2)}`);
+                                                    debugJSON("body.forecastNextHour", body?.forecastNextHour, 2);
                                                     if (Settings?.LogLevel === "DEBUG" || Settings?.LogLevel === "ALL") {
                                                         matchEnum.conditionType();
                                                         matchEnum.forecastToken();
@@ -249,7 +250,7 @@ export async function Response($request, $response) {
                                                     if (Settings?.LogLevel === "DEBUG" || Settings?.LogLevel === "ALL") {
                                                         matchEnum.placementType();
                                                     }
-                                                    Console.debug(`body.news: ${JSON.stringify(body?.news, null, 2)}`);
+                                                    debugJSON("body.news", body?.news, 2);
                                                     break;
                                                 }
                                                 case "weatherAlerts": {
@@ -262,11 +263,11 @@ export async function Response($request, $response) {
                                                         matchEnum.responseType();
                                                     }
                                                     body.weatherAlerts = await InjectWeatherAlerts(body.weatherAlerts, Settings, enviroments);
-                                                    Console.debug(`body.weatherAlerts: ${JSON.stringify(body?.weatherAlerts, null, 2)}`);
+                                                    debugJSON("body.weatherAlerts", body?.weatherAlerts, 2);
                                                     break;
                                                 }
                                                 case "locationInfo": {
-                                                    Console.debug(`body.locationInfo: ${JSON.stringify(body?.locationInfo, null, 2)}`);
+                                                    debugJSON("body.locationInfo", body?.locationInfo, 2);
                                                     break;
                                                 }
                                                 default:
@@ -339,7 +340,7 @@ export async function Response($request, $response) {
                                                     break;
                                                 }
                                                 case "forecastNextHour": {
-                                                    Console.debug(`body.forecastNextHour: ${JSON.stringify(body?.forecastNextHour, null, 2)}`);
+                                                    debugJSON("body.forecastNextHour", body?.forecastNextHour, 2);
                                                     if (Settings?.LogLevel === "DEBUG" || Settings?.LogLevel === "ALL") {
                                                         matchEnum.conditionType();
                                                         matchEnum.forecastToken();
@@ -543,7 +544,7 @@ async function InjectForecastNextHour(forecastNextHour, Settings, enviroments) {
         newForecastNextHour.metadata = { ...forecastNextHour?.metadata, ...newForecastNextHour.metadata };
         forecastNextHour = { ...forecastNextHour, ...newForecastNextHour };
         forecastNextHour.metadata.providerLogo ||= providerNameToLogo(forecastNextHour.metadata.providerName);
-        Console.debug(`forecastNextHour: ${JSON.stringify(forecastNextHour, null, 2)}`);
+        debugJSON("forecastNextHour", forecastNextHour, 2);
     }
     Console.info("✅ InjectForecastNextHour");
     return forecastNextHour;
@@ -646,7 +647,7 @@ async function InjectAirQuality(airQuality, Settings, Caches, enviroments) {
         pollutants: AirQuality.ConvertPollutants(airQuality, injectedPollutants, needInjectIndex, injectedIndex, Settings) ?? [],
         previousDayComparison: injectedComparison?.previousDayComparison ?? AirQuality.Config.CompareCategoryIndexes.UNKNOWN,
     };
-    Console.debug(`airQuality: ${JSON.stringify(airQuality, null, 2)}`);
+    debugJSON("airQuality", airQuality, 2);
     return airQuality;
 }
 

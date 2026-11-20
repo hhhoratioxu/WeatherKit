@@ -120,12 +120,20 @@ test("provider's unavailable result preserves usable Apple data and attribution"
     assert.equal(output.currentWeather.temperature, 20);
 });
 
-test("unselected products and unknown roots pass through byte-identical", async () => {
+test("unselected products and unknown roots pass through without reserializing the response", async t => {
     globalThis.$argument.DataSets = ["forecastPeriodic"];
     const input = response();
+    const originalBody = input.body;
+    const stringify = JSON.stringify;
+    let fullResponseSerializations = 0;
+    t.mock.method(JSON, "stringify", (...args) => {
+        if (args[0]?.unknownRoot) fullResponseSerializations++;
+        return stringify(...args);
+    });
     const output = await Response(request(), input);
-    assert.equal(output.body, input.body);
+    assert.equal(output.body, originalBody);
     assert.equal(output.headers.ETag, "old");
+    assert.equal(fullResponseSerializations, 0);
 });
 
 test("EAQI's unsupported CO sub-index does not roll back the whole AQ product", async t => {
