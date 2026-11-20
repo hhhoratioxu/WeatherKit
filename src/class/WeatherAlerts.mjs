@@ -1,5 +1,4 @@
 import { Console } from "@nsnanocat/util";
-import { knownWeatherAlertExpiry, UNKNOWN_WEATHER_ALERT_EXPIRY } from "../function/weatherAlertExpiry.mjs";
 
 /**
  * 从来源页面提取的预警记录。
@@ -123,14 +122,13 @@ export default class WeatherAlerts {
     static #FillAlert(appleAlert, sourceAlert, appleAlertIndex, sourceAlertIndex) {
         let before;
         if (WeatherAlerts.#IsDebug()) before = WeatherAlerts.#WeatherAlertDebugSnapshot(appleAlert, appleAlertIndex);
-        const sourceExpireTime = knownWeatherAlertExpiry(sourceAlert.expireTime);
-        const sourceEndTime = knownWeatherAlertExpiry(sourceAlert.eventEndTime);
+        const sourceExpireTime = sourceAlert.expireTime === "9999-12-31T23:59:59Z" ? undefined : sourceAlert.expireTime;
         WeatherAlerts.#FillText(appleAlert, "areaId", sourceAlert.areaId);
         WeatherAlerts.#FillText(appleAlert, "areaName", sourceAlert.areaName);
         WeatherAlerts.#FillTime(appleAlert, "effectiveTime", sourceAlert.effectiveTime ?? sourceAlert.issuedTime);
         WeatherAlerts.#FillTime(appleAlert, "eventOnsetTime", sourceAlert.eventOnsetTime ?? sourceAlert.effectiveTime ?? sourceAlert.issuedTime ?? appleAlert.effectiveTime ?? appleAlert.issuedTime);
-        WeatherAlerts.#FillTime(appleAlert, "eventEndTime", sourceEndTime ?? sourceExpireTime ?? (knownWeatherAlertExpiry(appleAlert.expireTime) || undefined));
-        WeatherAlerts.#FillTime(appleAlert, "expireTime", sourceExpireTime ?? sourceEndTime);
+        WeatherAlerts.#FillTime(appleAlert, "eventEndTime", sourceAlert.eventEndTime ?? sourceExpireTime ?? appleAlert.expireTime);
+        WeatherAlerts.#FillTime(appleAlert, "expireTime", sourceExpireTime ?? sourceAlert.eventEndTime);
         WeatherAlerts.#FillTime(appleAlert, "issuedTime", sourceAlert.issuedTime ?? sourceAlert.effectiveTime);
         WeatherAlerts.#FillDescription(appleAlert, sourceAlert);
         WeatherAlerts.#FillText(appleAlert, "source", sourceAlert.source);
@@ -226,8 +224,16 @@ export default class WeatherAlerts {
             "mergeAlerts",
             `appleAlertCount: ${to.length}`,
             `sourceAlertCount: ${from.length}`,
-            `appleAlerts: ${JSON.stringify(to.map((alert, index) => WeatherAlerts.#WeatherAlertDebugSnapshot(alert, index)), null, 2)}`,
-            `sourceAlerts: ${JSON.stringify(from.map((alert, index) => WeatherAlerts.#WeatherAlertDebugSnapshot(alert, index)), null, 2)}`,
+            `appleAlerts: ${JSON.stringify(
+                to.map((alert, index) => WeatherAlerts.#WeatherAlertDebugSnapshot(alert, index)),
+                null,
+                2,
+            )}`,
+            `sourceAlerts: ${JSON.stringify(
+                from.map((alert, index) => WeatherAlerts.#WeatherAlertDebugSnapshot(alert, index)),
+                null,
+                2,
+            )}`,
         );
     }
 
@@ -254,13 +260,7 @@ export default class WeatherAlerts {
     static #LogMergeAlertPatch(before, appleAlert, appleAlertIndex, sourceAlertIndex) {
         if (!WeatherAlerts.#IsDebug()) return;
         const after = WeatherAlerts.#WeatherAlertDebugSnapshot(appleAlert, appleAlertIndex);
-        Console.debug(
-            "mergeAlerts",
-            `appleAlertIndex: ${appleAlertIndex}`,
-            `sourceAlertIndex: ${sourceAlertIndex}`,
-            `changed: ${JSON.stringify(WeatherAlerts.#WeatherAlertDebugChanges(before, after), null, 2)}`,
-            `after: ${JSON.stringify(after, null, 2)}`,
-        );
+        Console.debug("mergeAlerts", `appleAlertIndex: ${appleAlertIndex}`, `sourceAlertIndex: ${sourceAlertIndex}`, `changed: ${JSON.stringify(WeatherAlerts.#WeatherAlertDebugChanges(before, after), null, 2)}`, `after: ${JSON.stringify(after, null, 2)}`);
     }
 
     static #SourceAlertCandidates(appleAlert, sourceAlerts, usedSourceAlertIndexes) {
@@ -368,10 +368,9 @@ export default class WeatherAlerts {
             const areaId = alert.areaId || contextAreaId;
             const areaName = alert.areaName || extracted.areaName;
             const effectiveTime = alert.effectiveTime ?? alert.issuedTime;
-            const sourceExpireTime = knownWeatherAlertExpiry(alert.expireTime);
-            const expireTime = sourceExpireTime ?? UNKNOWN_WEATHER_ALERT_EXPIRY;
+            const expireTime = alert.expireTime ?? "9999-12-31T23:59:59Z";
             const eventOnsetTime = alert.eventOnsetTime ?? effectiveTime;
-            const eventEndTime = knownWeatherAlertExpiry(alert.eventEndTime) ?? sourceExpireTime;
+            const eventEndTime = alert.eventEndTime ?? (alert.expireTime ? expireTime : undefined);
             const source = alert.source || extracted.source || "";
             const importance = alert.importance || WeatherAlerts.#ImportanceFromSeverity(alert.severity);
             const phenomenon = alert.phenomenon;
@@ -414,7 +413,11 @@ export default class WeatherAlerts {
      * @returns {"high" | "normal" | "low"} Apple WeatherAlert importance.
      */
     static #ImportanceFromSeverity(severity) {
-        switch (String(severity ?? "").trim().toLowerCase()) {
+        switch (
+            String(severity ?? "")
+                .trim()
+                .toLowerCase()
+        ) {
             case "extreme":
             case "severe":
                 return "high";
@@ -441,7 +444,7 @@ export default class WeatherAlerts {
             const response = WeatherAlerts.#ResponseFromGuideline(guideline);
             if (response && !inferredResponses.includes(response)) inferredResponses.push(response);
         }
-        return inferredResponses.length ? inferredResponses : (guidelines?.length ? ["monitor"] : []);
+        return inferredResponses.length ? inferredResponses : guidelines?.length ? ["monitor"] : [];
     }
 
     /**
@@ -466,7 +469,9 @@ export default class WeatherAlerts {
      * @returns {string | null} 动作 token / Action token.
      */
     static #ResponseFromGuideline(guideline) {
-        const text = String(guideline ?? "").trim().toLowerCase();
+        const text = String(guideline ?? "")
+            .trim()
+            .toLowerCase();
         if (!text) return null;
         const compact = text.replace(/\s+/g, "");
 
@@ -504,7 +509,10 @@ export default class WeatherAlerts {
     }
 
     static #NormalizeFlatBufferWeatherAlertEnum(value) {
-        return String(value ?? "").trim().replace(/[_\s-]+/g, "").toLowerCase();
+        return String(value ?? "")
+            .trim()
+            .replace(/[_\s-]+/g, "")
+            .toLowerCase();
     }
 
     static #FlatBufferWeatherAlertCertainty(value) {
@@ -650,7 +658,7 @@ export default class WeatherAlerts {
     static #TrimWeatherAlertTitle(title) {
         return String(title ?? "")
             .trim()
-            .replace(/\s*[\[【][^\]】]+[\]】]\s*$/u, "")
+            .replace(/\s*[[【][^\]】]+[\]】]\s*$/u, "")
             .replace(/\s*[。．.]+\s*$/gu, "")
             .replace(/预警信号$/u, "预警")
             .replace(/預警信號$/u, "預警");

@@ -14,50 +14,9 @@ export default class AirQuality {
         // 根据小数位数计算倍数
         const multiplier = 10 ** decimals;
 
-        // 向上取整
+        // 向上取整；参考 WeatherKit PR #107 以 EPSILON 容差修正二进制浮点导致的边界误判
         const scaled = a * multiplier;
         return Math.ceil(scaled - Number.EPSILON * Math.max(1, Math.abs(scaled)) * 8) / multiplier;
-    }
-
-    static RequiredPollutants = ["PM2_5", "PM10", "OZONE", "NO2", "SO2", "CO"];
-
-    static ValidPollutants(pollutants) {
-        if (!Array.isArray(pollutants)) return [];
-        const units = AirQuality.Config.Units.Friendly, seen = new Set(), result = [];
-        for (const pollutant of pollutants) {
-            if (!pollutant || typeof pollutant.pollutantType !== "string" || !pollutant.pollutantType || seen.has(pollutant.pollutantType) || !Object.hasOwn(units, pollutant.units)) continue;
-            const raw = pollutant.amount;
-            const amount = typeof raw === "number" ? raw : typeof raw === "string" && raw.trim() ? Number(raw) : NaN;
-            if (!Number.isFinite(amount) || amount < 0) continue;
-            const value = { ...pollutant, amount };
-            if (!Number.isFinite(value.index) || value.index < 0) delete value.index;
-            seen.add(value.pollutantType);
-            result.push(value);
-        }
-        return result;
-    }
-
-    static MissingPollutants(pollutants) {
-        const present = new Set(AirQuality.ValidPollutants(pollutants).map(({ pollutantType }) => pollutantType));
-        return AirQuality.RequiredPollutants.filter(type => !present.has(type));
-    }
-
-    static MergePollutants(current, supplement) {
-        return AirQuality.ValidPollutants([...(Array.isArray(current) ? current : []), ...(Array.isArray(supplement) ? supplement : [])]);
-    }
-
-    static HasUsableIndex(airQuality) {
-        return Boolean(airQuality?.metadata && airQuality.metadata.temporarilyUnavailable !== true && typeof airQuality.scale === "string" && airQuality.scale.length && Number.isFinite(airQuality.index) && airQuality.index >= 0 && airQuality.index <= 65535 && Number.isInteger(airQuality.categoryIndex) && airQuality.categoryIndex >= 1 && airQuality.categoryIndex <= 255);
-    }
-
-    static #Unavailable(pollutants = []) {
-        return { metadata: { providerName: "iRingo", temporarilyUnavailable: true }, pollutants };
-    }
-
-    static #HasRiskInputs(pollutants, scale) {
-        const present = new Set(pollutants.filter(p => p.units === scale.pollutants[p.pollutantType]?.units && Number.isFinite(p.amount) && p.amount >= 0).map(p => p.pollutantType));
-        const hasPM = ["PM10", "PM2_5"].some(type => scale.pollutants[type] && present.has(type));
-        return Object.keys(scale.pollutants).every(type => type === "PM10" || type === "PM2_5" ? hasPM : present.has(type));
     }
 
     /**
@@ -86,8 +45,8 @@ export default class AirQuality {
 
         const failedCategoryIndex = -1;
 
-        if (!Number.isFinite(index) || index < 0 || !categories?.ranges || !Array.isArray(categories.ranges) || categories.ranges.length === 0) {
-            if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`categories: ${JSON.stringify(categories)}`);
+        if (!categories?.ranges || !Array.isArray(categories.ranges) || categories.ranges.length === 0) {
+            Console.debug(`categories: ${JSON.stringify(categories)}`);
             Console.error("GetPrimaryPollutant", "categories无效");
             return failedCategoryIndex;
         }
@@ -106,18 +65,17 @@ export default class AirQuality {
     }
 
     static CompareCategoryIndexes(todayCategoryIndex, yesterdayCategoryIndex) {
-        Console.info("☑️ CompareCategoryIndexes");
+        Console.info("☑️ CompareCategoryIndexes", `todayCategoryIndex: ${todayCategoryIndex}`, `yesterdayCategoryIndex: ${yesterdayCategoryIndex}`);
 
         const { UNKNOWN, SAME, WORSE, BETTER } = AirQuality.Config.CompareCategoryIndexes;
-        // Input-validation direction: Patrick Yan, PR #108 at 24c3f9311f051a9df9465238ee85b4a5f2c4f9c2, Apache-2.0.
-        // Preserve numeric strings; booleans, objects and fractional categories are not valid levels.
-        const validCategory = value => (typeof value === "number" || (typeof value === "string" && value.trim() !== "")) && Number.isInteger(Number(value)) && Number(value) > 0;
-        if (![todayCategoryIndex, yesterdayCategoryIndex].every(validCategory)) {
+        const today = Number(todayCategoryIndex);
+        const yesterday = Number(yesterdayCategoryIndex);
+
+        // -1、0 和 null 都表示“无可用等级”，不能参与好转/恶化比较。
+        if (![today, yesterday].every(categoryIndex => Number.isFinite(categoryIndex) && categoryIndex > 0)) {
             Console.error("CompareCategoryIndexes", "categoryIndex无效");
             return UNKNOWN;
         } else {
-            const today = Number(todayCategoryIndex);
-            const yesterday = Number(yesterdayCategoryIndex);
             const diff = today - yesterday;
             if (diff === 0) {
                 Console.info("✅ CompareCategoryIndexes");
@@ -147,7 +105,7 @@ export default class AirQuality {
 
             Console.info("ConvertUnits", `Converting ${pollutant.pollutantType}`);
             const amount = AirQuality.ConvertUnit(pollutant.amount, pollutant.units, pollutantScale.units, stpConversionFactors?.[pollutant.pollutantType] || -1, pollutantScale?.stpConversionFactor || -1);
-            if (!Number.isFinite(amount) || amount < 0) {
+            if (amount < 0) {
                 Console.error(
                     "ConvertUnits",
                     `无法转换${pollutant.pollutantType}的单位`,
@@ -168,14 +126,16 @@ export default class AirQuality {
      *
      * 说明：
      * - 这是空气质量数据修复的统一入口（当前聚焦污染物单位修复）；
-     * - QWeather 供应商结果按明确单位处理；
-     * - Apple 原始 QWeather 产品的 CO 数值为 mg/m3，但可能标成 µg/m3。
-     *   只有在原始 Apple 产品入口显式声明 appleProduct 时修复这个标签错误，
-     *   不对已归一化的供应商结果重复换算，也不按浓度大小猜测单位。
+     * - 当前仅处理和风天气（QWeather）CO 单位场景：其 CO 原始单位为 mg/m3，
+     *   需转换为 WeatherKit 使用的 µg/m3；
+     * - 参考 WeatherKit PR #107（Horatio，Apache-2.0）的幂等修复：仅在明确标注
+     *   mg/m3 时换算；Apple 原始 QWeather 产品的 CO 数值为 mg/m3 但可能误标为
+     *   µg/m3，仅当入口显式声明 appleProduct 时按误标处理，避免对已归一化数据
+     *   重复换算，也不按浓度大小猜测单位；
      * - 后续同类修复请统一收敛到本方法内，必要时可将本方法升级为 FixAirQuality。
      *
      * @param {any} airQuality - 空气质量数据对象
-     * @param {{appleProduct?: boolean}} options - 仅原始 Apple 产品入口设为 true
+     * @param {{appleProduct?: boolean}} options - 仅 Apple 原始产品入口设为 true
      * @returns {any} 单位修复后的空气质量数据对象
      */
     static FixPollutantsUnits(airQuality, options = {}) {
@@ -184,9 +144,10 @@ export default class AirQuality {
             case "和风天气":
             case "QWeather": {
                 const { mgm3, ugm3 } = AirQuality.Config.Units.WeatherKit;
-                airQuality = { ...airQuality, pollutants: airQuality?.pollutants?.map(pollutant => pollutant?.pollutantType === "CO" && (pollutant.units === mgm3 || options.appleProduct === true && pollutant.units === ugm3)
-                    ? { ...pollutant, amount: AirQuality.ConvertUnit(pollutant.amount, mgm3, ugm3), units: ugm3 }
-                    : pollutant) };
+                airQuality = {
+                    ...airQuality,
+                    pollutants: airQuality?.pollutants?.map(pollutant => (pollutant?.pollutantType === "CO" && (pollutant.units === mgm3 || (options.appleProduct === true && pollutant.units === ugm3)) ? { ...pollutant, amount: AirQuality.ConvertUnit(pollutant.amount, mgm3, ugm3), units: ugm3 } : pollutant)),
+                };
                 break;
             }
             default: {
@@ -213,16 +174,12 @@ export default class AirQuality {
 
     static Pollutants2AQI(airQuality, Settings, options = {}) {
         Console.info("☑️ Pollutants2AQI");
-        const algorithm = options?.algorithm ?? Settings?.AirQuality?.Calculate?.Algorithm ?? "UBA";
-        if (algorithm === "None") return airQuality;
+        const algorithm = options?.algorithm ?? Settings?.AirQuality?.Calculate?.Algorithm;
         const forcePrimaryPollutant = options?.forcePrimaryPollutant ?? Settings?.AirQuality?.Current?.Index?.ForceCNPrimaryPollutants;
         const allowOverRange = options?.allowOverRange ?? Settings?.AirQuality?.Calculate?.AllowOverRange;
 
         const stpConversionFactors = AirQuality.#GetStpConversionFactors(airQuality);
-        const scale = AirQuality.Config.Scales[algorithm];
-        const pollutants = AirQuality.ValidPollutants(airQuality?.pollutants);
-        if (!scale || !pollutants.length) return AirQuality.#Unavailable(pollutants);
-        airQuality = { ...airQuality, pollutants };
+        const scale = AirQuality.Config.Scales[algorithm] ?? AirQuality.Config.Scales.UBA;
 
         switch (algorithm) {
             case "None": {
@@ -238,7 +195,7 @@ export default class AirQuality {
             case "WAQI_InstantCast_US": {
                 // PollutantsToInstantCastUS
                 Console.info("☑️ PollutantsToInstantCastUS", `allowOverRange: ${allowOverRange}`);
-                airQuality = AirQuality.#PollutantsToAirQuality(airQuality.pollutants, scale, { stpConversionFactors, allowOverRange, concentrationSteps: { PM2_5: 0.1, PM10: 1, OZONE: 0.1, NO2: 1, SO2: 1, CO: 100 } });
+                airQuality = AirQuality.#PollutantsToAirQuality(airQuality.pollutants, scale, { stpConversionFactors, allowOverRange });
                 Console.info("✅ PollutantsToInstantCastUS");
                 break;
             }
@@ -299,7 +256,6 @@ export default class AirQuality {
             }
         }
 
-        if (!Number.isFinite(airQuality.index) || airQuality.index < 0 || !Number.isInteger(airQuality.categoryIndex) || airQuality.categoryIndex < 1) return AirQuality.#Unavailable(airQuality.pollutants);
         Console.info("✅ Pollutants2AQI");
         return airQuality;
     }
@@ -529,12 +485,10 @@ export default class AirQuality {
      * @returns {number}
      * 该污染物的 index；低于最小阈值时返回 min.indexes[0]；超上限时使用 max 区间外推。
      */
-    static #ComputePollutantIndex(pollutant, pollutantType, pollutantScale, friendlyUnits, step) {
-        if (!pollutantScale || pollutant.units !== pollutantScale.units || !Number.isFinite(pollutant.amount) || pollutant.amount < 0) return undefined;
-        let amount = pollutant.amount;
-        if (step) {
-            const scaled = amount / step;
-            amount = Math.floor(scaled + Number.EPSILON * Math.max(1, Math.abs(scaled)) * 8) * step;
+    static #ComputePollutantIndex(pollutant, pollutantType, pollutantScale, friendlyUnits) {
+        if (!pollutantScale) {
+            Console.warn("PollutantsToIndexes", `标准未定义污染物${pollutantType}，index将标记为-1`);
+            return -1;
         }
 
         const { add, subtract, multiply, divide } = SimplePrecisionMath;
@@ -542,33 +496,29 @@ export default class AirQuality {
         Console.debug(`${pollutantType}: ${pollutant.amount} ${friendlyUnits[pollutant.units] ?? pollutant.units}`);
 
         const minValidAmount = pollutantScale.ranges.min.amounts[0];
-        if (amount < minValidAmount) {
+        if (pollutant.amount < minValidAmount) {
             Console.error("PollutantsToIndexes", `${pollutantType}的含量无效：${pollutant.amount} ${friendlyUnits[pollutantScale.units]}需要 >= ${minValidAmount}`);
             return pollutantScale.ranges.min.indexes[0];
         }
 
-        const isOverRange = amount > pollutantScale.ranges.max.amounts[1];
+        const isOverRange = pollutant.amount > pollutantScale.ranges.max.amounts[1];
         if (isOverRange) {
             Console.warn("PollutantsToIndexes", `检测到爆表指数！${pollutantType}：${pollutant.amount} ${friendlyUnits[pollutantScale.units]}`);
             Console.warn("PollutantsToIndexes", "注意身体！");
         }
 
-        const range = isOverRange
+        const { indexes, amounts } = isOverRange
             ? pollutantScale.ranges.max
             : pollutantScale.ranges.value.find(({ amounts }) => {
                   const [minAmount, maxAmount] = amounts;
-                  return AirQuality.#CeilByPrecision(amount, minAmount) >= minAmount && AirQuality.#CeilByPrecision(amount, maxAmount) <= maxAmount;
+                  return AirQuality.#CeilByPrecision(pollutant.amount, minAmount) >= minAmount && AirQuality.#CeilByPrecision(pollutant.amount, maxAmount) <= maxAmount;
               });
-        if (!range) return undefined;
-        const { indexes, amounts } = range;
-        if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`indexes: ${JSON.stringify(indexes)}`, `amounts: ${JSON.stringify(amounts)}`);
+        Console.debug(`indexes: ${JSON.stringify(indexes)}`, `amounts: ${JSON.stringify(amounts)}`);
 
         const [minIndex, maxIndex] = indexes;
         const [minAmount, maxAmount] = amounts;
-        if (minIndex === maxIndex) return minIndex;
-        const concentration = isOverRange ? amount : Math.max(minAmount, Math.min(maxAmount, amount));
-        const index = add(multiply(divide(subtract(maxIndex, minIndex), subtract(maxAmount, minAmount)), subtract(concentration, minAmount)), minIndex);
-        return Number.isFinite(index) && index >= 0 ? index : undefined;
+        const index = add(multiply(divide(subtract(maxIndex, minIndex), subtract(maxAmount, minAmount)), subtract(pollutant.amount, minAmount)), pollutant.amount > maxAmount ? maxIndex : minIndex);
+        return index;
     }
 
     /**
@@ -596,13 +546,12 @@ export default class AirQuality {
      *
      * @returns {Array<{pollutantType: string, index: number}>}
      * 每种标准污染物对应的 index 列表。
-     * - 标准未定义的分项不输出 index，保留有效物理浓度。
+     * - 若标准所需污染物缺失，返回该污染物 index=-1。
      */
-    static #PollutantsToIndexes(pollutants = [], pollutantScales, concentrationSteps) {
+    static #PollutantsToIndexes(pollutants = [], pollutantScales) {
         return pollutants.map(pollutant => {
-            const index = AirQuality.#ComputePollutantIndex(pollutant, pollutant.pollutantType, pollutantScales?.[pollutant.pollutantType], AirQuality.Config.Units.Friendly, concentrationSteps?.[pollutant.pollutantType]);
-            if (index === undefined) delete pollutant.index;
-            else pollutant.index = index;
+            const index = AirQuality.#ComputePollutantIndex(pollutant, pollutant.pollutantType, pollutantScales?.[pollutant.pollutantType], AirQuality.Config.Units.Friendly);
+            pollutant.index = index;
             return pollutant;
         });
     }
@@ -612,19 +561,35 @@ export default class AirQuality {
         const failedPollutant = { pollutantType: "NOT_AVAILABLE", index: -1, categoryIndex: -1 };
 
         if (!Array.isArray(pollutants) || pollutants.length === 0) {
-            if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`pollutants: ${JSON.stringify(pollutants)}`);
+            Console.debug(`pollutants: ${JSON.stringify(pollutants)}`);
             Console.error("PrimaryPollutant", "pollutants无效");
             return failedPollutant;
         }
 
-        let primaryPollutant = failedPollutant;
-        for (const pollutant of pollutants) {
-            if (!Number.isFinite(pollutant.index) || pollutant.index < 0) continue;
-            const categoryIndex = AirQuality.CategoryIndex(pollutant.index, categories);
-            if (categoryIndex < 1) continue;
-            if (categoryIndex > primaryPollutant.categoryIndex || (categoryIndex === primaryPollutant.categoryIndex && pollutant.index > primaryPollutant.index)) primaryPollutant = { ...pollutant, categoryIndex };
+        const indexesWithCategory = pollutants
+            .filter(({ index }) => Number.isFinite(index))
+            .map(pollutant => ({
+                ...pollutant,
+                categoryIndex: AirQuality.CategoryIndex(pollutant.index, categories),
+            }))
+            .sort((a, b) => b.index - a.index);
+
+        if (indexesWithCategory.length === 0) {
+            Console.debug(`pollutants: ${JSON.stringify(pollutants)}`, `indexesWithCategory: ${JSON.stringify(indexesWithCategory)}`);
+            Console.error("PrimaryPollutant", "找不到有效的index");
+            return failedPollutant;
         }
-        if (Console.logLevel === "INFO" || Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.info("✅ PrimaryPollutant", `primaryPollutant: ${JSON.stringify(primaryPollutant)}`);
+
+        const maxCategoryIndex = indexesWithCategory.reduce((max, { categoryIndex }) => (categoryIndex > max ? categoryIndex : max), Number.NEGATIVE_INFINITY);
+        const primaryPollutants = indexesWithCategory.filter(({ categoryIndex }) => categoryIndex === maxCategoryIndex);
+
+        if (primaryPollutants.length > 1) {
+            Console.warn("PrimaryPollutant", `检测到多个同级别的污染物，maxCategoryIndex：${maxCategoryIndex}`);
+            primaryPollutants.map(({ pollutantType, index }) => Console.warn("GetPrimaryPollutants", `${pollutantType}：${index}`));
+        }
+
+        const primaryPollutant = primaryPollutants[0];
+        Console.info("✅ PrimaryPollutant", `primaryPollutant: ${JSON.stringify(primaryPollutant)}`);
         return primaryPollutant;
     }
 
@@ -674,18 +639,18 @@ export default class AirQuality {
         const allowOverRange = options?.allowOverRange ?? true;
 
         if (!Array.isArray(pollutants) || pollutants.length === 0) {
-            if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`pollutants: ${JSON.stringify(pollutants)}`);
+            Console.debug(`pollutants: ${JSON.stringify(pollutants)}`);
             Console.error("PollutantsToAirQuality", "pollutants无效");
             return { metadata: { providerName: "iRingo", temporarilyUnavailable: true } };
         }
 
-        let newPollutants = pollutants;
+        let newPollutants = [];
         if (stpConversionFactors) {
             newPollutants = AirQuality.ConvertUnits(pollutants, stpConversionFactors, scale.pollutants);
         }
 
-        newPollutants = AirQuality.#PollutantsToIndexes(newPollutants, scale.pollutants, options.concentrationSteps);
-        if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug("PollutantsToAirQuality", `convertedPollutants: ${JSON.stringify(newPollutants)}`);
+        newPollutants = AirQuality.#PollutantsToIndexes(newPollutants, scale.pollutants);
+        Console.debug("PollutantsToAirQuality", `convertedPollutants: ${JSON.stringify(newPollutants)}`);
 
         const primaryPollutant = AirQuality.PrimaryPollutant(newPollutants, scale.categories);
         const maxIndex = scale?.weatherKitScale?.maxIndex;
@@ -722,27 +687,32 @@ export default class AirQuality {
         Console.info("☑️ PollutantsToAQHI");
 
         if (!Array.isArray(pollutants) || pollutants.length === 0) {
-            if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`pollutants: ${JSON.stringify(pollutants)}`);
+            Console.debug(`pollutants: ${JSON.stringify(pollutants)}`);
             Console.error("PollutantsToAQHI", "pollutants无效");
             return { metadata: { providerName: "iRingo", temporarilyUnavailable: true } };
         }
 
         const stpConversionFactors = options?.stpConversionFactors;
-        // 加拿大气体使用 ppb，其余模型按各自 scale 的单位计算。
+        const { ugm3 } = AirQuality.Config.Units.WeatherKit;
+
+        // 先做单位转换（目标单位均为 µg/m³）
         const convertedPollutants = stpConversionFactors ? AirQuality.ConvertUnits(pollutants, stpConversionFactors, scale.pollutants) : pollutants;
-        if (!AirQuality.#HasRiskInputs(convertedPollutants, scale)) return AirQuality.#Unavailable(convertedPollutants);
 
         // 按 pollutantType 索引浓度
         const getAmount = type => {
             const p = convertedPollutants.find(({ pollutantType }) => pollutantType === type);
-            if (!scale.pollutants[type] || !p || p.units !== scale.pollutants[type].units) return null;
+            if (!p) return null;
+            if (p.units !== ugm3) {
+                Console.warn("PollutantsToAQHI", `${type} 单位不是 µg/m³（${p.units}），跳过`);
+                return null;
+            }
             return p.amount;
         };
 
         const { betas } = scale;
         const ar = (beta, concentration) => {
             if (concentration === null || concentration < 0) return 0;
-            return Math.expm1(beta * concentration) * 100;
+            return (Math.exp(beta * concentration) - 1) * 100;
         };
 
         const arNO2 = ar(betas.NO2 || 0, getAmount("NO2"));
@@ -753,12 +723,10 @@ export default class AirQuality {
         const arPM = Math.max(arPM10, arPM2_5);
 
         const totalAR = arNO2 + arSO2 + arO3 + arPM;
-        if (!Number.isFinite(totalAR)) return AirQuality.#Unavailable(convertedPollutants);
         Console.info("PollutantsToAQHI", `%AR: NO2=${arNO2.toFixed(4)}, SO2=${arSO2.toFixed(4)}, O3=${arO3.toFixed(4)}, PM=${arPM.toFixed(4)} (PM10=${arPM10.toFixed(4)}, PM2.5=${arPM2_5.toFixed(4)}), total=${totalAR.toFixed(4)}`);
 
         // 设置每个污染物的内部 index 为它的 %AR 值
         convertedPollutants.forEach(p => {
-            if (!scale.pollutants[p.pollutantType]) { delete p.index; return; }
             switch (p.pollutantType) {
                 case "NO2":
                     p.index = arNO2;
@@ -776,12 +744,12 @@ export default class AirQuality {
                     p.index = arPM2_5;
                     break;
                 default:
-                    delete p.index;
+                    p.index = -1;
             }
         });
 
         // 将 %AR 映射到 1–11 的 categoryIndex (即 AQHI 指数)
-        const categoryIndex = scale.indexScaleFactor ? Math.max(1, Math.min(11, Math.round(totalAR * scale.indexScaleFactor))) : AirQuality.CategoryIndex(totalAR, scale.categories);
+        const categoryIndex = AirQuality.CategoryIndex(totalAR, scale.categories);
 
         // 以最大 %AR 对应的污染物作为主污染物
         const primaryPollutant = convertedPollutants.reduce((max, cur) => (cur.index > max.index ? cur : max), { pollutantType: "NOT_AVAILABLE", index: -1 });
@@ -802,18 +770,22 @@ export default class AirQuality {
         Console.info("☑️ PollutantsToAQHIMulti");
 
         if (!Array.isArray(pollutants) || pollutants.length === 0) {
-            if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`pollutants: ${JSON.stringify(pollutants)}`);
+            Console.debug(`pollutants: ${JSON.stringify(pollutants)}`);
             Console.error("PollutantsToAQHIMulti", "pollutants无效");
             return { metadata: { providerName: "iRingo", temporarilyUnavailable: true } };
         }
 
         const stpConversionFactors = options?.stpConversionFactors;
+        const { ugm3 } = AirQuality.Config.Units.WeatherKit;
         const convertedPollutants = stpConversionFactors ? AirQuality.ConvertUnits(pollutants, stpConversionFactors, scale.pollutants) : pollutants;
-        if (!AirQuality.#HasRiskInputs(convertedPollutants, scale)) return AirQuality.#Unavailable(convertedPollutants);
 
         const getAmount = type => {
             const p = convertedPollutants.find(({ pollutantType }) => pollutantType === type);
-            if (!scale.pollutants[type] || !p || p.units !== scale.pollutants[type].units) return null;
+            if (!p) return null;
+            if (p.units !== ugm3) {
+                Console.warn("PollutantsToAQHIMulti", `${type} 单位不是 µg/m³（${p.units}），跳过`);
+                return null;
+            }
             return p.amount;
         };
 
@@ -830,7 +802,6 @@ export default class AirQuality {
         const pmContribution = usePM10 ? contributions.PM10 : contributions.PM2_5;
         const totalWeighted = contributions.OZONE + contributions.NO2 + contributions.SO2 + pmContribution;
         const totalRisk = (beta || 0) * totalWeighted;
-        if (!Number.isFinite(totalRisk)) return AirQuality.#Unavailable(convertedPollutants);
 
         Console.info(
             "PollutantsToAQHIMulti",
@@ -838,7 +809,6 @@ export default class AirQuality {
         );
 
         convertedPollutants.forEach(p => {
-            if (!scale.pollutants[p.pollutantType]) { delete p.index; return; }
             switch (p.pollutantType) {
                 case "OZONE":
                     p.index = contributions.OZONE;
@@ -856,7 +826,7 @@ export default class AirQuality {
                     p.index = contributions.SO2;
                     break;
                 default:
-                    delete p.index;
+                    p.index = -1;
             }
         });
 
@@ -1696,18 +1666,18 @@ export default class AirQuality {
                     },
                     CO: {
                         units: "PARTS_PER_BILLION",
-                        stpConversionFactor: 1.14491990608754,
+                        stpConversionFactor: 1.144511152104645,
                         ranges: {
                             min: { indexes: [0, 50], amounts: [0, 4400] },
-                            max: { indexes: [301, 500], amounts: [30500, 50400] },
+                            max: { indexes: [301, 500], amounts: [30401, 50400] },
                             value: [
                                 { indexes: [0, 50], amounts: [0, 4400] }, // Good
-                                { indexes: [51, 100], amounts: [4500, 9400] }, // Moderate
-                                { indexes: [101, 150], amounts: [9500, 12400] }, // Unhealthy for Sensitive Groups
-                                { indexes: [151, 200], amounts: [12500, 15400] }, // Unhealthy
-                                { indexes: [201, 300], amounts: [15500, 30400] }, // Very Unhealthy
-                                { indexes: [301, 500], amounts: [30500, 50400] }, // Hazardous
-                                { indexes: [501, Number.POSITIVE_INFINITY], amounts: [50500, Number.POSITIVE_INFINITY] }, // Hazardous
+                                { indexes: [51, 100], amounts: [4401, 9400] }, // Moderate
+                                { indexes: [101, 150], amounts: [9401, 12400] }, // Unhealthy for Sensitive Groups
+                                { indexes: [151, 200], amounts: [12401, 15400] }, // Unhealthy
+                                { indexes: [201, 300], amounts: [15401, 30400] }, // Very Unhealthy
+                                { indexes: [301, 500], amounts: [30401, 50400] }, // Hazardous
+                                { indexes: [501, Number.POSITIVE_INFINITY], amounts: [50401, Number.POSITIVE_INFINITY] }, // Hazardous
                             ],
                         },
                     },
@@ -1887,7 +1857,7 @@ export default class AirQuality {
                 categories: {
                     significantIndex: 3, // 轻度污染
                     ranges: [
-                        { categoryIndex: 1, indexes: [0, 50] }, // 优
+                        { categoryIndex: 1, indexes: [1, 50] }, // 优
                         { categoryIndex: 2, indexes: [51, 100] }, // 良
                         { categoryIndex: 3, indexes: [101, 150] }, // 轻度污染
                         { categoryIndex: 4, indexes: [151, 200] }, // 中度污染
@@ -2074,17 +2044,15 @@ export default class AirQuality {
                         { categoryIndex: 11, indexes: [10.41, Number.POSITIVE_INFINITY] },
                     ],
                 },
-                // %AR × 10 / 10.4，四舍五入到 1–10，11 表示 10+。
-                indexScaleFactor: 10 / 10.4,
-                // NO2、O3 使用 ppb；PM2.5 使用 µg/m³。
+                // β 系数（回归系数），浓度单位 µg/m³
                 betas: {
                     NO2: 0.000871,
                     O3: 0.000537,
                     PM2_5: 0.000487,
                 },
                 pollutants: {
-                    NO2: { units: "PARTS_PER_BILLION", stpConversionFactor: 1.880472698306222 },
-                    OZONE: { units: "PARTS_PER_BILLION", stpConversionFactor: 1.96189649169881 },
+                    NO2: { units: "PARTS_PER_BILLION", stpConversionFactor: -1 },
+                    OZONE: { units: "PARTS_PER_BILLION", stpConversionFactor: -1 },
                     PM2_5: { units: "MICROGRAMS_PER_CUBIC_METER", stpConversionFactor: -1 },
                 },
             },
@@ -2310,8 +2278,7 @@ export default class AirQuality {
         Console.info("☑️ ConvertUnit");
         const friendlyUnits = AirQuality.Config.Units.Friendly;
         Console.info(`Convert ${amount} from ${friendlyUnits[from]} with ${fromStpConversionFactor} to ${friendlyUnits[to]} with ${toStpConversionFactor}`);
-        amount = typeof amount === "number" ? amount : typeof amount === "string" && amount.trim() ? Number(amount) : NaN;
-        if (!Number.isFinite(amount) || amount < 0) {
+        if (amount < 0) {
             Console.error("ConvertUnit", `Amount ${amount} < 0`);
             return -1;
         }
@@ -2329,7 +2296,16 @@ export default class AirQuality {
         const isPpxFrom = ppx.includes(from);
         const isPpxTo = ppx.includes(to);
         const isBothPpx = isPpxFrom && isPpxTo;
-        // ppm/ppb 都是摩尔分数，只改变十进制倍率，不经过质量浓度绕行。
+        if (isBothPpx && fromStpConversionFactor !== toStpConversionFactor) {
+            if (fromStpConversionFactor <= 0 || toStpConversionFactor <= 0) {
+                Console.error("ConvertUnit", "无效的STP conversion factor", `fromStpConversionFactor: ${fromStpConversionFactor}`, `toStpConversionFactor: ${toStpConversionFactor}`);
+                return -1;
+            }
+
+            const intermediate = AirQuality.ConvertUnit(numAmount, from, ugm3, fromStpConversionFactor);
+            return AirQuality.ConvertUnit(intermediate, ugm3, to, -1, toStpConversionFactor);
+        }
+
         if (!isBothPpx && isPpxFrom && fromStpConversionFactor <= 0) {
             Console.error("ConvertUnit", `fromStpConversionFactor ${fromStpConversionFactor} <= 0`);
             return -1;

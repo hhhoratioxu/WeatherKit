@@ -6,16 +6,17 @@ globalThis.$environment = { "surge-version": "test" };
 globalThis.$persistentStore = { read: () => null, write: () => true };
 globalThis.$argument = { LogLevel: "OFF", Storage: "database" };
 
-const [{ default: WeatherKit2 }, { FlatBufferRootProcessor }, { News, Weather }, { Response }, { Response: ResponseDev }, { Console }] = await Promise.all([
+const [{ default: WeatherKit2 }, { FlatBufferRootProcessor }, { WK2 }, { Response }, { Response: ResponseDev }, { Console }, { default: database }] = await Promise.all([
     import("../src/class/WeatherKit2.mjs"),
     import("@nsnanocat/flatbuffer-root"),
     import("@nsringo/weatherkit"),
     import("../src/process/Response.mjs"),
     import("../src/process/Response.dev.mjs"),
     import("@nsnanocat/util"),
+    import("../src/function/database.mjs"),
 ]);
 
-const supportedRootDataSets = Object.getOwnPropertyNames(Weather.prototype).filter(dataSet => !["constructor", "__init"].includes(dataSet));
+const supportedRootDataSets = Object.getOwnPropertyNames(WK2.Weather.prototype).filter(dataSet => !["constructor", "__init"].includes(dataSet));
 const qWeatherAlertHtml = `<!doctype html>
 <html>
     <head><title>建邺天气预警</title></head>
@@ -131,7 +132,7 @@ test("encode replaces patch keys while preserving untouched and future root slot
     assert.deepEqual(untouched, sourceBytes);
 
     const patched = WeatherKit2.encode(new ByteBuffer(sourceBytes), { news: { placements: [] } });
-    const weather = Weather.getRootAsWeather(new ByteBuffer(patched));
+    const weather = WK2.Weather.getRootAsWeather(new ByteBuffer(patched));
     assert.ok(weather.forecastNextHour());
     assert.ok(weather.news());
     assert.notEqual(Buffer.from(patched).indexOf(sourceBytes), -1);
@@ -147,7 +148,7 @@ test("encode isolates failed and unknown patch keys while compiling valid slots"
             news: { placements: [] },
         }),
     );
-    const weather = Weather.getRootAsWeather(new ByteBuffer(logs.result));
+    const weather = WK2.Weather.getRootAsWeather(new ByteBuffer(logs.result));
 
     assert.ok(weather.airQuality());
     assert.ok(weather.forecastNextHour());
@@ -161,15 +162,15 @@ test("encode isolates failed and unknown patch keys while compiling valid slots"
 
 test("decode isolates one malformed selected product and keeps other selected slots", () => {
     const sourceBytes = createWeatherRoot([4, 5]);
-    const originalPlacementsLength = News.prototype.placementsLength;
+    const originalPlacementsLength = WK2.News.prototype.placementsLength;
     let logs;
-    News.prototype.placementsLength = () => {
+    WK2.News.prototype.placementsLength = () => {
         throw new Error("malformed placements vector");
     };
     try {
         logs = captureConsole(() => WeatherKit2.decode(new ByteBuffer(sourceBytes), ["news", "forecastNextHour"]));
     } finally {
-        News.prototype.placementsLength = originalPlacementsLength;
+        WK2.News.prototype.placementsLength = originalPlacementsLength;
     }
 
     assert.deepEqual(Object.keys(logs.result), ["forecastNextHour"]);
@@ -211,7 +212,7 @@ test("slot dictionary logs debug on success, warn on opaque slots, and error on 
 
 test("encode without a source creates a complete root containing only patch keys", () => {
     const rawBody = WeatherKit2.encode(undefined, { news: { placements: [] } });
-    const weather = Weather.getRootAsWeather(new ByteBuffer(rawBody));
+    const weather = WK2.Weather.getRootAsWeather(new ByteBuffer(rawBody));
 
     assert.ok(weather.news());
     assert.equal(weather.forecastNextHour(), null);
@@ -289,7 +290,7 @@ test("response skips requested roots disabled by the user settings", async () =>
     assert.equal(requestCount, 0);
 });
 
-test("response decodes only eligible products from a partial request", async () => {
+test("response does not expand a partial request to all configured roots", async () => {
     const originalArgument = globalThis.$argument;
     const originalDecode = WeatherKit2.decode;
     let decodedRootNames;
@@ -297,7 +298,7 @@ test("response decodes only eligible products from a partial request", async () 
         DataSets: ["airQuality", "currentWeather", "forecastDaily", "forecastHourly", "forecastNextHour", "weatherAlerts"],
         LogLevel: "OFF",
         Storage: "Argument",
-        Weather: { Replace: "[]" },
+        Weather: { Replace: [] },
     };
     WeatherKit2.decode = (byteBuffer, rootNames) => {
         decodedRootNames = rootNames;
@@ -305,24 +306,22 @@ test("response decodes only eligible products from a partial request", async () 
     };
     try {
         for (const handler of [Response, ResponseDev]) {
-            const original = createWeatherRoot([0, 1]);
-            const output = await handler(
+            await handler(
                 {
                     url: "https://weatherkit.apple.com/api/v2/weather/en-US/22.5431/114.0579?dataSets=airQuality,currentWeather",
                 },
                 {
-                    bodyBytes: original,
+                    bodyBytes: createWeatherRoot([0, 1]),
                     headers: { "Content-Type": "application/vnd.apple.flatbuffer" },
                 },
             );
-            assert.deepEqual(originalDecode.call(WeatherKit2, new ByteBuffer(output.body), ["currentWeather"]), originalDecode.call(WeatherKit2, new ByteBuffer(original), ["currentWeather"]));
         }
     } finally {
         WeatherKit2.decode = originalDecode;
         globalThis.$argument = originalArgument;
     }
 
-    assert.deepEqual(decodedRootNames, ["airQuality"]);
+    assert.deepEqual(decodedRootNames, ["airQuality", "currentWeather"]);
 });
 
 test("response preserves requested roots when no dataSets are configured", async () => {
@@ -362,7 +361,7 @@ test("response preserves requested roots when no dataSets are configured", async
     assert.equal(requestCount, 0);
 });
 
-test("roots without an injector preserve the exact input without decoding", async () => {
+test("response maps configured dataSets to FlatBuffer root names before decoding", async () => {
     const originalArgument = globalThis.$argument;
     const originalDecode = WeatherKit2.decode;
     let decodedRootNames;
@@ -372,23 +371,22 @@ test("roots without an injector preserve the exact input without decoding", asyn
         return originalDecode.call(WeatherKit2, byteBuffer, rootNames);
     };
     try {
-        const original = createWeatherRoot([7, 8]);
-        const output = await Response(
+        await Response(
             {
                 url: "https://weatherkit.apple.com/api/v2/weather/en-US/22.5431/114.0579?dataSets=weatherChange,trendComparison",
             },
             {
-                bodyBytes: original,
+                bodyBytes: createWeatherRoot([7, 8]),
                 headers: { "Content-Type": "application/vnd.apple.flatbuffer" },
             },
         );
-        assert.strictEqual(output.body, original);
     } finally {
         WeatherKit2.decode = originalDecode;
         globalThis.$argument = originalArgument;
     }
 
-    assert.equal(decodedRootNames, undefined);
+    assert.deepEqual(decodedRootNames, [database.WeatherKit.Configs.DataSets.weatherChange, database.WeatherKit.Configs.DataSets.trendComparison]);
+    assert.deepEqual(decodedRootNames, ["weatherChanges", "historicalComparisons"]);
 });
 
 test("response preserves the user-supplied QWeather Alert API path", async () => {
@@ -657,152 +655,6 @@ test("development response preserves a disabled non-injection root as opaque dat
     const decoded = WeatherKit2.decode(new ByteBuffer(new Uint8Array(response.body)), ["news"]);
 
     assert.deepEqual(decoded.news, originalDecoded.news);
-});
-
-test("QWeather yesterday comparison works without an optional pollutant converter", async () => {
-    const [{ default: QWeather }, { default: AirQuality }] = await Promise.all([import("../src/class/QWeather.mjs"), import("../src/class/AirQuality.mjs")]);
-    const argument = globalThis.$argument,
-        grid = QWeather.GetLocationsGrid,
-        location = QWeather.GetLocationInfo,
-        yesterday = QWeather.prototype.YesterdayAirQuality,
-        current = QWeather.prototype.CurrentAirQuality;
-    let currentCalls = 0;
-    QWeather.GetLocationsGrid = async () => ({});
-    QWeather.GetLocationInfo = () => ({ id: "fixture" });
-    QWeather.prototype.YesterdayAirQuality = async () => ({ metadata: { providerName: "Fixture QWeather", temporarilyUnavailable: false }, categoryIndex: 3, index: 130, pollutants: [], scale: AirQuality.ToWeatherKitScale(AirQuality.Config.Scales.HJ6332012.weatherKitScale) });
-    QWeather.prototype.CurrentAirQuality = async () => {
-        currentCalls++;
-        return { metadata: { providerName: "Fixture QWeather", temporarilyUnavailable: false }, categoryIndex: 2, index: 70 };
-    };
-    globalThis.$argument = { Storage: "Argument", LogLevel: "OFF", DataSets: "airQuality", AirQuality: { Current: { Index: { Replace: "[]" } }, Comparison: { Yesterday: { IndexProvider: "QWeather" } } } };
-    try {
-        for (const categoryIndex of [2, -1]) {
-            const original = WeatherKit2.encode(undefined, {
-                airQuality: {
-                    metadata: { providerName: "Apple", temporarilyUnavailable: false },
-                    categoryIndex,
-                    index: 70,
-                    scale: AirQuality.ToWeatherKitScale(AirQuality.Config.Scales.HJ6332012.weatherKitScale),
-                    pollutants: [{ pollutantType: "PM2_5", amount: 20, units: "MICROGRAMS_PER_CUBIC_METER" }],
-                    previousDayComparison: "UNKNOWN",
-                },
-            });
-            for (const handler of [Response, ResponseDev]) {
-                const output = await handler({ url: "https://weatherkit.apple.com/api/v2/weather/zh-Hans-CN/31.2/121.5?country=CN&dataSets=airQuality" }, { body: original, headers: { "Content-Type": "application/vnd.apple.flatbuffer" } });
-                const result = WeatherKit2.decode(new ByteBuffer(output.body), ["airQuality"]);
-                assert.equal(result.airQuality.previousDayComparison, "BETTER");
-            }
-        }
-        assert.equal(currentCalls, 2, "Invalid current category -1 fetches current data instead of producing a fake comparison");
-    } finally {
-        globalThis.$argument = argument;
-        QWeather.GetLocationsGrid = grid;
-        QWeather.GetLocationInfo = location;
-        QWeather.prototype.YesterdayAirQuality = yesterday;
-        QWeather.prototype.CurrentAirQuality = current;
-    }
-});
-
-test("failed hourly replacement does not copy unused forecast fields and keeps exact Apple bytes", async () => {
-    const { default: QWeather } = await import("../src/class/QWeather.mjs");
-    const originalArgument = globalThis.$argument,
-        decode = WeatherKit2.decode,
-        hourly = QWeather.prototype.Hourly;
-    let copiedFields = 0,
-        calls = 0;
-    const untouched = Object.freeze({
-        forecastStart: 1,
-        get largeUnusedField() {
-            copiedFields++;
-            return Array(500).fill("fixture");
-        },
-    });
-    const product = Object.freeze({ metadata: Object.freeze({ providerName: "Apple", temporarilyUnavailable: false }), hours: Object.freeze([untouched]) });
-    globalThis.$argument = { Storage: "Argument", LogLevel: "OFF", DataSets: "forecastHourly", Weather: { Provider: "QWeather", Replace: "CN" } };
-    WeatherKit2.decode = () => ({ forecastHourly: product });
-    QWeather.prototype.Hourly = async () => {
-        calls++;
-        return undefined;
-    };
-    try {
-        const raw = createWeatherRoot([3]);
-        for (const handler of [Response, ResponseDev]) {
-            const output = await handler({ url: "https://weatherkit.apple.com/api/v2/weather/zh-Hans-CN/31.2/121.5?country=CN&dataSets=forecastHourly" }, { body: raw, headers: { "Content-Type": "application/vnd.apple.flatbuffer" } });
-            assert.strictEqual(output.body, raw);
-        }
-        assert.equal(calls, 2);
-        assert.equal(copiedFields, 0);
-    } finally {
-        globalThis.$argument = originalArgument;
-        WeatherKit2.decode = decode;
-        QWeather.prototype.Hourly = hourly;
-    }
-});
-
-test("oversized binary weather stays opaque before settings, provider work or decoding", async () => {
-    const { MAX_WEATHER_BODY_BYTES } = await import("../src/function/weatherMemoryLimits.mjs");
-    const decode = WeatherKit2.decode,
-        persistent = globalThis.$persistentStore;
-    WeatherKit2.decode = () => {
-        throw new Error("oversized input must not decode");
-    };
-    globalThis.$persistentStore = {
-        read: () => {
-            throw new Error("oversized input must not read settings");
-        },
-    };
-    try {
-        const raw = new Uint8Array(MAX_WEATHER_BODY_BYTES + 1);
-        for (const handler of [Response, ResponseDev]) {
-            const original = { body: raw, headers: { "Content-Type": "application/vnd.apple.flatbuffer" } };
-            const output = await handler({ url: "https://weatherkit.apple.com/api/v2/weather/zh-Hans-CN/31.2/121.5?country=CN&dataSets=forecastHourly" }, original);
-            assert.strictEqual(output, original);
-            assert.strictEqual(output.body, raw);
-        }
-    } finally {
-        WeatherKit2.decode = decode;
-        globalThis.$persistentStore = persistent;
-    }
-});
-
-test("hourly decoding constructs one schema view per row instead of one per field", async () => {
-    const { HourlyForecastData } = await import("@nsringo/weatherkit");
-    const hours = HourlyForecastData.prototype.hours;
-    let views = 0;
-    const raw = WeatherKit2.encode(undefined, { forecastHourly: { metadata: {}, hours: Array.from({ length: 273 }, (_, index) => ({ forecastStart: index, temperature: index, precipitationAmountByType: [] })) } });
-    HourlyForecastData.prototype.hours = function (...args) {
-        views++;
-        return hours.apply(this, args);
-    };
-    try {
-        const output = WeatherKit2.decode(new ByteBuffer(raw), ["forecastHourly"]);
-        assert.equal(output.forecastHourly.hours.length, 273);
-        assert.equal(output.forecastHourly.hours[272].temperature, 272);
-        assert.equal(views, 273);
-    } finally {
-        HourlyForecastData.prototype.hours = hours;
-    }
-});
-
-test("a forged vector length is rejected before reading rows and cannot discard another root", async () => {
-    const { HourlyForecastData } = await import("@nsringo/weatherkit");
-    const hours = HourlyForecastData.prototype.hours,
-        length = HourlyForecastData.prototype.hoursLength;
-    let reads = 0;
-    HourlyForecastData.prototype.hoursLength = () => 1000000000;
-    HourlyForecastData.prototype.hours = () => {
-        reads++;
-        throw new Error("must not read an unbounded row");
-    };
-    try {
-        const output = WeatherKit2.decode(new ByteBuffer(createWeatherRoot([1, 3])), ["currentWeather", "forecastHourly"]);
-        assert.ok(output.currentWeather);
-        assert.equal(output.forecastHourly, undefined);
-        assert.equal(reads, 0);
-    } finally {
-        HourlyForecastData.prototype.hours = hours;
-        HourlyForecastData.prototype.hoursLength = length;
-    }
 });
 
 function createWeatherRoot(presentSlots) {

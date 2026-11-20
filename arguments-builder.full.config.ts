@@ -1,4 +1,3 @@
-// WeatherKit user settings; preserve original parameters.
 import { defineConfig } from "@iringo/arguments-builder";
 
 type Arg = {
@@ -128,20 +127,7 @@ const weatherAlertsProvider: Arg = {
     description: "使用选定的数据源处理天气预警数据。",
 };
 
-const weatherAlertsLanguage: Arg = {
-    key: "WeatherAlerts.Language",
-    name: "[天气预警] 正文语言偏好",
-    defaultValue: "Auto",
-    type: "string",
-    options: [
-        { key: "Auto", label: "自动（沿用请求语言）" },
-        { key: "zh-Hans", label: "简体中文（来源支持时）" },
-        { key: "en", label: "English（来源支持时）" },
-    ],
-    description: "仅向所选来源请求预警语言，不使用第三方翻译。来源不支持或返回其他语言时保留原文、签发单位与出处；Apple 原始标题和页面标签可能仍随系统语言。",
-};
-
-export const weatherAlerts = [weatherAlertsProvider, weatherAlertsLanguage];
+export const weatherAlerts = [weatherAlertsProvider];
 
 const nextHourProvider: Arg = {
     key: "NextHour.Provider",
@@ -367,11 +353,11 @@ export const storage: Arg[] = [
         type: "string",
         exclude: ["boxjs"],
         options: [
-            { key: "Argument", label: "优先使用插件选项与模块参数等，由 $argument 传入的配置，$argument 不包含的设置项由 PersistentStore (BoxJs) 提供" },
-            { key: "PersistentStore", label: "只使用来自 BoxJs 等，由 $persistentStore 提供的配置" },
+            { key: "Argument", label: "优先使用 $argument，其次使用 PersistentStore (BoxJs)，最后使用 database.mjs 的默认配置" },
+            { key: "PersistentStore", label: "优先使用来自 BoxJs 等，由 $persistentStore 提供的配置，其次使用 $argument，最后使用 database.mjs 的默认配置" },
             { key: "database", label: "只使用由作者的 database.mjs 文件提供的默认配置，其他任何自定义配置不再起作用" },
         ],
-        description: "选择要使用的配置类型。未设置此选项或不通过此选项的旧版本的配置顺序依旧是 $persistentStore (BoxJs) > $argument > database。",
+        description: "仅可通过 $argument 设置。默认使用 Argument，配置优先级为 database -> PersistentStore (BoxJs) -> $argument；选择 PersistentStore 时为 database -> $argument -> PersistentStore (BoxJs)。",
     },
 ];
 

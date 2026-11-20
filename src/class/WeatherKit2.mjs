@@ -1,8 +1,7 @@
-import "../function/ensureTextEncoder.mjs";
 import { FlatBufferRootProcessor } from "@nsnanocat/flatbuffer-root";
-import * as WK2 from "@nsringo/weatherkit";
+import { WK2 } from "@nsringo/weatherkit";
 import database from "../function/database.mjs";
-import { decodedVectorLength, newDecodeBudget } from "../function/weatherMemoryLimits.mjs";
+import { createUuidOffset, decodeUuid } from "../function/uuid.mjs";
 
 /**
  * 使用 Weather 根模型和产品 codec 配置通用根表处理器。
@@ -26,17 +25,14 @@ const WeatherKit2 = new FlatBufferRootProcessor({
     rootClass: WK2.Weather,
 });
 
-// O(1) table presence probe; no minute vector decoding or copying.
-export function hasForecastNextHour(byteBuffer) {
-    try {
-        return Boolean(WK2.Weather.getRootAsWeather(byteBuffer).forecastNextHour());
-    } catch {
-        return false;
-    }
-}
-
 export default WeatherKit2;
 
+/**
+ * 编码 air quality 产品表。 / Encode the air quality product table.
+ * @param {import("flatbuffers").Builder} builder - FlatBuffer 构建器 / FlatBuffer builder.
+ * @param {object} data - 业务对象 / Payload.
+ * @returns {number} 产品表偏移 / Table offset.
+ */
 function encodeAirQuality(builder, data) {
     const metadataOffset = encodeMetadata(builder, data.metadata);
     const pollutantsOffset = WK2.AirQuality.createPollutantsVector(
@@ -47,31 +43,37 @@ function encodeAirQuality(builder, data) {
     return WK2.AirQuality.createAirQuality(builder, metadataOffset, data.categoryIndex, data.index, data.isSignificant, pollutantsOffset, WK2.ComparisonTrend[data.previousDayComparison], WK2.PollutantType[data.primaryPollutant], scaleOffset);
 }
 
+/**
+ * 编码 current weather 产品表。 / Encode the current weather product table.
+ * @param {import("flatbuffers").Builder} builder - FlatBuffer 构建器 / FlatBuffer builder.
+ * @param {object} data - 业务对象 / Payload.
+ * @returns {number} 产品表偏移 / Table offset.
+ */
 function encodeCurrentWeather(builder, data) {
     const metadataOffset = encodeMetadata(builder, data.metadata);
     const precipitationAmountNext1hByTypeOffset = WK2.CurrentWeatherData.createPrecipitationAmountNext1hByTypeVector(
         builder,
-        (data.precipitationAmountNext1hByType ?? []).map(p => WK2.PrecipitationAmountByType.createPrecipitationAmountByType(builder, WK2.PrecipitationType[p.precipitationType], p.expected, p.minimumSnow, p.maximumSnow, p.expectedSnow)),
+        data.precipitationAmountNext1hByType.map(p => WK2.PrecipitationAmountByType.createPrecipitationAmountByType(builder, WK2.PrecipitationType[p.precipitationType], p.expected, p.minimumSnow, p.maximumSnow, p.expectedSnow)),
     );
     const precipitationAmountNext24hByTypeOffset = WK2.CurrentWeatherData.createPrecipitationAmountNext24hByTypeVector(
         builder,
-        (data.precipitationAmountNext24hByType ?? []).map(p => WK2.PrecipitationAmountByType.createPrecipitationAmountByType(builder, WK2.PrecipitationType[p.precipitationType], p.expected, p.minimumSnow, p.maximumSnow, p.expectedSnow)),
+        data.precipitationAmountNext24hByType.map(p => WK2.PrecipitationAmountByType.createPrecipitationAmountByType(builder, WK2.PrecipitationType[p.precipitationType], p.expected, p.minimumSnow, p.maximumSnow, p.expectedSnow)),
     );
     const precipitationAmountNext6hByTypeOffset = WK2.CurrentWeatherData.createPrecipitationAmountNext6hByTypeVector(
         builder,
-        (data.precipitationAmountNext6hByType ?? []).map(p => WK2.PrecipitationAmountByType.createPrecipitationAmountByType(builder, WK2.PrecipitationType[p.precipitationType], p.expected, p.minimumSnow, p.maximumSnow, p.expectedSnow)),
+        data.precipitationAmountNext6hByType.map(p => WK2.PrecipitationAmountByType.createPrecipitationAmountByType(builder, WK2.PrecipitationType[p.precipitationType], p.expected, p.minimumSnow, p.maximumSnow, p.expectedSnow)),
     );
     const precipitationAmountPrevious1hByTypeOffset = WK2.CurrentWeatherData.createPrecipitationAmountPrevious1hByTypeVector(
         builder,
-        (data.precipitationAmountPrevious1hByType ?? []).map(p => WK2.PrecipitationAmountByType.createPrecipitationAmountByType(builder, WK2.PrecipitationType[p.precipitationType], p.expected, p.minimumSnow, p.maximumSnow, p.expectedSnow)),
+        data.precipitationAmountPrevious1hByType.map(p => WK2.PrecipitationAmountByType.createPrecipitationAmountByType(builder, WK2.PrecipitationType[p.precipitationType], p.expected, p.minimumSnow, p.maximumSnow, p.expectedSnow)),
     );
     const precipitationAmountPrevious24hByTypeOffset = WK2.CurrentWeatherData.createPrecipitationAmountPrevious24hByTypeVector(
         builder,
-        (data.precipitationAmountPrevious24hByType ?? []).map(p => WK2.PrecipitationAmountByType.createPrecipitationAmountByType(builder, WK2.PrecipitationType[p.precipitationType], p.expected, p.minimumSnow, p.maximumSnow, p.expectedSnow)),
+        data.precipitationAmountPrevious24hByType.map(p => WK2.PrecipitationAmountByType.createPrecipitationAmountByType(builder, WK2.PrecipitationType[p.precipitationType], p.expected, p.minimumSnow, p.maximumSnow, p.expectedSnow)),
     );
     const precipitationAmountPrevious6hByTypeOffset = WK2.CurrentWeatherData.createPrecipitationAmountPrevious6hByTypeVector(
         builder,
-        (data.precipitationAmountPrevious6hByType ?? []).map(p => WK2.PrecipitationAmountByType.createPrecipitationAmountByType(builder, WK2.PrecipitationType[p.precipitationType], p.expected, p.minimumSnow, p.maximumSnow, p.expectedSnow)),
+        data.precipitationAmountPrevious6hByType.map(p => WK2.PrecipitationAmountByType.createPrecipitationAmountByType(builder, WK2.PrecipitationType[p.precipitationType], p.expected, p.minimumSnow, p.maximumSnow, p.expectedSnow)),
     );
     return WK2.CurrentWeatherData.createCurrentWeatherData(
         builder,
@@ -118,6 +120,12 @@ function encodeCurrentWeather(builder, data) {
     );
 }
 
+/**
+ * 编码 daily forecast 产品表。 / Encode the daily forecast product table.
+ * @param {import("flatbuffers").Builder} builder - FlatBuffer 构建器 / FlatBuffer builder.
+ * @param {object} data - 业务对象 / Payload.
+ * @returns {number} 产品表偏移 / Table offset.
+ */
 function encodeForecastDaily(builder, data) {
     const metadataOffset = encodeMetadata(builder, data.metadata);
     const daysOffsets = data.days.map(day => {
@@ -286,6 +294,12 @@ function encodeForecastDaily(builder, data) {
     return WK2.DailyForecastData.createDailyForecastData(builder, metadataOffset, daysOffset);
 }
 
+/**
+ * 编码 hourly forecast 产品表。 / Encode the hourly forecast product table.
+ * @param {import("flatbuffers").Builder} builder - FlatBuffer 构建器 / FlatBuffer builder.
+ * @param {object} data - 业务对象 / Payload.
+ * @returns {number} 产品表偏移 / Table offset.
+ */
 function encodeForecastHourly(builder, data) {
     const metadataOffset = encodeMetadata(builder, data.metadata);
     const hoursOffsets = data.hours.map(hour =>
@@ -323,6 +337,12 @@ function encodeForecastHourly(builder, data) {
     return WK2.HourlyForecastData.createHourlyForecastData(builder, metadataOffset, hoursOffset);
 }
 
+/**
+ * 编码 next-hour precipitation 产品表。 / Encode the next-hour precipitation product table.
+ * @param {import("flatbuffers").Builder} builder - FlatBuffer 构建器 / FlatBuffer builder.
+ * @param {object} data - 业务对象 / Payload.
+ * @returns {number} 产品表偏移 / Table offset.
+ */
 function encodeForecastNextHour(builder, data) {
     const metadataOffset = encodeMetadata(builder, data.metadata);
     // 防御第三方数据：未知枚举传给 FlatBuffer 会静默编码为 CLEAR。
@@ -337,11 +357,17 @@ function encodeForecastNextHour(builder, data) {
     const conditionOffset = WK2.NextHourForecastData.createConditionVector(builder, conditionOffsets);
     const summaryOffsets = data.summary.map(summary => WK2.ForecastPeriodSummary.createForecastPeriodSummary(builder, summary.startTime, summary.endTime, WK2.PrecipitationType[summary.condition], summary.precipitationChance, summary.precipitationIntensity));
     const summaryOffset = WK2.NextHourForecastData.createSummaryVector(builder, summaryOffsets);
-    const minutesOffsets = data.minutes.map(minute => WK2.ForecastMinute.createForecastMinute(builder, minute.startTime, minute.precipitationChance, minute.precipitationIntensity, minute.perceivedPrecipitationIntensity));
+    const minutesOffsets = data.minutes.map(minute => WK2.Common.ForecastMinute.createForecastMinute(builder, minute.startTime, minute.precipitationChance, minute.precipitationIntensity, minute.perceivedPrecipitationIntensity));
     const minutesOffset = WK2.NextHourForecastData.createMinutesVector(builder, minutesOffsets);
     return WK2.NextHourForecastData.createNextHourForecastData(builder, metadataOffset, conditionOffset, summaryOffset, data.forecastStart, data.forecastEnd, minutesOffset);
 }
 
+/**
+ * 编码 news 产品表。 / Encode the news product table.
+ * @param {import("flatbuffers").Builder} builder - FlatBuffer 构建器 / FlatBuffer builder.
+ * @param {object} data - 业务对象 / Payload.
+ * @returns {number} 产品表偏移 / Table offset.
+ */
 function encodeNews(builder, data) {
     const metadataOffset = encodeMetadata(builder, data.metadata);
     const placementsOffsets = data.placements.map(placement => {
@@ -368,6 +394,12 @@ function encodeNews(builder, data) {
     return WK2.News.createNews(builder, metadataOffset, placementsOffset);
 }
 
+/**
+ * 编码 weather alerts 产品表。 / Encode the weather alerts product table.
+ * @param {import("flatbuffers").Builder} builder - FlatBuffer 构建器 / FlatBuffer builder.
+ * @param {object} data - 业务对象 / Payload.
+ * @returns {number} 产品表偏移 / Table offset.
+ */
 function encodeWeatherAlerts(builder, data) {
     const metadataOffset = encodeMetadata(builder, data.metadata);
     const alertsOffsets = data.alerts.map(alert => {
@@ -419,6 +451,12 @@ function encodeWeatherAlerts(builder, data) {
     return WK2.WeatherAlertCollectionData.createWeatherAlertCollectionData(builder, metadataOffset, detailsUrlOffset, alertsOffset);
 }
 
+/**
+ * 编码 weather changes 产品表。 / Encode the weather changes product table.
+ * @param {import("flatbuffers").Builder} builder - FlatBuffer 构建器 / FlatBuffer builder.
+ * @param {object} data - 业务对象 / Payload.
+ * @returns {number} 产品表偏移 / Table offset.
+ */
 function encodeWeatherChanges(builder, data) {
     const metadataOffset = encodeMetadata(builder, data.metadata);
     const changesOffsets = data.changes.map(change => WK2.Change.createChange(builder, change.forecastStart, change.forecastEnd, WK2.Direction[change.maxTemperatureChange], WK2.Direction[change.minTemperatureChange], WK2.Direction[change.dayPrecipitationChange], WK2.Direction[change.nightPrecipitationChange]));
@@ -426,6 +464,12 @@ function encodeWeatherChanges(builder, data) {
     return WK2.WeatherChanges.createWeatherChanges(builder, metadataOffset, data.forecastStart, data.forecastEnd, changesOffset);
 }
 
+/**
+ * 编码 historical comparisons 产品表。 / Encode the historical comparisons product table.
+ * @param {import("flatbuffers").Builder} builder - FlatBuffer 构建器 / FlatBuffer builder.
+ * @param {object} data - 业务对象 / Payload.
+ * @returns {number} 产品表偏移 / Table offset.
+ */
 function encodeHistoricalComparisons(builder, data) {
     const metadataOffset = encodeMetadata(builder, data.metadata);
     const comparisonsOffsets = data.comparisons.map(comparison => WK2.Comparison.createComparison(builder, WK2.ComparisonType[comparison.condition], comparison.currentValue, comparison.baselineValue, WK2.Deviation[comparison.deviation], comparison.baselineType, comparison.baselineStartDate));
@@ -433,13 +477,23 @@ function encodeHistoricalComparisons(builder, data) {
     return WK2.HistoricalComparison.createHistoricalComparison(builder, metadataOffset, comparisonsOffset);
 }
 
+/**
+ * 编码 location info 产品表。 / Encode the location info product table.
+ * @param {import("flatbuffers").Builder} builder - FlatBuffer 构建器 / FlatBuffer builder.
+ * @param {object} data - 业务对象 / Payload.
+ * @returns {number} 产品表偏移 / Table offset.
+ */
 function encodeLocationInfo(builder, data) {
     const metadataOffset = encodeMetadata(builder, data.metadata);
     return WK2.LocationInfo.createLocationInfo(builder, metadataOffset, builder.createString(data.preciseName), builder.createString(data.countryCode), builder.createString(data.timeZone), builder.createString(data.primaryName));
 }
 
+/**
+ * 解码 air quality 产品表。 / Decode the air quality product table.
+ * @param {object} data - 生成的表实例 / Generated table instance.
+ * @returns {object} 业务对象 / Payload.
+ */
 function decodeAirQuality(data) {
-    const budget = newDecodeBudget();
     const AirQualityData = data;
     data = {
         metadata: decodeMetadata(AirQualityData.metadata()),
@@ -451,7 +505,7 @@ function decodeAirQuality(data) {
         primaryPollutant: WK2.PollutantType[AirQualityData.primaryPollutant()],
         scale: AirQualityData.scale(),
     };
-    for (let i = 0, count = decodedVectorLength(AirQualityData.pollutantsLength(), budget); i < count; i++)
+    for (let i = 0; i < AirQualityData.pollutantsLength(); i++)
         data.pollutants.push({
             amount: AirQualityData.pollutants(i).amount(),
             pollutantType: WK2.PollutantType[AirQualityData.pollutants(i).pollutantType()],
@@ -460,8 +514,12 @@ function decodeAirQuality(data) {
     return data;
 }
 
+/**
+ * 解码 current weather 产品表。 / Decode the current weather product table.
+ * @param {object} data - 生成的表实例 / Generated table instance.
+ * @returns {object} 业务对象 / Payload.
+ */
 function decodeCurrentWeather(data) {
-    const budget = newDecodeBudget();
     const CurrentWeatherData = data;
     data = {
         metadata: decodeMetadata(CurrentWeatherData.metadata()),
@@ -505,7 +563,7 @@ function decodeCurrentWeather(data) {
         windGust: CurrentWeatherData.windGust(),
         windSpeed: CurrentWeatherData.windSpeed(),
     };
-    for (let i = 0, count = decodedVectorLength(CurrentWeatherData.precipitationAmountNext1hByTypeLength(), budget); i < count; i++)
+    for (let i = 0; i < CurrentWeatherData.precipitationAmountNext1hByTypeLength(); i++)
         data.precipitationAmountNext1hByType.push({
             expected: CurrentWeatherData.precipitationAmountNext1hByType(i).expected(),
             expectedSnow: CurrentWeatherData.precipitationAmountNext1hByType(i).expectedSnow(),
@@ -513,7 +571,7 @@ function decodeCurrentWeather(data) {
             minimumSnow: CurrentWeatherData.precipitationAmountNext1hByType(i).minimumSnow(),
             precipitationType: WK2.PrecipitationType[CurrentWeatherData.precipitationAmountNext1hByType(i).precipitationType()],
         });
-    for (let i = 0, count = decodedVectorLength(CurrentWeatherData.precipitationAmountNext24hByTypeLength(), budget); i < count; i++)
+    for (let i = 0; i < CurrentWeatherData.precipitationAmountNext24hByTypeLength(); i++)
         data.precipitationAmountNext24hByType.push({
             expected: CurrentWeatherData.precipitationAmountNext24hByType(i).expected(),
             expectedSnow: CurrentWeatherData.precipitationAmountNext24hByType(i).expectedSnow(),
@@ -521,7 +579,7 @@ function decodeCurrentWeather(data) {
             minimumSnow: CurrentWeatherData.precipitationAmountNext24hByType(i).minimumSnow(),
             precipitationType: WK2.PrecipitationType[CurrentWeatherData.precipitationAmountNext24hByType(i).precipitationType()],
         });
-    for (let i = 0, count = decodedVectorLength(CurrentWeatherData.precipitationAmountNext6hByTypeLength(), budget); i < count; i++)
+    for (let i = 0; i < CurrentWeatherData.precipitationAmountNext6hByTypeLength(); i++)
         data.precipitationAmountNext6hByType.push({
             expected: CurrentWeatherData.precipitationAmountNext6hByType(i).expected(),
             expectedSnow: CurrentWeatherData.precipitationAmountNext6hByType(i).expectedSnow(),
@@ -529,7 +587,7 @@ function decodeCurrentWeather(data) {
             minimumSnow: CurrentWeatherData.precipitationAmountNext6hByType(i).minimumSnow(),
             precipitationType: WK2.PrecipitationType[CurrentWeatherData.precipitationAmountNext6hByType(i).precipitationType()],
         });
-    for (let i = 0, count = decodedVectorLength(CurrentWeatherData.precipitationAmountPrevious1hByTypeLength(), budget); i < count; i++)
+    for (let i = 0; i < CurrentWeatherData.precipitationAmountPrevious1hByTypeLength(); i++)
         data.precipitationAmountPrevious1hByType.push({
             expected: CurrentWeatherData.precipitationAmountPrevious1hByType(i).expected(),
             expectedSnow: CurrentWeatherData.precipitationAmountPrevious1hByType(i).expectedSnow(),
@@ -537,7 +595,7 @@ function decodeCurrentWeather(data) {
             minimumSnow: CurrentWeatherData.precipitationAmountPrevious1hByType(i).minimumSnow(),
             precipitationType: WK2.PrecipitationType[CurrentWeatherData.precipitationAmountPrevious1hByType(i).precipitationType()],
         });
-    for (let i = 0, count = decodedVectorLength(CurrentWeatherData.precipitationAmountPrevious24hByTypeLength(), budget); i < count; i++)
+    for (let i = 0; i < CurrentWeatherData.precipitationAmountPrevious24hByTypeLength(); i++)
         data.precipitationAmountPrevious24hByType.push({
             expected: CurrentWeatherData.precipitationAmountPrevious24hByType(i).expected(),
             expectedSnow: CurrentWeatherData.precipitationAmountPrevious24hByType(i).expectedSnow(),
@@ -545,7 +603,7 @@ function decodeCurrentWeather(data) {
             minimumSnow: CurrentWeatherData.precipitationAmountPrevious24hByType(i).minimumSnow(),
             precipitationType: WK2.PrecipitationType[CurrentWeatherData.precipitationAmountPrevious24hByType(i).precipitationType()],
         });
-    for (let i = 0, count = decodedVectorLength(CurrentWeatherData.precipitationAmountPrevious6hByTypeLength(), budget); i < count; i++)
+    for (let i = 0; i < CurrentWeatherData.precipitationAmountPrevious6hByTypeLength(); i++)
         data.precipitationAmountPrevious6hByType.push({
             expected: CurrentWeatherData.precipitationAmountPrevious6hByType(i).expected(),
             expectedSnow: CurrentWeatherData.precipitationAmountPrevious6hByType(i).expectedSnow(),
@@ -556,185 +614,185 @@ function decodeCurrentWeather(data) {
     return data;
 }
 
+/**
+ * 解码 daily forecast 产品表。 / Decode the daily forecast product table.
+ * @param {object} data - 生成的表实例 / Generated table instance.
+ * @returns {object} 业务对象 / Payload.
+ */
 function decodeForecastDaily(data) {
-    const budget = newDecodeBudget();
     const DailyForecastData = data;
     data = {
         metadata: decodeMetadata(DailyForecastData.metadata()),
         days: [],
     };
-    for (let i = 0, count = decodedVectorLength(DailyForecastData.daysLength(), budget); i < count; i++) {
-        const sourceDay = DailyForecastData.days(i);
+    for (let i = 0; i < DailyForecastData.daysLength(); i++) {
         const day = {
-            conditionCode: WK2.WeatherCondition[sourceDay.conditionCode()],
-            forecastEnd: sourceDay.forecastEnd(),
-            forecastStart: sourceDay.forecastStart(),
-            humidityMax: sourceDay.humidityMax(),
-            humidityMin: sourceDay.humidityMin(),
-            maxUvIndex: sourceDay.maxUvIndex(),
-            moonPhase: WK2.MoonPhase[sourceDay.moonPhase()],
-            moonrise: sourceDay.moonrise(),
-            moonset: sourceDay.moonset(),
-            precipitationAmount: sourceDay.precipitationAmount(),
+            conditionCode: WK2.WeatherCondition[DailyForecastData.days(i).conditionCode()],
+            forecastEnd: DailyForecastData.days(i).forecastEnd(),
+            forecastStart: DailyForecastData.days(i).forecastStart(),
+            humidityMax: DailyForecastData.days(i).humidityMax(),
+            humidityMin: DailyForecastData.days(i).humidityMin(),
+            maxUvIndex: DailyForecastData.days(i).maxUvIndex(),
+            moonPhase: WK2.MoonPhase[DailyForecastData.days(i).moonPhase()],
+            moonrise: DailyForecastData.days(i).moonrise(),
+            moonset: DailyForecastData.days(i).moonset(),
+            precipitationAmount: DailyForecastData.days(i).precipitationAmount(),
             precipitationAmountByType: [],
-            precipitationChance: sourceDay.precipitationChance(),
-            precipitationType: WK2.PrecipitationType[sourceDay.precipitationType()],
-            snowfallAmount: sourceDay.snowfallAmount(),
-            solarMidnight: sourceDay.solarMidnight(),
-            solarNoon: sourceDay.solarNoon(),
-            sunrise: sourceDay.sunrise(),
-            sunriseCivil: sourceDay.sunriseCivil(),
-            sunriseNautical: sourceDay.sunriseNautical(),
-            sunriseAstronomical: sourceDay.sunriseAstronomical(),
-            sunset: sourceDay.sunset(),
-            sunsetCivil: sourceDay.sunsetCivil(),
-            sunsetNautical: sourceDay.sunsetNautical(),
-            sunsetAstronomical: sourceDay.sunsetAstronomical(),
-            temperatureMax: sourceDay.temperatureMax(),
-            temperatureMaxTime: sourceDay.temperatureMaxTime(),
-            temperatureMin: sourceDay.temperatureMin(),
-            temperatureMinTime: sourceDay.temperatureMinTime(),
-            visibilityMax: sourceDay.visibilityMax(),
-            visibilityMin: sourceDay.visibilityMin(),
-            windGustSpeedMax: sourceDay.windGustSpeedMax(),
-            windSpeedAvg: sourceDay.windSpeedAvg(),
-            windSpeedMax: sourceDay.windSpeedMax(),
+            precipitationChance: DailyForecastData.days(i).precipitationChance(),
+            precipitationType: WK2.PrecipitationType[DailyForecastData.days(i).precipitationType()],
+            snowfallAmount: DailyForecastData.days(i).snowfallAmount(),
+            solarMidnight: DailyForecastData.days(i).solarMidnight(),
+            solarNoon: DailyForecastData.days(i).solarNoon(),
+            sunrise: DailyForecastData.days(i).sunrise(),
+            sunriseCivil: DailyForecastData.days(i).sunriseCivil(),
+            sunriseNautical: DailyForecastData.days(i).sunriseNautical(),
+            sunriseAstronomical: DailyForecastData.days(i).sunriseAstronomical(),
+            sunset: DailyForecastData.days(i).sunset(),
+            sunsetCivil: DailyForecastData.days(i).sunsetCivil(),
+            sunsetNautical: DailyForecastData.days(i).sunsetNautical(),
+            sunsetAstronomical: DailyForecastData.days(i).sunsetAstronomical(),
+            temperatureMax: DailyForecastData.days(i).temperatureMax(),
+            temperatureMaxTime: DailyForecastData.days(i).temperatureMaxTime(),
+            temperatureMin: DailyForecastData.days(i).temperatureMin(),
+            temperatureMinTime: DailyForecastData.days(i).temperatureMinTime(),
+            visibilityMax: DailyForecastData.days(i).visibilityMax(),
+            visibilityMin: DailyForecastData.days(i).visibilityMin(),
+            windGustSpeedMax: DailyForecastData.days(i).windGustSpeedMax(),
+            windSpeedAvg: DailyForecastData.days(i).windSpeedAvg(),
+            windSpeedMax: DailyForecastData.days(i).windSpeedMax(),
         };
-        for (let j = 0, count = decodedVectorLength(sourceDay.precipitationAmountByTypeLength(), budget); j < count; j++)
+        for (let j = 0; j < DailyForecastData.days(i).precipitationAmountByTypeLength(); j++)
             day.precipitationAmountByType.push({
-                expected: sourceDay.precipitationAmountByType(j).expected(),
-                expectedSnow: sourceDay.precipitationAmountByType(j).expectedSnow(),
-                maximumSnow: sourceDay.precipitationAmountByType(j).maximumSnow(),
-                minimumSnow: sourceDay.precipitationAmountByType(j).minimumSnow(),
-                precipitationType: WK2.PrecipitationType[sourceDay.precipitationAmountByType(j).precipitationType()],
+                expected: DailyForecastData.days(i).precipitationAmountByType(j).expected(),
+                expectedSnow: DailyForecastData.days(i).precipitationAmountByType(j).expectedSnow(),
+                maximumSnow: DailyForecastData.days(i).precipitationAmountByType(j).maximumSnow(),
+                minimumSnow: DailyForecastData.days(i).precipitationAmountByType(j).minimumSnow(),
+                precipitationType: WK2.PrecipitationType[DailyForecastData.days(i).precipitationAmountByType(j).precipitationType()],
             });
-        const daytimeForecast = sourceDay.daytimeForecast();
-        if (daytimeForecast) {
+        if (DailyForecastData.days(i).daytimeForecast()) {
             day.daytimeForecast = {
-                cloudCover: daytimeForecast.cloudCover(),
-                cloudCoverHighAltPct: daytimeForecast.cloudCoverHighAltPct(),
-                cloudCoverLowAltPct: daytimeForecast.cloudCoverLowAltPct(),
-                cloudCoverMidAltPct: daytimeForecast.cloudCoverMidAltPct(),
-                conditionCode: WK2.WeatherCondition[daytimeForecast.conditionCode()],
-                forecastEnd: daytimeForecast.forecastEnd(),
-                forecastStart: daytimeForecast.forecastStart(),
-                humidity: daytimeForecast.humidity(),
-                humidityMax: daytimeForecast.humidityMax(),
-                humidityMin: daytimeForecast.humidityMin(),
-                precipitationAmount: daytimeForecast.precipitationAmount(),
+                cloudCover: DailyForecastData.days(i).daytimeForecast().cloudCover(),
+                cloudCoverHighAltPct: DailyForecastData.days(i).daytimeForecast().cloudCoverHighAltPct(),
+                cloudCoverLowAltPct: DailyForecastData.days(i).daytimeForecast().cloudCoverLowAltPct(),
+                cloudCoverMidAltPct: DailyForecastData.days(i).daytimeForecast().cloudCoverMidAltPct(),
+                conditionCode: WK2.WeatherCondition[DailyForecastData.days(i).daytimeForecast().conditionCode()],
+                forecastEnd: DailyForecastData.days(i).daytimeForecast().forecastEnd(),
+                forecastStart: DailyForecastData.days(i).daytimeForecast().forecastStart(),
+                humidity: DailyForecastData.days(i).daytimeForecast().humidity(),
+                humidityMax: DailyForecastData.days(i).daytimeForecast().humidityMax(),
+                humidityMin: DailyForecastData.days(i).daytimeForecast().humidityMin(),
+                precipitationAmount: DailyForecastData.days(i).daytimeForecast().precipitationAmount(),
                 precipitationAmountByType: [],
-                precipitationChance: daytimeForecast.precipitationChance(),
-                precipitationType: WK2.PrecipitationType[daytimeForecast.precipitationType()],
-                snowfallAmount: daytimeForecast.snowfallAmount(),
-                temperatureMax: daytimeForecast.temperatureMax(),
-                temperatureMin: daytimeForecast.temperatureMin(),
-                visibilityMax: daytimeForecast.visibilityMax(),
-                visibilityMin: daytimeForecast.visibilityMin(),
-                windDirection: daytimeForecast.windDirection(),
-                windGustSpeedMax: daytimeForecast.windGustSpeedMax(),
-                windSpeed: daytimeForecast.windSpeed(),
-                windSpeedMax: daytimeForecast.windSpeedMax(),
-                precipitationIntensityMax: daytimeForecast.precipitationIntensityMax(),
-                perceivedPrecipitationIntensityMax: daytimeForecast.perceivedPrecipitationIntensityMax(),
-                uvIndexMin: daytimeForecast.uvIndexMin(),
-                uvIndexMax: daytimeForecast.uvIndexMax(),
-                temperatureApparentMin: daytimeForecast.temperatureApparentMin(),
-                temperatureApparentMax: daytimeForecast.temperatureApparentMax(),
-                daylight: daytimeForecast.daylight(),
+                precipitationChance: DailyForecastData.days(i).daytimeForecast().precipitationChance(),
+                precipitationType: WK2.PrecipitationType[DailyForecastData.days(i).daytimeForecast().precipitationType()],
+                snowfallAmount: DailyForecastData.days(i).daytimeForecast().snowfallAmount(),
+                temperatureMax: DailyForecastData.days(i).daytimeForecast().temperatureMax(),
+                temperatureMin: DailyForecastData.days(i).daytimeForecast().temperatureMin(),
+                visibilityMax: DailyForecastData.days(i).daytimeForecast().visibilityMax(),
+                visibilityMin: DailyForecastData.days(i).daytimeForecast().visibilityMin(),
+                windDirection: DailyForecastData.days(i).daytimeForecast().windDirection(),
+                windGustSpeedMax: DailyForecastData.days(i).daytimeForecast().windGustSpeedMax(),
+                windSpeed: DailyForecastData.days(i).daytimeForecast().windSpeed(),
+                windSpeedMax: DailyForecastData.days(i).daytimeForecast().windSpeedMax(),
+                precipitationIntensityMax: DailyForecastData.days(i).daytimeForecast().precipitationIntensityMax(),
+                perceivedPrecipitationIntensityMax: DailyForecastData.days(i).daytimeForecast().perceivedPrecipitationIntensityMax(),
+                uvIndexMin: DailyForecastData.days(i).daytimeForecast().uvIndexMin(),
+                uvIndexMax: DailyForecastData.days(i).daytimeForecast().uvIndexMax(),
+                temperatureApparentMin: DailyForecastData.days(i).daytimeForecast().temperatureApparentMin(),
+                temperatureApparentMax: DailyForecastData.days(i).daytimeForecast().temperatureApparentMax(),
+                daylight: DailyForecastData.days(i).daytimeForecast().daylight(),
             };
-            for (let j = 0, count = decodedVectorLength(daytimeForecast.precipitationAmountByTypeLength(), budget); j < count; j++)
+            for (let j = 0; j < DailyForecastData.days(i).daytimeForecast().precipitationAmountByTypeLength(); j++)
                 day.daytimeForecast.precipitationAmountByType.push({
-                    expected: daytimeForecast.precipitationAmountByType(j).expected(),
-                    expectedSnow: daytimeForecast.precipitationAmountByType(j).expectedSnow(),
-                    maximumSnow: daytimeForecast.precipitationAmountByType(j).maximumSnow(),
-                    minimumSnow: daytimeForecast.precipitationAmountByType(j).minimumSnow(),
-                    precipitationType: WK2.PrecipitationType[daytimeForecast.precipitationAmountByType(j).precipitationType()],
+                    expected: DailyForecastData.days(i).daytimeForecast().precipitationAmountByType(j).expected(),
+                    expectedSnow: DailyForecastData.days(i).daytimeForecast().precipitationAmountByType(j).expectedSnow(),
+                    maximumSnow: DailyForecastData.days(i).daytimeForecast().precipitationAmountByType(j).maximumSnow(),
+                    minimumSnow: DailyForecastData.days(i).daytimeForecast().precipitationAmountByType(j).minimumSnow(),
+                    precipitationType: WK2.PrecipitationType[DailyForecastData.days(i).daytimeForecast().precipitationAmountByType(j).precipitationType()],
                 });
         }
-        const overnightForecast = sourceDay.overnightForecast();
-        if (overnightForecast) {
+        if (DailyForecastData.days(i).overnightForecast()) {
             day.overnightForecast = {
-                cloudCover: overnightForecast.cloudCover(),
-                cloudCoverHighAltPct: overnightForecast.cloudCoverHighAltPct(),
-                cloudCoverLowAltPct: overnightForecast.cloudCoverLowAltPct(),
-                cloudCoverMidAltPct: overnightForecast.cloudCoverMidAltPct(),
-                conditionCode: WK2.WeatherCondition[overnightForecast.conditionCode()],
-                forecastEnd: overnightForecast.forecastEnd(),
-                forecastStart: overnightForecast.forecastStart(),
-                humidity: overnightForecast.humidity(),
-                humidityMax: overnightForecast.humidityMax(),
-                humidityMin: overnightForecast.humidityMin(),
-                precipitationAmount: overnightForecast.precipitationAmount(),
+                cloudCover: DailyForecastData.days(i).overnightForecast().cloudCover(),
+                cloudCoverHighAltPct: DailyForecastData.days(i).overnightForecast().cloudCoverHighAltPct(),
+                cloudCoverLowAltPct: DailyForecastData.days(i).overnightForecast().cloudCoverLowAltPct(),
+                cloudCoverMidAltPct: DailyForecastData.days(i).overnightForecast().cloudCoverMidAltPct(),
+                conditionCode: WK2.WeatherCondition[DailyForecastData.days(i).overnightForecast().conditionCode()],
+                forecastEnd: DailyForecastData.days(i).overnightForecast().forecastEnd(),
+                forecastStart: DailyForecastData.days(i).overnightForecast().forecastStart(),
+                humidity: DailyForecastData.days(i).overnightForecast().humidity(),
+                humidityMax: DailyForecastData.days(i).overnightForecast().humidityMax(),
+                humidityMin: DailyForecastData.days(i).overnightForecast().humidityMin(),
+                precipitationAmount: DailyForecastData.days(i).overnightForecast().precipitationAmount(),
                 precipitationAmountByType: [],
-                precipitationChance: overnightForecast.precipitationChance(),
-                precipitationType: WK2.PrecipitationType[overnightForecast.precipitationType()],
-                snowfallAmount: overnightForecast.snowfallAmount(),
-                temperatureMax: overnightForecast.temperatureMax(),
-                temperatureMin: overnightForecast.temperatureMin(),
-                visibilityMax: overnightForecast.visibilityMax(),
-                visibilityMin: overnightForecast.visibilityMin(),
-                windDirection: overnightForecast.windDirection(),
-                windGustSpeedMax: overnightForecast.windGustSpeedMax(),
-                windSpeed: overnightForecast.windSpeed(),
-                windSpeedMax: overnightForecast.windSpeedMax(),
-                precipitationIntensityMax: overnightForecast.precipitationIntensityMax(),
-                perceivedPrecipitationIntensityMax: overnightForecast.perceivedPrecipitationIntensityMax(),
-                uvIndexMin: overnightForecast.uvIndexMin(),
-                uvIndexMax: overnightForecast.uvIndexMax(),
-                temperatureApparentMin: overnightForecast.temperatureApparentMin(),
-                temperatureApparentMax: overnightForecast.temperatureApparentMax(),
-                daylight: overnightForecast.daylight(),
+                precipitationChance: DailyForecastData.days(i).overnightForecast().precipitationChance(),
+                precipitationType: WK2.PrecipitationType[DailyForecastData.days(i).overnightForecast().precipitationType()],
+                snowfallAmount: DailyForecastData.days(i).overnightForecast().snowfallAmount(),
+                temperatureMax: DailyForecastData.days(i).overnightForecast().temperatureMax(),
+                temperatureMin: DailyForecastData.days(i).overnightForecast().temperatureMin(),
+                visibilityMax: DailyForecastData.days(i).overnightForecast().visibilityMax(),
+                visibilityMin: DailyForecastData.days(i).overnightForecast().visibilityMin(),
+                windDirection: DailyForecastData.days(i).overnightForecast().windDirection(),
+                windGustSpeedMax: DailyForecastData.days(i).overnightForecast().windGustSpeedMax(),
+                windSpeed: DailyForecastData.days(i).overnightForecast().windSpeed(),
+                windSpeedMax: DailyForecastData.days(i).overnightForecast().windSpeedMax(),
+                precipitationIntensityMax: DailyForecastData.days(i).overnightForecast().precipitationIntensityMax(),
+                perceivedPrecipitationIntensityMax: DailyForecastData.days(i).overnightForecast().perceivedPrecipitationIntensityMax(),
+                uvIndexMin: DailyForecastData.days(i).overnightForecast().uvIndexMin(),
+                uvIndexMax: DailyForecastData.days(i).overnightForecast().uvIndexMax(),
+                temperatureApparentMin: DailyForecastData.days(i).overnightForecast().temperatureApparentMin(),
+                temperatureApparentMax: DailyForecastData.days(i).overnightForecast().temperatureApparentMax(),
+                daylight: DailyForecastData.days(i).overnightForecast().daylight(),
             };
-            for (let j = 0, count = decodedVectorLength(overnightForecast.precipitationAmountByTypeLength(), budget); j < count; j++)
+            for (let j = 0; j < DailyForecastData.days(i).overnightForecast().precipitationAmountByTypeLength(); j++)
                 day.overnightForecast.precipitationAmountByType.push({
-                    expected: overnightForecast.precipitationAmountByType(j).expected(),
-                    expectedSnow: overnightForecast.precipitationAmountByType(j).expectedSnow(),
-                    maximumSnow: overnightForecast.precipitationAmountByType(j).maximumSnow(),
-                    minimumSnow: overnightForecast.precipitationAmountByType(j).minimumSnow(),
-                    precipitationType: WK2.PrecipitationType[overnightForecast.precipitationAmountByType(j).precipitationType()],
+                    expected: DailyForecastData.days(i).overnightForecast().precipitationAmountByType(j).expected(),
+                    expectedSnow: DailyForecastData.days(i).overnightForecast().precipitationAmountByType(j).expectedSnow(),
+                    maximumSnow: DailyForecastData.days(i).overnightForecast().precipitationAmountByType(j).maximumSnow(),
+                    minimumSnow: DailyForecastData.days(i).overnightForecast().precipitationAmountByType(j).minimumSnow(),
+                    precipitationType: WK2.PrecipitationType[DailyForecastData.days(i).overnightForecast().precipitationAmountByType(j).precipitationType()],
                 });
         }
-        const restOfDayForecast = sourceDay.restOfDayForecast();
-        if (restOfDayForecast) {
+        if (DailyForecastData.days(i).restOfDayForecast()) {
             day.restOfDayForecast = {
-                cloudCover: restOfDayForecast.cloudCover(),
-                cloudCoverHighAltPct: restOfDayForecast.cloudCoverHighAltPct(),
-                cloudCoverLowAltPct: restOfDayForecast.cloudCoverLowAltPct(),
-                cloudCoverMidAltPct: restOfDayForecast.cloudCoverMidAltPct(),
-                conditionCode: WK2.WeatherCondition[restOfDayForecast.conditionCode()],
-                forecastEnd: restOfDayForecast.forecastEnd(),
-                forecastStart: restOfDayForecast.forecastStart(),
-                humidity: restOfDayForecast.humidity(),
-                humidityMax: restOfDayForecast.humidityMax(),
-                humidityMin: restOfDayForecast.humidityMin(),
-                precipitationAmount: restOfDayForecast.precipitationAmount(),
+                cloudCover: DailyForecastData.days(i).restOfDayForecast().cloudCover(),
+                cloudCoverHighAltPct: DailyForecastData.days(i).restOfDayForecast().cloudCoverHighAltPct(),
+                cloudCoverLowAltPct: DailyForecastData.days(i).restOfDayForecast().cloudCoverLowAltPct(),
+                cloudCoverMidAltPct: DailyForecastData.days(i).restOfDayForecast().cloudCoverMidAltPct(),
+                conditionCode: WK2.WeatherCondition[DailyForecastData.days(i).restOfDayForecast().conditionCode()],
+                forecastEnd: DailyForecastData.days(i).restOfDayForecast().forecastEnd(),
+                forecastStart: DailyForecastData.days(i).restOfDayForecast().forecastStart(),
+                humidity: DailyForecastData.days(i).restOfDayForecast().humidity(),
+                humidityMax: DailyForecastData.days(i).restOfDayForecast().humidityMax(),
+                humidityMin: DailyForecastData.days(i).restOfDayForecast().humidityMin(),
+                precipitationAmount: DailyForecastData.days(i).restOfDayForecast().precipitationAmount(),
                 precipitationAmountByType: [],
-                precipitationChance: restOfDayForecast.precipitationChance(),
-                precipitationType: WK2.PrecipitationType[restOfDayForecast.precipitationType()],
-                snowfallAmount: restOfDayForecast.snowfallAmount(),
-                temperatureMax: restOfDayForecast.temperatureMax(),
-                temperatureMin: restOfDayForecast.temperatureMin(),
-                visibilityMax: restOfDayForecast.visibilityMax(),
-                visibilityMin: restOfDayForecast.visibilityMin(),
-                windDirection: restOfDayForecast.windDirection(),
-                windGustSpeedMax: restOfDayForecast.windGustSpeedMax(),
-                windSpeed: restOfDayForecast.windSpeed(),
-                windSpeedMax: restOfDayForecast.windSpeedMax(),
-                precipitationIntensityMax: restOfDayForecast.precipitationIntensityMax(),
-                perceivedPrecipitationIntensityMax: restOfDayForecast.perceivedPrecipitationIntensityMax(),
-                uvIndexMin: restOfDayForecast.uvIndexMin(),
-                uvIndexMax: restOfDayForecast.uvIndexMax(),
-                temperatureApparentMin: restOfDayForecast.temperatureApparentMin(),
-                temperatureApparentMax: restOfDayForecast.temperatureApparentMax(),
-                daylight: restOfDayForecast.daylight(),
+                precipitationChance: DailyForecastData.days(i).restOfDayForecast().precipitationChance(),
+                precipitationType: WK2.PrecipitationType[DailyForecastData.days(i).restOfDayForecast().precipitationType()],
+                snowfallAmount: DailyForecastData.days(i).restOfDayForecast().snowfallAmount(),
+                temperatureMax: DailyForecastData.days(i).restOfDayForecast().temperatureMax(),
+                temperatureMin: DailyForecastData.days(i).restOfDayForecast().temperatureMin(),
+                visibilityMax: DailyForecastData.days(i).restOfDayForecast().visibilityMax(),
+                visibilityMin: DailyForecastData.days(i).restOfDayForecast().visibilityMin(),
+                windDirection: DailyForecastData.days(i).restOfDayForecast().windDirection(),
+                windGustSpeedMax: DailyForecastData.days(i).restOfDayForecast().windGustSpeedMax(),
+                windSpeed: DailyForecastData.days(i).restOfDayForecast().windSpeed(),
+                windSpeedMax: DailyForecastData.days(i).restOfDayForecast().windSpeedMax(),
+                precipitationIntensityMax: DailyForecastData.days(i).restOfDayForecast().precipitationIntensityMax(),
+                perceivedPrecipitationIntensityMax: DailyForecastData.days(i).restOfDayForecast().perceivedPrecipitationIntensityMax(),
+                uvIndexMin: DailyForecastData.days(i).restOfDayForecast().uvIndexMin(),
+                uvIndexMax: DailyForecastData.days(i).restOfDayForecast().uvIndexMax(),
+                temperatureApparentMin: DailyForecastData.days(i).restOfDayForecast().temperatureApparentMin(),
+                temperatureApparentMax: DailyForecastData.days(i).restOfDayForecast().temperatureApparentMax(),
+                daylight: DailyForecastData.days(i).restOfDayForecast().daylight(),
             };
-            for (let j = 0, count = decodedVectorLength(restOfDayForecast.precipitationAmountByTypeLength(), budget); j < count; j++)
+            for (let j = 0; j < DailyForecastData.days(i).restOfDayForecast().precipitationAmountByTypeLength(); j++)
                 day.restOfDayForecast.precipitationAmountByType.push({
-                    expected: restOfDayForecast.precipitationAmountByType(j).expected(),
-                    expectedSnow: restOfDayForecast.precipitationAmountByType(j).expectedSnow(),
-                    maximumSnow: restOfDayForecast.precipitationAmountByType(j).maximumSnow(),
-                    minimumSnow: restOfDayForecast.precipitationAmountByType(j).minimumSnow(),
-                    precipitationType: WK2.PrecipitationType[restOfDayForecast.precipitationAmountByType(j).precipitationType()],
+                    expected: DailyForecastData.days(i).restOfDayForecast().precipitationAmountByType(j).expected(),
+                    expectedSnow: DailyForecastData.days(i).restOfDayForecast().precipitationAmountByType(j).expectedSnow(),
+                    maximumSnow: DailyForecastData.days(i).restOfDayForecast().precipitationAmountByType(j).maximumSnow(),
+                    minimumSnow: DailyForecastData.days(i).restOfDayForecast().precipitationAmountByType(j).minimumSnow(),
+                    precipitationType: WK2.PrecipitationType[DailyForecastData.days(i).restOfDayForecast().precipitationAmountByType(j).precipitationType()],
                 });
         }
         data.days.push(day);
@@ -742,49 +800,55 @@ function decodeForecastDaily(data) {
     return data;
 }
 
+/**
+ * 解码 hourly forecast 产品表。 / Decode the hourly forecast product table.
+ * @param {object} data - 生成的表实例 / Generated table instance.
+ * @returns {object} 业务对象 / Payload.
+ */
 function decodeForecastHourly(data) {
-    const budget = newDecodeBudget();
     const HourlyForecastData = data;
     data = {
         metadata: decodeMetadata(HourlyForecastData.metadata()),
         hours: [],
     };
-    for (let i = 0, count = decodedVectorLength(HourlyForecastData.hoursLength(), budget); i < count; i++) {
-        const hour = HourlyForecastData.hours(i);
+    for (let i = 0; i < HourlyForecastData.hoursLength(); i++)
         data.hours.push({
-            cloudCover: hour.cloudCover(),
-            cloudCoverHighAltPct: hour.cloudCoverHighAltPct(),
-            cloudCoverLowAltPct: hour.cloudCoverLowAltPct(),
-            cloudCoverMidAltPct: hour.cloudCoverMidAltPct(),
-            conditionCode: WK2.WeatherCondition[hour.conditionCode()],
-            daylight: hour.daylight(),
-            forecastStart: hour.forecastStart(),
-            humidity: hour.humidity(),
-            perceivedPrecipitationIntensity: hour.perceivedPrecipitationIntensity(),
-            precipitationAmount: hour.precipitationAmount(),
-            precipitationChance: hour.precipitationChance(),
-            precipitationIntensity: hour.precipitationIntensity(),
-            precipitationType: WK2.PrecipitationType[hour.precipitationType()],
-            pressure: hour.pressure(),
-            pressureTrend: WK2.PressureTrend[hour.pressureTrend()],
-            snowfallAmount: hour.snowfallAmount(),
-            snowfallIntensity: hour.snowfallIntensity(),
-            temperature: hour.temperature(),
-            temperatureApparent: hour.temperatureApparent(),
-            unknown20: hour.unknown20(),
-            temperatureDewPoint: hour.temperatureDewPoint(),
-            uvIndex: hour.uvIndex(),
-            visibility: hour.visibility(),
-            windDirection: hour.windDirection(),
-            windGust: hour.windGust(),
-            windSpeed: hour.windSpeed(),
+            cloudCover: HourlyForecastData.hours(i).cloudCover(),
+            cloudCoverHighAltPct: HourlyForecastData.hours(i).cloudCoverHighAltPct(),
+            cloudCoverLowAltPct: HourlyForecastData.hours(i).cloudCoverLowAltPct(),
+            cloudCoverMidAltPct: HourlyForecastData.hours(i).cloudCoverMidAltPct(),
+            conditionCode: WK2.WeatherCondition[HourlyForecastData.hours(i).conditionCode()],
+            daylight: HourlyForecastData.hours(i).daylight(),
+            forecastStart: HourlyForecastData.hours(i).forecastStart(),
+            humidity: HourlyForecastData.hours(i).humidity(),
+            perceivedPrecipitationIntensity: HourlyForecastData.hours(i).perceivedPrecipitationIntensity(),
+            precipitationAmount: HourlyForecastData.hours(i).precipitationAmount(),
+            precipitationChance: HourlyForecastData.hours(i).precipitationChance(),
+            precipitationIntensity: HourlyForecastData.hours(i).precipitationIntensity(),
+            precipitationType: WK2.PrecipitationType[HourlyForecastData.hours(i).precipitationType()],
+            pressure: HourlyForecastData.hours(i).pressure(),
+            pressureTrend: WK2.PressureTrend[HourlyForecastData.hours(i).pressureTrend()],
+            snowfallAmount: HourlyForecastData.hours(i).snowfallAmount(),
+            snowfallIntensity: HourlyForecastData.hours(i).snowfallIntensity(),
+            temperature: HourlyForecastData.hours(i).temperature(),
+            temperatureApparent: HourlyForecastData.hours(i).temperatureApparent(),
+            unknown20: HourlyForecastData.hours(i).unknown20(),
+            temperatureDewPoint: HourlyForecastData.hours(i).temperatureDewPoint(),
+            uvIndex: HourlyForecastData.hours(i).uvIndex(),
+            visibility: HourlyForecastData.hours(i).visibility(),
+            windDirection: HourlyForecastData.hours(i).windDirection(),
+            windGust: HourlyForecastData.hours(i).windGust(),
+            windSpeed: HourlyForecastData.hours(i).windSpeed(),
         });
-    }
     return data;
 }
 
+/**
+ * 解码 next-hour precipitation 产品表。 / Decode the next-hour precipitation product table.
+ * @param {object} data - 生成的表实例 / Generated table instance.
+ * @returns {object} 业务对象 / Payload.
+ */
 function decodeForecastNextHour(data) {
-    const budget = newDecodeBudget();
     const NextHourForecastData = data;
     data = {
         metadata: decodeMetadata(NextHourForecastData.metadata()),
@@ -794,7 +858,7 @@ function decodeForecastNextHour(data) {
         minutes: [],
         summary: [],
     };
-    for (let i = 0, count = decodedVectorLength(NextHourForecastData.conditionLength(), budget); i < count; i++) {
+    for (let i = 0; i < NextHourForecastData.conditionLength(); i++) {
         const condition = {
             beginCondition: WK2.ConditionType[NextHourForecastData.condition(i).beginCondition()],
             endCondition: WK2.ConditionType[NextHourForecastData.condition(i).endCondition()],
@@ -803,21 +867,21 @@ function decodeForecastNextHour(data) {
             parameters: [],
             startTime: NextHourForecastData.condition(i).startTime(),
         };
-        for (let j = 0, count = decodedVectorLength(NextHourForecastData.condition(i).parametersLength(), budget); j < count; j++)
+        for (let j = 0; j < NextHourForecastData.condition(i).parametersLength(); j++)
             condition.parameters.push({
                 date: NextHourForecastData.condition(i).parameters(j).date(),
                 type: WK2.ParameterType[NextHourForecastData.condition(i).parameters(j).type()],
             });
         data.condition.push(condition);
     }
-    for (let i = 0, count = decodedVectorLength(NextHourForecastData.minutesLength(), budget); i < count; i++)
+    for (let i = 0; i < NextHourForecastData.minutesLength(); i++)
         data.minutes.push({
             perceivedPrecipitationIntensity: NextHourForecastData.minutes(i).perceivedPrecipitationIntensity(),
             precipitationChance: NextHourForecastData.minutes(i).precipitationChance(),
             precipitationIntensity: NextHourForecastData.minutes(i).precipitationIntensity(),
             startTime: NextHourForecastData.minutes(i).startTime(),
         });
-    for (let i = 0, count = decodedVectorLength(NextHourForecastData.summaryLength(), budget); i < count; i++)
+    for (let i = 0; i < NextHourForecastData.summaryLength(); i++)
         data.summary.push({
             condition: WK2.PrecipitationType[NextHourForecastData.summary(i).condition()],
             endTime: NextHourForecastData.summary(i).endTime(),
@@ -828,20 +892,24 @@ function decodeForecastNextHour(data) {
     return data;
 }
 
+/**
+ * 解码 news 产品表。 / Decode the news product table.
+ * @param {object} data - 生成的表实例 / Generated table instance.
+ * @returns {object} 业务对象 / Payload.
+ */
 function decodeNews(data) {
-    const budget = newDecodeBudget();
     const NewsData = data;
     data = {
         metadata: decodeMetadata(NewsData.metadata()),
         placements: [],
     };
-    for (let i = 0, count = decodedVectorLength(NewsData.placementsLength(), budget); i < count; i++) {
+    for (let i = 0; i < NewsData.placementsLength(); i++) {
         const placement = {
             articles: [],
             placement: WK2.PlacementType[NewsData.placements(i).placement()],
             priority: NewsData.placements(i).priority(),
         };
-        for (let j = 0, count = decodedVectorLength(NewsData.placements(i).articlesLength(), budget); j < count; j++) {
+        for (let j = 0; j < NewsData.placements(i).articlesLength(); j++) {
             const article = {
                 alertIds: [],
                 headlineOverride: NewsData.placements(i).articles(j).headlineOverride(),
@@ -850,9 +918,9 @@ function decodeNews(data) {
                 phenomena: [],
                 supportedStorefronts: [],
             };
-            for (let k = 0, count = decodedVectorLength(NewsData.placements(i).articles(j).alertIdsLength(), budget); k < count; k++) article.alertIds.push(decodeUuid(NewsData.placements(i).articles(j).alertIds(k)));
-            for (let k = 0, count = decodedVectorLength(NewsData.placements(i).articles(j).phenomenaLength(), budget); k < count; k++) article.phenomena.push(NewsData.placements(i).articles(j).phenomena(k));
-            for (let k = 0, count = decodedVectorLength(NewsData.placements(i).articles(j).supportedStorefrontsLength(), budget); k < count; k++) article.supportedStorefronts.push(NewsData.placements(i).articles(j).supportedStorefronts(k));
+            for (let k = 0; k < NewsData.placements(i).articles(j).alertIdsLength(); k++) article.alertIds.push(decodeUuid(NewsData.placements(i).articles(j).alertIds(k)));
+            for (let k = 0; k < NewsData.placements(i).articles(j).phenomenaLength(); k++) article.phenomena.push(NewsData.placements(i).articles(j).phenomena(k));
+            for (let k = 0; k < NewsData.placements(i).articles(j).supportedStorefrontsLength(); k++) article.supportedStorefronts.push(NewsData.placements(i).articles(j).supportedStorefronts(k));
             placement.articles.push(article);
         }
         data.placements.push(placement);
@@ -860,54 +928,61 @@ function decodeNews(data) {
     return data;
 }
 
+/**
+ * 解码 weather alerts 产品表。 / Decode the weather alerts product table.
+ * @param {object} data - 生成的表实例 / Generated table instance.
+ * @returns {object} 业务对象 / Payload.
+ */
 function decodeWeatherAlerts(data) {
-    const budget = newDecodeBudget();
     const WeatherAlertCollectionData = data;
     data = {
         metadata: decodeMetadata(WeatherAlertCollectionData.metadata()),
         alerts: [],
         detailsUrl: WeatherAlertCollectionData.detailsUrl(),
     };
-    for (let i = 0, count = decodedVectorLength(WeatherAlertCollectionData.alertsLength(), budget); i < count; i++) {
-        const alertView = WeatherAlertCollectionData.alerts(i);
+    for (let i = 0; i < WeatherAlertCollectionData.alertsLength(); i++) {
         const alert = {
-            areaId: alertView.areaId(),
-            areaName: alertView.areaName(),
-            attributionUrl: alertView.attributionUrl(),
-            certainty: WK2.Certainty[alertView.certainty()],
-            countryCode: alertView.countryCode(),
-            description: alertView.description(),
-            detailsUrl: alertView.detailsUrl(),
-            effectiveTime: alertView.effectiveTime(),
-            eventEndTime: alertView.eventEndTime(),
-            eventOnsetTime: alertView.eventOnsetTime(),
-            eventSource: alertView.eventSource(),
-            expireTime: alertView.expireTime(),
-            id: decodeUuid(alertView.id()),
-            importance: WK2.ImportanceType[alertView.importance()],
-            issuedTime: alertView.issuedTime(),
-            phenomenon: alertView.phenomenon(),
+            areaId: WeatherAlertCollectionData.alerts(i).areaId(),
+            areaName: WeatherAlertCollectionData.alerts(i).areaName(),
+            attributionUrl: WeatherAlertCollectionData.alerts(i).attributionUrl(),
+            certainty: WK2.Certainty[WeatherAlertCollectionData.alerts(i).certainty()],
+            countryCode: WeatherAlertCollectionData.alerts(i).countryCode(),
+            description: WeatherAlertCollectionData.alerts(i).description(),
+            detailsUrl: WeatherAlertCollectionData.alerts(i).detailsUrl(),
+            effectiveTime: WeatherAlertCollectionData.alerts(i).effectiveTime(),
+            eventEndTime: WeatherAlertCollectionData.alerts(i).eventEndTime(),
+            eventOnsetTime: WeatherAlertCollectionData.alerts(i).eventOnsetTime(),
+            eventSource: WeatherAlertCollectionData.alerts(i).eventSource(),
+            expireTime: WeatherAlertCollectionData.alerts(i).expireTime(),
+            id: decodeUuid(WeatherAlertCollectionData.alerts(i).id()),
+            importance: WK2.ImportanceType[WeatherAlertCollectionData.alerts(i).importance()],
+            issuedTime: WeatherAlertCollectionData.alerts(i).issuedTime(),
+            phenomenon: WeatherAlertCollectionData.alerts(i).phenomenon(),
             responses: [],
-            severity: WK2.Severity[alertView.severity()],
-            significance: WK2.SignificanceType[alertView.significance()],
-            source: alertView.source(),
-            token: alertView.token(),
-            urgency: WK2.Urgency[alertView.urgency()],
-            unknown23: alertView.unknown23(),
-            unknown24: alertView.unknown24(),
-            unknown25: alertView.unknown25(),
-            unknown26: alertView.unknown26(),
+            severity: WK2.Severity[WeatherAlertCollectionData.alerts(i).severity()],
+            significance: WK2.SignificanceType[WeatherAlertCollectionData.alerts(i).significance()],
+            source: WeatherAlertCollectionData.alerts(i).source(),
+            token: WeatherAlertCollectionData.alerts(i).token(),
+            urgency: WK2.Urgency[WeatherAlertCollectionData.alerts(i).urgency()],
+            unknown23: WeatherAlertCollectionData.alerts(i).unknown23(),
+            unknown24: WeatherAlertCollectionData.alerts(i).unknown24(),
+            unknown25: WeatherAlertCollectionData.alerts(i).unknown25(),
+            unknown26: WeatherAlertCollectionData.alerts(i).unknown26(),
         };
-        //for (let j = 0, count = decodedVectorLength(alertView.idLength(), budget); j < count; j++) alert.id.push(alertView.id(j));
-        //for (let j = 0, count = decodedVectorLength(alertView.idLength(), budget); j < count; j++) alert.id.push({ "lowBytes": alertView.id(j).lowBytes(), "highBytes": alertView.id(j).highBytes() });
-        for (let j = 0, count = decodedVectorLength(alertView.responsesLength(), budget); j < count; j++) alert.responses.push(WK2.ResponseType[alertView.responses(j)]);
+        //for (let j = 0; j < WeatherAlertCollectionData.alerts(i).idLength(); j++) alert.id.push(WeatherAlertCollectionData.alerts(i).id(j));
+        //for (let j = 0; j < WeatherAlertCollectionData.alerts(i).idLength(); j++) alert.id.push({ "lowBytes": WeatherAlertCollectionData.alerts(i).id(j).lowBytes(), "highBytes": WeatherAlertCollectionData.alerts(i).id(j).highBytes() });
+        for (let j = 0; j < WeatherAlertCollectionData.alerts(i).responsesLength(); j++) alert.responses.push(WK2.ResponseType[WeatherAlertCollectionData.alerts(i).responses(j)]);
         data.alerts.push(alert);
     }
     return data;
 }
 
+/**
+ * 解码 weather changes 产品表。 / Decode the weather changes product table.
+ * @param {object} data - 生成的表实例 / Generated table instance.
+ * @returns {object} 业务对象 / Payload.
+ */
 function decodeWeatherChanges(data) {
-    const budget = newDecodeBudget();
     const WeatherChangesData = data;
     data = {
         metadata: decodeMetadata(WeatherChangesData.metadata()),
@@ -915,7 +990,7 @@ function decodeWeatherChanges(data) {
         forecastEnd: WeatherChangesData.forecastEnd(),
         forecastStart: WeatherChangesData.forecastStart(),
     };
-    for (let i = 0, count = decodedVectorLength(WeatherChangesData.changesLength(), budget); i < count; i++) {
+    for (let i = 0; i < WeatherChangesData.changesLength(); i++) {
         const change = {
             dayPrecipitationChange: WK2.Direction[WeatherChangesData.changes(i).dayPrecipitationChange()],
             forecastEnd: WeatherChangesData.changes(i).forecastEnd(),
@@ -929,14 +1004,18 @@ function decodeWeatherChanges(data) {
     return data;
 }
 
+/**
+ * 解码 historical comparisons 产品表。 / Decode the historical comparisons product table.
+ * @param {object} data - 生成的表实例 / Generated table instance.
+ * @returns {object} 业务对象 / Payload.
+ */
 function decodeHistoricalComparisons(data) {
-    const budget = newDecodeBudget();
     const HistoricalComparisonsData = data;
     data = {
         metadata: decodeMetadata(HistoricalComparisonsData.metadata()),
         comparisons: [],
     };
-    for (let i = 0, count = decodedVectorLength(HistoricalComparisonsData.comparisonsLength(), budget); i < count; i++) {
+    for (let i = 0; i < HistoricalComparisonsData.comparisonsLength(); i++) {
         const comparison = {
             baselineStartDate: HistoricalComparisonsData.comparisons(i).baselineStartDate(),
             baselineType: HistoricalComparisonsData.comparisons(i).baselineType(),
@@ -950,6 +1029,11 @@ function decodeHistoricalComparisons(data) {
     return data;
 }
 
+/**
+ * 解码 location info 产品表。 / Decode the location info product table.
+ * @param {object} data - 生成的表实例 / Generated table instance.
+ * @returns {object} 业务对象 / Payload.
+ */
 function decodeLocationInfo(data) {
     const LocationInfoData = data;
     data = {
@@ -962,6 +1046,12 @@ function decodeLocationInfo(data) {
     return data;
 }
 
+/**
+ * 编码产品元数据子表；缺失时返回 0（不写入）。 / Encode the metadata child table; returns 0 when absent.
+ * @param {import("flatbuffers").Builder} builder - FlatBuffer 构建器 / FlatBuffer builder.
+ * @param {object} [metadata] - 元数据对象 / Metadata payload.
+ * @returns {number} 子表偏移 / Table offset.
+ */
 function encodeMetadata(builder, metadata) {
     if (!metadata) return 0;
     return WK2.Metadata.createMetadata(
@@ -985,6 +1075,11 @@ function encodeMetadata(builder, metadata) {
     );
 }
 
+/**
+ * 解码产品元数据子表；缺失时返回 undefined。 / Decode the metadata child table; returns undefined when absent.
+ * @param {object} [data] - 生成的元数据表实例 / Generated metadata table instance.
+ * @returns {object|undefined} 元数据对象 / Metadata payload.
+ */
 function decodeMetadata(data) {
     if (!data) return undefined;
     data = {
@@ -1001,47 +1096,4 @@ function decodeMetadata(data) {
         sourceType: WK2.SourceType[data.sourceType()],
     };
     return data;
-}
-
-function toUuidBytes(uuid) {
-    if (uuid === null || uuid === undefined) return null;
-    if (uuid instanceof Uint8Array || Array.isArray(uuid)) return uuid;
-    if (typeof uuid === "string") {
-        const bytesObject = uuidStringToBytesObject(uuid);
-        return bytesObject ? bytesObject.bytes : null;
-    }
-    if (typeof uuid === "object") {
-        if (uuid.bytes instanceof Uint8Array || Array.isArray(uuid.bytes)) return uuid.bytes;
-        if (typeof uuid.bytesArray === "function") return uuid.bytesArray();
-    }
-    return null;
-}
-
-function uuidStringToBytesObject(uuidString) {
-    if (typeof uuidString !== "string") return null;
-    const hex = uuidString.replace(/-/g, "").toLowerCase();
-    if (!/^[0-9a-f]{32}$/.test(hex)) return null;
-    const bytes = [];
-    for (let index = 0; index < hex.length; index += 2) bytes.push(Number.parseInt(hex.slice(index, index + 2), 16));
-    return { bytes };
-}
-
-function uuidBytesObjectToString(uuid) {
-    const bytes = toUuidBytes(uuid);
-    if (!bytes || bytes.length !== 16) return null;
-    const hex = Array.from(bytes)
-        .map(byte => byte.toString(16).padStart(2, "0"))
-        .join("");
-    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
-}
-
-function createUuidOffset(builder, uuid) {
-    const bytes = toUuidBytes(uuid);
-    if (!bytes || bytes.length === 0) return 0;
-    const idBytesOffset = WK2.UUID.createBytesVector(builder, bytes);
-    return WK2.UUID.createUUID(builder, idBytesOffset);
-}
-
-function decodeUuid(uuid) {
-    return uuidBytesObjectToString(uuid);
 }

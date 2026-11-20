@@ -1,21 +1,16 @@
-// WeatherKit provider processing.
-import { Lodash as _, Console, time } from "@nsnanocat/util";
+import { Lodash as _, Console, fetch, time } from "@nsnanocat/util";
 import AirQuality from "../class/AirQuality.mjs";
-import fetch from "../function/fetchProvider.mjs";
 import providerNameToLogo from "../function/providerNameToLogo.mjs";
-import utf8Length from "../function/utf8Length.mjs";
 import ForecastNextHour from "./ForecastNextHour.mjs";
-import ProviderTransport, { ProviderRequestError, providerErrorCode, readProviderJSON } from "./ProviderTransport.mjs";
 import Weather from "./Weather.mjs";
 
 export default class QWeather {
     static #MaximumWeatherAlertPageSize = 2 * 1024 * 1024;
 
-    constructor(parameters, token, host = "devapi.qweather.com", transport = new ProviderTransport()) {
-        this.#requests = transport;
+    constructor(parameters, token, host = "devapi.qweather.com") {
         this.Name = "QWeather";
         this.Version = "5.3.1";
-        Console.info(`🟧 ${this.Name} v${this.Version}`);
+        Console.log(`🟧 ${this.Name} v${this.Version}`);
         this.endpoint = `https://${host}`;
         this.headers = { "X-QW-Api-Key": token };
         this.version = parameters.version;
@@ -31,38 +26,9 @@ export default class QWeather {
         this.weatherKitLanguage = String(parameters.weatherKitLanguage ?? parameters.language ?? "").trim() || "zh-CN";
     }
 
-    #requests;
-
-    #Fetch(request) {
-        const path = new URL(request.url).pathname;
-        return this.#requests.fetch(typeof $loon === "string" ? { ...request, timeout: request.timeout ?? 5000 } : request, {
-            fetcher: fetch,
-            includeJSON: true,
-            validate: body => {
-                if (body?.error) return false;
-                if (path.startsWith("/weatheralert/")) return Boolean(body?.metadata) && Array.isArray(body?.alerts);
-                if (path.startsWith("/airquality/")) return Array.isArray(body?.pollutants) && Array.isArray(body?.indexes) && body.indexes.some(index => typeof index?.code === "string" && index.aqi !== null && String(index.aqi).trim() !== "" && Number.isFinite(Number(index.aqi)));
-                if (body?.code !== "200") return false;
-                if (path.startsWith("/geo/")) return Array.isArray(body.location) && body.location.length > 0;
-                if (path.includes("/minutely/"))
-                    return (
-                        typeof body.updateTime === "string" &&
-                        Number.isFinite(Date.parse(body.updateTime)) &&
-                        (body.summary === undefined || typeof body.summary === "string") &&
-                        Array.isArray(body.minutely) &&
-                        body.minutely.length > 0 &&
-                        body.minutely.length <= 8192 &&
-                        body.minutely.every(row => row && typeof row.fxTime === "string" && Number.isFinite(Date.parse(row.fxTime)) && (typeof row.precip === "number" || (typeof row.precip === "string" && row.precip.trim() !== "")) && Number.isFinite(Number(row.precip)) && Number(row.precip) >= 0)
-                    );
-                if (path.endsWith("/historical/air")) return Array.isArray(body.airHourly) && body.airHourly.length > 0;
-                if (path.endsWith("/weather/now")) return body.now?.temp !== undefined && body.now.temp !== null && String(body.now.temp).trim() !== "" && Number.isFinite(Number(body.now.temp));
-                if (path.endsWith("/now")) return Boolean(body.now && typeof body.now === "object");
-                if (/\/weather\/\d+h$/.test(path)) return Array.isArray(body.hourly) && body.hourly.length > 0;
-                if (/\/weather\/\d+d$/.test(path)) return Array.isArray(body.daily) && body.daily.length > 0;
-                return false;
-            },
-        });
-    }
+    #cache = {
+        airQualityCurrent: {},
+    };
 
     #Config = {
         Language: {
@@ -287,55 +253,33 @@ export default class QWeather {
         },
     };
 
-    static #ValidLocationsGrid(data) {
-        if (!data || !Number.isFinite(data.gridSize) || data.gridSize <= 0 || !data.grid || typeof data.grid !== "object" || Array.isArray(data.grid)) return false;
-        // Application validation bounds, independent of native HTTP buffers.
-        let cells = 0,
-            locations = 0;
-        for (const key of Object.keys(data.grid)) {
-            if (++cells > 8192 || !/^-?\d+,-?\d+$/.test(key) || !Array.isArray(data.grid[key])) return false;
-            for (const location of data.grid[key]) {
-                if (++locations > 32768 || !location || !((typeof location.id === "string" && location.id.trim()) || Number.isFinite(location.id)) || !Number.isFinite(location.latitude) || Math.abs(location.latitude) > 90 || !Number.isFinite(location.longitude) || Math.abs(location.longitude) > 180) return false;
-            }
-        }
-        return locations > 0;
-    }
-
-    static async GetLocationsGrid(qweatherCache, setCache, runtime = new ProviderTransport()) {
+    static async GetLocationsGrid(qweatherCache, setCache) {
         Console.info("☑️ GetLocationsGrid");
         const locationsGrid = qweatherCache?.locationsGrid;
-        const usable = QWeather.#ValidLocationsGrid(locationsGrid?.data);
-        const now = Date.now();
         // cache within 30 days
-        if (usable && Number.isFinite(locationsGrid.lastUpdated) && now >= locationsGrid.lastUpdated && now - locationsGrid.lastUpdated < 30 * 24 * 60 * 60 * 1000) {
+        if (locationsGrid?.lastUpdated && locationsGrid.lastUpdated + 30 * 24 * 60 * 60 * 1000 > Date.now()) {
             Console.info("✅ GetLocationsGrid", "Cache found!");
             return locationsGrid.data;
         } else {
             Console.info("⚠️ GetLocationsGrid", "Cache not found or stale, fetching...");
-            const etag = typeof locationsGrid?.etag === "string" && locationsGrid.etag.trim() && locationsGrid.etag.length <= 1024 ? locationsGrid.etag : undefined;
-            const revalidate = usable && Boolean(etag);
-            const response = await runtime.fetch(
-                {
-                    headers: revalidate ? { "If-None-Match": etag } : undefined,
-                    url: "https://raw.githubusercontent.com/NSRingo/QWeather-Location-Grid/refs/heads/main/data/qweather-china-city-list-grid.json",
-                },
-                { fetcher: fetch, includeJSON: true, allowNotModified: revalidate, validate: QWeather.#ValidLocationsGrid, maximumResponseCharacters: 2 * 1024 * 1024 },
-            );
-            const notModified = Number(response.statusCode ?? response.status) === 304;
-            if (notModified && !revalidate) throw new ProviderRequestError("invalid");
-            const data = notModified ? locationsGrid.data : readProviderJSON(response);
-            const returnedETag = Object.entries(response.headers ?? {}).find(([key]) => key.toLowerCase() === "etag")?.[1];
-            const nextETag = typeof returnedETag === "string" && returnedETag.trim() && returnedETag.length <= 1024 ? returnedETag : notModified ? etag : undefined;
-            if (notModified) {
+            const response = await fetch({
+                headers: locationsGrid?.etag ? { "If-None-Match": locationsGrid?.etag } : undefined,
+                url: "https://raw.githubusercontent.com/NSRingo/QWeather-Location-Grid/refs/heads/main/data/qweather-china-city-list-grid.json",
+            });
+
+            if (response.status === 304) {
                 Console.info("✅ GetLocationsGrid", "Cache not modified");
+                setCache({ ...qweatherCache, locationsGrid: { ...locationsGrid, lastUpdated: Date.now() } });
+                return locationsGrid.data;
             }
-            try {
-                if (typeof setCache === "function") setCache({ ...qweatherCache, locationsGrid: { ...locationsGrid, etag: nextETag, lastUpdated: Date.now(), data } });
-            } catch {
-                /* Optional storage must not discard a validated response. */
-            }
+
+            const newLocationsGrid = JSON.parse(response.body);
+            setCache({
+                ...qweatherCache,
+                locationsGrid: { etag: response.headers.ETag, lastUpdated: Date.now(), data: newLocationsGrid },
+            });
             Console.info("✅ GetLocationsGrid");
-            return data;
+            return newLocationsGrid;
         }
     }
 
@@ -532,38 +476,48 @@ export default class QWeather {
      * @param {Record<string, string | string[] | undefined>} requestHeaders 原请求头 / Original request headers.
      * @returns {Promise<{alerts: Array<object>, areaName: string, source: string}>} 来源集合 / Source collection.
      */
-    static async FetchWeatherAlertPage(identifier, language = "zh-CN", requestHeaders = {}, runtime = new ProviderTransport()) {
+    static async FetchWeatherAlertPage(identifier, language = "zh-CN", requestHeaders = {}) {
         const sourceUrl = QWeather.BuildWeatherAlertPageURL(identifier, language);
         const normalizedHeaders = Object.fromEntries(Object.entries(requestHeaders).map(([key, value]) => [key.toLowerCase(), value]));
-        const sourceHeaders = { Accept: "text/html,application/xhtml+xml", "Accept-Language": normalizedHeaders["accept-language"] ?? language, Referer: "https://www.qweather.com/" };
+        const sourceHeaders = {
+            Accept: "text/html,application/xhtml+xml",
+            "Accept-Language": normalizedHeaders["accept-language"] ?? language,
+            Referer: "https://www.qweather.com/",
+        };
         if (normalizedHeaders["user-agent"]) sourceHeaders["User-Agent"] = normalizedHeaders["user-agent"];
-        const unavailable = { alerts: [], areaName: "", source: "QWeather", pageValid: false };
-        let response;
-        try {
-            response = await runtime.fetch(
-                { url: sourceUrl.toString(), headers: sourceHeaders, "auto-cookie": false },
-                {
-                    includeJSON: true,
-                    validate: body => body?.pageValid === true && Array.isArray(body.alerts) && typeof body.areaName === "string",
-                    fetcher: async request => {
-                        const source = await fetch(request);
-                        const type = String(source.headers?.["Content-Type"] ?? source.headers?.["content-type"] ?? "").toLowerCase();
-                        const html = typeof source.body === "string" ? source.body : "";
-                        if (html.length > QWeather.#MaximumWeatherAlertPageSize || utf8Length(html, QWeather.#MaximumWeatherAlertPageSize) > QWeather.#MaximumWeatherAlertPageSize) throw new RangeError("QWeather alert page is too large");
-                        const recognized = /\bc-submenu__location\b/.test(html) && /c-city-warning|暂无预警|无生效预警|No(?: active)? (?:weather )?warnings/i.test(html);
-                        const page = source.ok && type.includes("text/html") && recognized ? { ...QWeather.ExtractWeatherAlertPage(html), pageValid: true } : unavailable;
-                        // Persist only parsed alert records, not an entire HTML document.
-                        return { ...source, body: JSON.stringify(page) };
-                    },
-                },
-            );
-        } catch {
-            return { ...unavailable, unavailable: true, metadata: { temporarilyUnavailable: true } };
+
+        Console.info("☑️ QWeather.FetchWeatherAlertPage", `url: ${sourceUrl}`, `language: ${language}`);
+        const sourceResponse = await fetch({
+            url: sourceUrl.toString(),
+            headers: sourceHeaders,
+            "auto-cookie": false,
+        });
+        const contentType = sourceResponse.headers?.["Content-Type"] ?? sourceResponse.headers?.["content-type"] ?? "";
+        Console.info("QWeather.FetchWeatherAlertPage", `status: ${sourceResponse.statusCode ?? sourceResponse.status}`, `contentType: ${contentType || "undefined"}`);
+        if (!sourceResponse.ok) {
+            Console.warn("QWeather.FetchWeatherAlertPage", `upstreamStatus: ${sourceResponse.statusCode ?? sourceResponse.status}`);
+            return { alerts: [], areaName: "", source: "QWeather" };
         }
-        const parsed = readProviderJSON(response);
-        if (!response.ok || parsed.pageValid !== true) return { ...unavailable, unavailable: true, metadata: { temporarilyUnavailable: true } };
+        if (!contentType.toLowerCase().includes("text/html")) {
+            Console.warn("QWeather.FetchWeatherAlertPage", `unexpectedContentType: ${contentType || "undefined"}`);
+            return { alerts: [], areaName: "", source: "QWeather" };
+        }
+        const html = String(sourceResponse.body ?? "");
+        const sourceSize = new TextEncoder().encode(html).byteLength;
+        Console.debug("QWeather.FetchWeatherAlertPage", `bodyBytes: ${sourceSize}`);
+        if (sourceSize > QWeather.#MaximumWeatherAlertPageSize) throw new RangeError("QWeather alert page is too large");
+
+        const extracted = QWeather.ExtractWeatherAlertPage(html);
+        Console.info("✅ QWeather.FetchWeatherAlertPage", `alerts: ${extracted.alerts.length}`, `source: ${extracted.source}`);
         const areaId = identifier.match(/-(\d+)$/)?.[1];
-        return { alerts: parsed.alerts.map(alert => ({ ...alert, ...(areaId && !alert.areaId ? { areaId } : {}), ...(parsed.areaName && !alert.areaName ? { areaName: parsed.areaName } : {}) })), areaName: parsed.areaName, source: parsed.source, metadata: { temporarilyUnavailable: false } };
+        return {
+            ...extracted,
+            alerts: extracted.alerts.map(alert => ({
+                ...alert,
+                ...(areaId && !alert.areaId ? { areaId } : {}),
+                ...(extracted.areaName && !alert.areaName ? { areaName: extracted.areaName } : {}),
+            })),
+        };
     }
 
     async GeoAPI(path = "city/lookup") {
@@ -574,7 +528,7 @@ export default class QWeather {
         };
         let metadata;
         try {
-            const body = await this.#Fetch(request).then(response => readProviderJSON(response));
+            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.code) {
                 case "200":
                     metadata = {
@@ -589,9 +543,9 @@ export default class QWeather {
                     throw Error(body?.code);
             }
         } catch (error) {
-            Console.error(`GeoAPI: ${providerErrorCode(error)}`);
+            Console.error(`GeoAPI: ${error}`);
         } finally {
-            if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`metadata: ${JSON.stringify(metadata, null, 2)}`);
+            Console.debug(`metadata: ${JSON.stringify(metadata, null, 2)}`);
             Console.info("✅ GeoAPI");
         }
         return metadata;
@@ -606,7 +560,6 @@ export default class QWeather {
         Console.info("☑️ WeatherAlert");
         const failedWeatherAlerts = {
             metadata: {
-                temporarilyUnavailable: true,
                 attributionUrl: "https://developer.qweather.com/attribution.html",
             },
             detailsUrl: `https://weatherkit.apple.com/alertDetails/index.html?ids=${this.latitude},${this.longitude}&lang=${encodeURIComponent(this.weatherKitLanguage)}&party=QWeather`,
@@ -623,17 +576,16 @@ export default class QWeather {
         };
         let weatherAlerts = failedWeatherAlerts;
         try {
-            const response = await this.#Fetch(request);
-            const body = readProviderJSON(response);
+            const response = await fetch(request);
+            const body = JSON.parse(response?.body ?? "{}");
             if (response?.ok === false) {
                 Console.warn("WeatherAlert", `upstreamStatus: ${response.statusCode ?? response.status}`);
                 return failedWeatherAlerts;
             }
             if (!body?.metadata || !Array.isArray(body?.alerts)) throw Error(JSON.stringify(body?.error ?? body?.code ?? body));
             weatherAlerts = { ...failedWeatherAlerts, ...this.#CreateWeatherAlerts(body) };
-            if (!weatherAlerts.metadata?.temporarilyUnavailable || weatherAlerts !== failedWeatherAlerts) weatherAlerts.metadata = { ...weatherAlerts.metadata, temporarilyUnavailable: false };
         } catch (error) {
-            Console.error(`WeatherAlert: ${providerErrorCode(error)}`);
+            Console.error(`WeatherAlert: ${error}`);
         } finally {
             Console.info("✅ WeatherAlert");
         }
@@ -655,7 +607,6 @@ export default class QWeather {
         }
         const failedWeatherAlerts = {
             metadata: {
-                temporarilyUnavailable: true,
                 attributionUrl: String(url),
             },
             detailsUrl: QWeather.BuildAppleAlertDetailsURL(identifier, this.weatherKitLanguage),
@@ -665,11 +616,9 @@ export default class QWeather {
         };
         let weatherAlerts = failedWeatherAlerts;
         try {
-            const source = await QWeather.FetchWeatherAlertPage(identifier, this.weatherKitLanguage, {}, this.#requests);
-            weatherAlerts = { ...failedWeatherAlerts, ...source, metadata: { ...failedWeatherAlerts.metadata, ...source.metadata } };
-            if (weatherAlerts !== failedWeatherAlerts && !weatherAlerts.unavailable) weatherAlerts.metadata = { ...weatherAlerts.metadata, temporarilyUnavailable: false };
+            weatherAlerts = { ...failedWeatherAlerts, ...(await QWeather.FetchWeatherAlertPage(identifier, this.weatherKitLanguage)) };
         } catch (error) {
-            Console.error(`WeatherAlertWeb: ${providerErrorCode(error)}`);
+            Console.error(`WeatherAlertWeb: ${error}`);
         } finally {
             Console.info("✅ WeatherAlertWeb");
         }
@@ -684,7 +633,7 @@ export default class QWeather {
         };
         let currentWeather;
         try {
-            const body = await this.#Fetch(request).then(response => readProviderJSON(response));
+            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.code) {
                 case "200": {
                     const timeStamp = (Date.now() / 1000) | 0;
@@ -728,7 +677,7 @@ export default class QWeather {
                     throw Error(body?.code);
             }
         } catch (error) {
-            Console.error(`WeatherNow: ${providerErrorCode(error)}`);
+            Console.error(`WeatherNow: ${error}`);
         } finally {
             //Console.debug(`currentWeather: ${JSON.stringify(currentWeather, null, 2)}`);
             Console.info("✅ WeatherNow");
@@ -744,7 +693,7 @@ export default class QWeather {
         };
         let airQuality;
         try {
-            const body = await this.#Fetch(request).then(response => readProviderJSON(response));
+            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.code) {
                 case "200": {
                     const timeStamp = (Date.now() / 1000) | 0;
@@ -785,7 +734,7 @@ export default class QWeather {
                     throw Error(body?.code);
             }
         } catch (error) {
-            Console.error(`AirNow: ${providerErrorCode(error)}`);
+            Console.error(`AirNow: ${error}`);
         } finally {
             //Console.debug(`airQuality: ${JSON.stringify(airQuality, null, 2)}`);
             Console.info("✅ AirNow");
@@ -796,21 +745,27 @@ export default class QWeather {
     async #AirQualityCurrent() {
         Console.info("☑️ AirQualityCurrent");
 
+        if (this.#cache.airQualityCurrent?.metadata?.tag && !this.#cache.airQualityCurrent?.error) {
+            Console.info("✅ AirQualityCurrent", "Using cache");
+            return this.#cache.airQualityCurrent;
+        }
+
         const request = {
             url: `${this.endpoint}/airquality/v1/current/${this.latitude}/${this.longitude}`,
             headers: this.headers,
         };
         try {
-            const body = await this.#Fetch(request).then(response => readProviderJSON(response));
+            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.error) {
                 case undefined: {
+                    this.#cache.airQualityCurrent = body;
                     return body;
                 }
                 default:
                     throw Error(JSON.stringify(body?.error, null, 2));
             }
         } catch (error) {
-            Console.error(`AirQualityCurrent: ${providerErrorCode(error)}`);
+            Console.error(`AirQualityCurrent: ${error}`);
         } finally {
             //Console.debug(`airQuality: ${JSON.stringify(airQuality, null, 2)}`);
             Console.info("✅ AirQualityCurrent");
@@ -832,7 +787,7 @@ export default class QWeather {
         };
         let forecastNextHour;
         try {
-            const body = await this.#Fetch(request).then(response => readProviderJSON(response));
+            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.code) {
                 case "200": {
                     const timeStamp = (Date.now() / 1000) | 0;
@@ -856,9 +811,8 @@ export default class QWeather {
                         condition: [],
                         forecastEnd: 0,
                         forecastStart: minuteStemp,
-                        minutes: body.minutely
-                            .slice(0, 17)
-                            .map(minutely => {
+                        minutes: body?.minutely
+                            ?.map((minutely, index) => {
                                 const minute = {
                                     perceivedPrecipitationIntensity: 0,
                                     precipitationChance: 0,
@@ -878,7 +832,7 @@ export default class QWeather {
                     forecastNextHour.minutes.length = Math.min(85, forecastNextHour.minutes.length);
                     forecastNextHour.forecastEnd = minuteStemp + 60 * forecastNextHour.minutes.length;
                     forecastNextHour.minutes = ForecastNextHour.Minute(forecastNextHour.minutes, body?.summary, "mmph");
-                    forecastNextHour.summary = ForecastNextHour.Summary(forecastNextHour.minutes);
+                    forecastNextHour.summary = ForecastNextHour.Summary(forecastNextHour.minutes, this.version);
                     forecastNextHour.condition = ForecastNextHour.Condition(forecastNextHour.summary);
                     break;
                 }
@@ -894,7 +848,7 @@ export default class QWeather {
                     throw Error(body?.code);
             }
         } catch (error) {
-            Console.error(`Minutely: ${providerErrorCode(error)}`);
+            Console.error(`Minutely: ${error}`);
         } finally {
             //Console.debug(`forecastNextHour: ${JSON.stringify(forecastNextHour, null, 2)}`);
             Console.info("✅ Minutely");
@@ -910,7 +864,7 @@ export default class QWeather {
         };
         let forecastHourly;
         try {
-            const body = await this.#Fetch(request).then(response => readProviderJSON(response));
+            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.code) {
                 case "200": {
                     const timeStamp = (Date.now() / 1000) | 0;
@@ -942,7 +896,7 @@ export default class QWeather {
                                 // perceivedPrecipitationIntensity: "", // Not given
                                 precipitationAmount: Number.parseFloat(hourly?.precip),
                                 precipitationChance: Number.parseInt(hourly?.pop, 10),
-                                precipitationIntensity: Number.parseFloat(hourly?.precip),
+                                precipitationIntensity: Number.parseInt(hourly?.precip, 10),
                                 // precipitationType: "", // Not given
                                 pressure: Number.parseFloat(hourly?.pressure),
                                 // pressureTrend: "", // Not given
@@ -973,7 +927,7 @@ export default class QWeather {
                     throw Error(body?.code);
             }
         } catch (error) {
-            Console.error(`Hourly: ${providerErrorCode(error)}`);
+            Console.error(`Hourly: ${error}`);
         } finally {
             //Console.debug(`airQuality: ${JSON.stringify(forecastHourly, null, 2)}`);
             Console.info("✅ Hourly");
@@ -989,7 +943,7 @@ export default class QWeather {
         };
         let forecastDaily;
         try {
-            const body = await this.#Fetch(request).then(response => readProviderJSON(response));
+            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.code) {
                 case "200": {
                     const timeStamp = (Date.now() / 1000) | 0;
@@ -1118,7 +1072,7 @@ export default class QWeather {
                     throw Error(body?.code);
             }
         } catch (error) {
-            Console.error(`Daily: ${providerErrorCode(error)}`);
+            Console.error(`Daily: ${error}`);
         } finally {
             //Console.debug(`airQuality: ${JSON.stringify(forecastDaily, null, 2)}`);
             Console.info("✅ Daily");
@@ -1133,7 +1087,7 @@ export default class QWeather {
             headers: this.headers,
         };
         try {
-            const body = await this.#Fetch(request).then(response => readProviderJSON(response));
+            const body = await fetch(request).then(response => JSON.parse(response?.body ?? "{}"));
             switch (body?.code) {
                 case "200": {
                     return body;
@@ -1150,7 +1104,7 @@ export default class QWeather {
                     throw Error(body?.code);
             }
         } catch (error) {
-            Console.error(`HistoricalAir: ${providerErrorCode(error)}`);
+            Console.error(`HistoricalAir: ${error}`);
         } finally {
             //Console.debug(`airQuality: ${JSON.stringify(airQuality, null, 2)}`);
             Console.info("✅ HistoricalAir");
@@ -1250,7 +1204,7 @@ export default class QWeather {
      */
     #CreatePollutants(pollutantsObj, scaleCode) {
         Console.info("☑️ CreatePollutants");
-        if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`pollutantsObj: ${JSON.stringify(pollutantsObj)}`);
+        Console.debug(`pollutantsObj: ${JSON.stringify(pollutantsObj)}`);
 
         // TODO: what is ppmC? https://dev.qweather.com/docs/resource/air-info/#pollutants
         const pollutants = pollutantsObj
@@ -1285,7 +1239,7 @@ export default class QWeather {
      */
     #CreatePollutantsV7(pollutantsObj) {
         Console.info("☑️ CreatePollutantsV7");
-        if (Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.debug(`pollutantsObj: ${JSON.stringify(pollutantsObj)}`);
+        Console.debug(`pollutantsObj: ${JSON.stringify(pollutantsObj)}`);
 
         const { mgm3, ugm3 } = AirQuality.Config.Units.WeatherKit;
         const pollutants = Object.entries(pollutantsObj)
@@ -1446,7 +1400,7 @@ export default class QWeather {
     }
 
     async YesterdayAirQuality(locationInfo) {
-        if (Console.logLevel === "INFO" || Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.info("☑️ YesterdayAirQuality", `locationInfo ${JSON.stringify(locationInfo)}`);
+        Console.info("☑️ YesterdayAirQuality", `locationInfo ${JSON.stringify(locationInfo)}`);
         const failedAirQuality = {
             metadata: this.#Metadata(undefined, undefined, true),
             categoryIndex: -1,
@@ -1477,7 +1431,7 @@ export default class QWeather {
         const pollutants = this.#CreatePollutantsV7(historicalAir.airHourly[hour]);
         Console.debug(`hour: ${hour}`, `index: ${index}`);
 
-        if (Console.logLevel === "INFO" || Console.logLevel === "DEBUG" || Console.logLevel === "ALL") Console.info("✅ YesterdayAirQuality", `pollutants: ${JSON.stringify(pollutants)}`, `categoryIndex: ${categoryIndex}`);
+        Console.info("✅ YesterdayAirQuality", `pollutants: ${JSON.stringify(pollutants)}`, `categoryIndex: ${categoryIndex}`);
         return {
             metadata: this.#Metadata(historicalAir.fxLink),
             categoryIndex,

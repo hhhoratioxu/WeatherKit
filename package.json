@@ -1,7 +1,7 @@
 {
     "name": "@nsringo/weatherkit",
     "organizationName": " iRingo",
-    "displayName": "WeatherKit",
+    "displayName": " iRingo: 🌤 WeatherKit",
     "description": "iOS 18 & macOS 15 & watchOS 11\n1.解锁全部天气功能\n2.修改空气质量数据\n3.修改下一小时降水数据\n4.修改天气数据\n5.修改天气预警数据",
     "homepage": "https://NSRingo.github.io/guide/Weather/weather-kit",
     "openUrl": "http://boxjs.com/#/app/iRingo.WeatherKit",
@@ -49,12 +49,7 @@
         "build:args:rewrite": "arguments-builder build --config arguments-builder.rewrite.config.ts",
         "build:args": "npm-run-all --serial build:release-args build:full-args",
         "dts": "arguments-builder dts -c arguments-builder.full.config.ts",
-        "submodule": "git submodule update --remote",
-        "update": "npm update --save",
-        "test": "node --test --test-concurrency=1 tests/*.test.mjs",
-        "build:loon-cache": "rollup -c scripts/rollup-loon.config.mjs && node scripts/build-loon-cache.mjs",
-        "build:surge-cache": "rollup -c scripts/rollup-surge.config.mjs && node scripts/build-surge-cache.mjs",
-        "build:clients": "npm run build:loon-cache && npm run build:surge-cache"
+        "update": "npm update --save"
     },
     "browserslist": [
         "iOS >= 18"
@@ -71,10 +66,9 @@
         "typescript": "^5.9.3"
     },
     "dependencies": {
-        "@noble/hashes": "1.8.0",
-        "@nsnanocat/util": "^2.7.4",
-        "@nsnanocat/flatbuffer-root": "^1.0.0",
-        "@nsringo/weatherkit": "^1.1.2",
+        "@nsnanocat/flatbuffer-root": "^1.1.0",
+        "@nsnanocat/util": "^2.7.5",
+        "@nsringo/weatherkit": "^2.1.0",
         "fetch-cookie": "^3.2.0",
         "flatbuffers": "^24.12.23",
         "hono": "^4.12.31",
@@ -84,6 +78,5 @@
         "@iringo/surge2egern": {
             "puppeteer": "25.7.0"
         }
-    },
-    "version": "3.3.8"
+    }
 }

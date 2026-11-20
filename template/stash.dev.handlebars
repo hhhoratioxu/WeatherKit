@@ -1,4 +1,4 @@
-name: "{{@package 'displayName'}}"
+name: "{{@package 'displayName'}} β"
 desc: |-
   BETA:
   {{#each (split (@package 'description') "\n")}}
@@ -19,12 +19,11 @@ rules:
   - DOMAIN,weather-analytics-events.apple.com,REJECT-DROP
   - DOMAIN-SUFFIX,tthr.apple.com,REJECT-DROP
   - DOMAIN,tether.edge.apple,REJECT-DROP
-  - AND,((OR,((IP-ASN,714,no-resolve),(IP-ASN,6185,no-resolve))),(PROTOCOL,QUIC)),REJECT-DROP
+  - AND,((OR,((IP-ASN,714,no-resolve),(IP-ASN,6185,no-resolve))),(PROTOCOL,QUIC),(NOT,((DOMAIN,mask-api.icloud.com)))),REJECT-DROP
 
 http:
   mitm:
     - "weatherkit.apple.com"
-    - "weather-map2.apple.com"
   script:
     - match: ^https?:\/\/weatherkit\.apple\.com\/api\/v1\/availability\/
       name: WeatherKit.api.v1.availability.response
@@ -47,16 +46,23 @@ http:
       name: WeatherKit.api.v2.weather.request
       type: request
       argument:
+    - match: ^https?:\/\/weatherkit\.apple\.com\/api\/v3\/weather\/
+      name: WeatherKit.api.v3.weather.request
+      type: request
+      argument:
     - match: ^https?:\/\/weatherkit\.apple\.com\/api\/v2\/weather\/
       name: WeatherKit.api.v2.weather.response
       type: response
       require-body: true
       binary-mode: true
       argument:
-    - match: ^https?:\/\/weather-map2\.apple\.com\/v1\/mapOverlay\/
-      name: WeatherKit.api.v1.mapOverlay.request
-      type: request
+    - match: ^https?:\/\/weatherkit\.apple\.com\/api\/v3\/weather\/
+      name: WeatherKit.api.v3.weather.response
+      type: response
+      require-body: true
+      binary-mode: true
       argument:
+
 script-providers:
   WeatherKit.api.v1.availability.response:
     url: https://gist.githubusercontent.com/VirgilClyne/862db28df04be7523476d10b61b128f2/raw/response.dev.bundle.js
@@ -70,9 +76,12 @@ script-providers:
   WeatherKit.api.v2.weather.request:
     url: https://gist.githubusercontent.com/VirgilClyne/862db28df04be7523476d10b61b128f2/raw/request.dev.bundle.js
     interval: 86400
+  WeatherKit.api.v3.weather.request:
+    url: https://gist.githubusercontent.com/VirgilClyne/862db28df04be7523476d10b61b128f2/raw/request.dev.bundle.js
+    interval: 86400
   WeatherKit.api.v2.weather.response:
     url: https://gist.githubusercontent.com/VirgilClyne/862db28df04be7523476d10b61b128f2/raw/response.dev.bundle.js
     interval: 86400
-  WeatherKit.api.v1.mapOverlay.request:
-    url: https://gist.githubusercontent.com/VirgilClyne/862db28df04be7523476d10b61b128f2/raw/request.dev.bundle.js
+  WeatherKit.api.v3.weather.response:
+    url: https://gist.githubusercontent.com/VirgilClyne/862db28df04be7523476d10b61b128f2/raw/response.dev.bundle.js
     interval: 86400

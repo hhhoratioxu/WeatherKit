@@ -1,4 +1,3 @@
-// User-facing weather parameters; retain the original defaults.
 import { defineConfig } from "@iringo/arguments-builder";
 import { airQualityFull, api, calculateFull, dataSetsFull, logLevel, nextHourFull, storage, weatherAlerts, weatherFull } from "./arguments-builder.full.config";
 
@@ -9,7 +8,7 @@ export default defineConfig({
             template: "./template/surge.dev.handlebars",
         },
         loon: {
-            path: "./dist/iRingo.WeatherKit.dev.lpx",
+            path: "./dist/iRingo.WeatherKit.dev.plugin",
             template: "./template/loon.dev.handlebars",
         },
         customItems: [
